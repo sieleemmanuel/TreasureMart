@@ -24,6 +24,10 @@ interface StoreRepository {
 
     suspend fun updateUser(user: User): Resource<User?>
 
+    suspend fun createCart(cart: Cart): Resource<Cart?>
+
+    suspend fun updateCart(cart: Cart): Resource<Cart?>
+
     fun getCarts(): Flow<Resource<List<Cart>>>
 
     fun getCart(id: Int): Flow<Resource<Cart?>>
