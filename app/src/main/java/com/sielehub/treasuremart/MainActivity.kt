@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -31,42 +30,33 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import com.sielehub.treasuremart.data.remote.PostServiceImp
-import com.sielehub.treasuremart.data.remote.dto.PostResponse
-import com.sielehub.treasuremart.presentation.ui.theme.KtorClientTheme
-import org.koin.android.ext.android.inject
+import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 
 class MainActivity : ComponentActivity() {
-    private val postService: PostServiceImp by inject()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
         setContent {
-            KtorClientTheme {
-                val posts = produceState<List<PostResponse>>(
-                    initialValue = emptyList(),
-                    producer = {
-                       value = postService.getPosts()
-                    }
-                )
+            TreasureMartTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    if (posts.value.isEmpty()){
+                   /* if (posts.value.isEmpty()){
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator()
                         }
-                    }else Posts(posts = posts.value)
+                    }else Posts(posts = posts.value)*/
                 }
             }
         }
     }
 }
 
+/*
 @Composable
 fun Posts(modifier: Modifier = Modifier, posts: List<PostResponse>) {
     LazyColumn(modifier = modifier
@@ -104,11 +94,12 @@ fun Posts(modifier: Modifier = Modifier, posts: List<PostResponse>) {
     }
 
 }
+*/
 
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    KtorClientTheme {
+    TreasureMartTheme {
         //Posts("Android")
     }
 }
