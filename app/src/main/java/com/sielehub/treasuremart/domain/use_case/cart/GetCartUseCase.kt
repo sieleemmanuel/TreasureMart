@@ -4,7 +4,6 @@ import com.sielehub.treasuremart.domain.repository.StoreRepository
 
 class GetCartUseCase(private val storeRepository: StoreRepository) {
 
-    operator fun invoke(){
+    operator fun invoke(cartId: Int) = storeRepository.getCart(cartId)
 
-    }
 }
