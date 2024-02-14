@@ -15,10 +15,10 @@ import com.sielehub.treasuremart.domain.use_case.product.GetProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.user.CreateUserUseCase
 import com.sielehub.treasuremart.domain.use_case.user.GetUserUseCase
 import com.sielehub.treasuremart.domain.use_case.user.UpdateUserUseCase
-import com.sielehub.treasuremart.presentation.viewmodels.CartViewModel
-import com.sielehub.treasuremart.presentation.viewmodels.CategoriesViewModel
-import com.sielehub.treasuremart.presentation.viewmodels.ProductViewModel
-import com.sielehub.treasuremart.presentation.viewmodels.UserViewModel
+import com.sielehub.treasuremart.presentation.cart.CartViewModel
+import com.sielehub.treasuremart.presentation.categories.CategoriesViewModel
+import com.sielehub.treasuremart.presentation.product.ProductViewModel
+import com.sielehub.treasuremart.presentation.user.UserViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
