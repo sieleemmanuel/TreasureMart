@@ -5,6 +5,7 @@ import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.data.remote.dto.CartDto
 import com.sielehub.treasuremart.data.remote.dto.ProductDto
 import com.sielehub.treasuremart.data.remote.dto.UserDto
+import com.sielehub.treasuremart.domain.model.Cart
 import com.sielehub.treasuremart.domain.model.User
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -18,33 +19,35 @@ import io.ktor.http.ContentType
 import io.ktor.http.appendPathSegments
 import io.ktor.http.contentType
 
-class StoreServiceImp(private val client: HttpClient): StoreService {
+class StoreServiceImp(private val client: HttpClient) : StoreService {
     override suspend fun getProducts(): List<ProductDto> {
         return try {
-            val response = client.get (Constants.HttpRoutes.PRODUCTS_ENDPOINT).body<List<ProductDto>>()
+            val response =
+                client.get(Constants.HttpRoutes.PRODUCTS_ENDPOINT).body<List<ProductDto>>()
             Log.d("StoreService", "getProducts: $response")
             response
-        }catch (e: ClientRequestException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             emptyList()
         }
     }
+
     override suspend fun getProduct(id: Int): ProductDto? {
         return try {
-            val response = client.get (Constants.HttpRoutes.PRODUCT_ENDPOINT){
+            val response = client.get(Constants.HttpRoutes.PRODUCT_ENDPOINT) {
                 url { appendPathSegments("$id") }
             }.body<ProductDto>()
             response
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             null
         }
@@ -52,14 +55,14 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
 
     override suspend fun getUser(userId: Int): UserDto? {
         return try {
-            val response = client.get (Constants.HttpRoutes.USERS_ENDPOINT){
+            val response = client.get(Constants.HttpRoutes.USERS_ENDPOINT) {
                 url { appendPathSegments("$userId") }
             }.body<UserDto>()
             response
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             null
         }
@@ -67,46 +70,46 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
 
     override suspend fun createUser(user: User): UserDto? {
         return try {
-            client.post(Constants.HttpRoutes.CREATE_USER_ENDPOINT){
+            client.post(Constants.HttpRoutes.CREATE_USER_ENDPOINT) {
                 contentType(ContentType.Application.Json)
                 setBody(user)
             }.body<UserDto>()
-        }catch (e: ClientRequestException){
-            Log.d("StoreService", "Error: ${e.response.status.description}")
-           null
-        }catch (e: ServerResponseException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: Exception){
+        } catch (e: ServerResponseException) {
+            Log.d("StoreService", "Error: ${e.response.status.description}")
+            null
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             null
         }
     }
 
     override suspend fun sortProducts(isASC: Boolean): List<ProductDto> {
-       return try {
-           val response = client.get (Constants.HttpRoutes.PRODUCTS_ENDPOINT){
-               url {
-                   parameters.append("sort", if (isASC) "asc" else "desc")
-               }
-           }.body<List<ProductDto>>()
-           response
-       }catch (e:RedirectResponseException){
-           emptyList()
-       }
+        return try {
+            val response = client.get(Constants.HttpRoutes.PRODUCTS_ENDPOINT) {
+                url {
+                    parameters.append("sort", if (isASC) "asc" else "desc")
+                }
+            }.body<List<ProductDto>>()
+            response
+        } catch (e: RedirectResponseException) {
+            emptyList()
+        }
     }
 
     override suspend fun getCategories(): List<String> {
         return try {
-             client.get(Constants.HttpRoutes.CATEGORIES_ENDPOINT)
+            client.get(Constants.HttpRoutes.CATEGORIES_ENDPOINT)
                 .body()
-        }catch (e: ClientRequestException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             emptyList()
         }
@@ -114,17 +117,17 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
 
     override suspend fun getProductsByCategory(category: String): List<ProductDto> {
         return try {
-            val productResponse = client.get (Constants.HttpRoutes.CATEGORY_PRODUCTS_ENDPOINT){
+            val productResponse = client.get(Constants.HttpRoutes.CATEGORY_PRODUCTS_ENDPOINT) {
                 url { appendPathSegments(category) }
             }.body<List<ProductDto>>()
             productResponse
-        } catch (e: ClientRequestException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             emptyList()
         }
@@ -132,18 +135,18 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
 
     override suspend fun authenticateUser(user: User): String? {
         return try {
-            val token = client.post (Constants.HttpRoutes.AUTH_ENDPOINT){
+            val token = client.post(Constants.HttpRoutes.AUTH_ENDPOINT) {
                 contentType(ContentType.Application.Json)
                 setBody(user)
             }.body<String?>()
             token
-        } catch (e: ClientRequestException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             null
         }
@@ -151,19 +154,19 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
 
     override suspend fun updateUser(user: User): UserDto? {
         return try {
-            val updateResponse = client.post (Constants.HttpRoutes.USERS_ENDPOINT){
+            val updateResponse = client.post(Constants.HttpRoutes.USERS_ENDPOINT) {
                 url { appendPathSegments(user.id.toString()) }
                 contentType(ContentType.Application.Json)
                 setBody(user)
             }.body<UserDto?>()
             updateResponse
-        } catch (e: ClientRequestException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             null
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             null
         }
@@ -173,13 +176,13 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
         return try {
             client.get(Constants.HttpRoutes.CARTS_ENDPOINT)
                 .body()
-        }catch (e: ClientRequestException){
+        } catch (e: ClientRequestException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreService", "Error: ${e.response.status.description}")
             emptyList()
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreService", "Error: ${e.message}")
             emptyList()
         }
@@ -187,15 +190,55 @@ class StoreServiceImp(private val client: HttpClient): StoreService {
 
     override suspend fun getCart(id: Int): CartDto? {
         return try {
-            val cartResponse = client.get (Constants.HttpRoutes.CARTS_ENDPOINT){
+            val cartResponse = client.get(Constants.HttpRoutes.CARTS_ENDPOINT) {
                 url { appendPathSegments("$id") }
             }.body<CartDto>()
             cartResponse
-        }catch (e: ServerResponseException){
+        } catch (e: ServerResponseException) {
             Log.d("StoreServiceImp", "Error: ${e.response.status.description}")
             null
-        }catch (e: Exception){
+        } catch (e: Exception) {
             Log.d("StoreServiceImp", "Error: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun createCart(newCart: Cart): CartDto? {
+        return try {
+            val createResponse = client.post(Constants.HttpRoutes.CARTS_ENDPOINT) {
+                url { appendPathSegments(newCart.id.toString()) }
+                contentType(ContentType.Application.Json)
+                setBody(newCart)
+            }.body<CartDto?>()
+            createResponse
+        } catch (e: ClientRequestException) {
+            Log.d("StoreService", "CreateCart Error: ${e.response.status.description}")
+            null
+        } catch (e: ServerResponseException) {
+            Log.d("StoreService", "CreateCart Error: ${e.response.status.description}")
+            null
+        } catch (e: Exception) {
+            Log.d("StoreService", "CreateCart Error: ${e.message}")
+            null
+        }
+    }
+
+    override suspend fun updateCart(cart: Cart): CartDto? {
+        return try {
+            val updateResponse = client.post(Constants.HttpRoutes.CARTS_ENDPOINT) {
+                url { appendPathSegments(cart.id.toString()) }
+                contentType(ContentType.Application.Json)
+                setBody(cart)
+            }.body<CartDto?>()
+            updateResponse
+        } catch (e: ClientRequestException) {
+            Log.d("StoreService", "updateCart Error: ${e.response.status.description}")
+            null
+        } catch (e: ServerResponseException) {
+            Log.d("StoreService", "updateCart Error: ${e.response.status.description}")
+            null
+        } catch (e: Exception) {
+            Log.d("StoreService", "updateCart Error: ${e.message}")
             null
         }
     }

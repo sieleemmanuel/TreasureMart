@@ -29,4 +29,8 @@ interface StoreService {
     suspend fun getCarts(): List<CartDto>
 
     suspend fun getCart(id: Int): CartDto?
+
+    suspend fun createCart(newCart: Cart): CartDto?
+
+    suspend fun updateCart(cart: Cart): CartDto?
 }
