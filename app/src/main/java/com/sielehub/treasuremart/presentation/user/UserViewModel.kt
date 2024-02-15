@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.viewmodels
+package com.sielehub.treasuremart.presentation.user
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -17,7 +17,10 @@ class UserViewModel(
 ) : ViewModel() {
 
     private val _user = mutableStateOf(null)
-    val user: State<User?> get() = _user
+    val user: State<User?> = _user
+
+    private val _users = mutableStateOf<List<User>>(emptyList())
+    val users: State<List<User>> = _users
 
     fun createUser(user: User) {
         viewModelScope.launch {

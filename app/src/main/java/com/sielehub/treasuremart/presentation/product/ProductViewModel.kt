@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.viewmodels
+package com.sielehub.treasuremart.presentation.product
 
 import androidx.lifecycle.ViewModel
 
