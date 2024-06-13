@@ -20,7 +20,7 @@ lifecycleRuntimeKtx = "2.8.1"
 logbackClassic = "1.2.3"
 materialIconsExtended = "1.6.7"
 mockk = "1.9.3"
-navigation = "2.7.7"
+navigation = "2.8.0-alpha08"
 
 [libraries]
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -59,7 +59,7 @@ logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "lo
 mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
 
 [plugins]
-androidApplication = { id = "com.android.application", version.ref = "agp" }
-jetbrainsKotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-googleDevtoolsKsp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-jetbrainsKotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+android-application = { id = "com.android.application", version.ref = "agp" }
+jetbrains-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+google-devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
