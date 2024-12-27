@@ -6,3 +6,8 @@ data class Cart(
     val products: List<CartProduct>,
     val userId: Int
 )
+
+data class CartProduct(
+    val productId: Int,
+    val quantity: Int
+)

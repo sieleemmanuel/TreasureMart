@@ -9,3 +9,21 @@ data class User(
     val phone: String,
     val username: String
 )
+
+data class Name(
+    val firstname: String,
+    val lastname: String
+)
+
+data class Address(
+    val city: String,
+    val geolocation: Geolocation,
+    val number: Int,
+    val street: String,
+    val zipcode: String
+)
+
+data class Geolocation(
+    val lat: String,
+    val long: String
+)
