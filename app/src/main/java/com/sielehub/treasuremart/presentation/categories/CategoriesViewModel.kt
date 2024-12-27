@@ -2,6 +2,7 @@ package com.sielehub.treasuremart.presentation.categories
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
@@ -11,7 +12,10 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
-class CategoriesViewModel(private val getCategoriesUseCase: GetCategoriesUseCase) : ViewModel() {
+class CategoriesViewModel(
+    private val getCategoriesUseCase: GetCategoriesUseCase,
+    savedStateHandle: SavedStateHandle
+) : ViewModel() {
     private val _categoriesState = mutableStateOf(CategoryListState())
     val categoriesState: State<CategoryListState> = _categoriesState
 
@@ -36,9 +40,13 @@ class CategoriesViewModel(private val getCategoriesUseCase: GetCategoriesUseCase
                         )
                     }
                 }
-
             }.launchIn(this)
         }
     }
+
+    init {
+        getCategories()
+    }
+
 
 }
