@@ -7,7 +7,11 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.sielehub.treasuremart.presentation.auth.ForgotPasswordScreen
+import com.sielehub.treasuremart.presentation.auth.LoginScreen
+import com.sielehub.treasuremart.presentation.auth.SignupScreen
 import com.sielehub.treasuremart.presentation.cart.CartsScreen
 import com.sielehub.treasuremart.presentation.cart.CheckoutScreen
 import com.sielehub.treasuremart.presentation.categories.CategoriesScreen
@@ -38,12 +42,33 @@ fun Navigation(
     ) {
         composable<Route.OnBoarding> {
             OnBoardingScreen(
+                paddingValues = { paddingValues },
                 onFinish = {
-                    navController.navigate(Route.Dashboard)
+                    navController.navigate(Route.Auth)
                 }
             )
         }
 
+        navigation<Route.Auth>(startDestination = Route.Signup) {
+            composable<Route.Login> {
+                LoginScreen(
+                    paddingValues = { paddingValues },
+                    onSignUp = {
+                        navController.navigate(Route.Signup)
+                    },
+                    onForgotPassword = {
+                        navController.navigate(Route.ForgotPassword)
+                    }
+                )
+            }
+            composable<Route.Signup> {
+                SignupScreen()
+            }
+
+            composable<Route.ForgotPassword> {
+                ForgotPasswordScreen()
+            }
+        }
         composable<Route.Dashboard> {
             Dashboard(
                 navController = navController,
