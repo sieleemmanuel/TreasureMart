@@ -27,7 +27,6 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         targetValue = 2 * size.width.toFloat(),
         animationSpec = infiniteRepeatable(animation = tween(1000)), label = ""
     )
-
     background(
         brush = Brush.linearGradient(
             colors = listOf(
@@ -42,5 +41,20 @@ fun Modifier.shimmerEffect(): Modifier = composed {
         .onGloballyPositioned {
             size = it.size
         }
+}
 
+fun Modifier.applyChoice(
+    condition: Boolean? = null,
+    modifierTrue: Modifier.() -> Modifier,
+    modifierFalse: Modifier.() -> Modifier
+): Modifier {
+    return when {
+        condition == true -> {
+            then(modifierTrue(Modifier))
+        }
+        condition?.not() == true -> {
+            then(modifierFalse(Modifier))
+        }
+        else -> this
+    }
 }
