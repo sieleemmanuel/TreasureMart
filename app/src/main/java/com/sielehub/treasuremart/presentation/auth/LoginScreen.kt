@@ -1,0 +1,245 @@
+package com.sielehub.treasuremart.presentation.auth
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.withLink
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.sielehub.treasuremart.presentation.navigation.Route
+import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun LoginScreen(
+    modifier: Modifier = Modifier,
+    paddingValues: () -> PaddingValues = { PaddingValues() },
+    navController: () -> NavController,
+    onSignUp: () -> Unit = {},
+    onForgotPassword: () -> Unit = {},
+) {
+    val authViewModel = koinViewModel<AuthViewModel>()
+    var username by remember { mutableStateOf("johnd") }
+    var password by remember { mutableStateOf("m38rmF\$") }
+    var showPassword by remember { mutableStateOf(false) }
+    var usernameValid by remember { mutableStateOf(isFieldValid("username", username)) }
+    var passwordValid by remember { mutableStateOf(isFieldValid("password", password)) }
+    val loginState = authViewModel.loginState.value
+    val token by authViewModel.authToken.collectAsStateWithLifecycle()
+    ConstraintLayout(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(paddingValues())
+    ) {
+        val (
+            txtWelcome,
+            txtLabel,
+            txtUsername,
+            txtPassword,
+            txtForgotPassword,
+            txtNoAccount,
+            btnLogin
+        ) = createRefs()
+
+        Text(
+            text = "Welcome \nBack!",
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 30.sp
+            ),
+            modifier = modifier.constrainAs(txtWelcome) {
+                top.linkTo(parent.top, 100.dp)
+                start.linkTo(parent.start, 20.dp)
+            }
+        )
+
+        Text(
+            text = "Login to continue",
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontWeight = FontWeight.Light,
+                fontSize = 18.sp
+            ),
+            modifier = modifier.constrainAs(txtLabel) {
+                top.linkTo(txtWelcome.bottom, 10.dp)
+                start.linkTo(parent.start, 20.dp)
+            }
+        )
+
+        TextField(
+            modifier = modifier
+                .constrainAs(txtUsername) {
+                    top.linkTo(txtLabel.bottom, 36.dp)
+                    start.linkTo(parent.start, 20.dp)
+                    end.linkTo(parent.end, 20.dp)
+                    width = Dimension.fillToConstraints
+                },
+            label = {
+                Text(text = "Username")
+            },
+            value = username,
+            onValueChange = {
+                username = it
+            },
+            isError = !usernameValid.first,
+            supportingText = {
+                if (!usernameValid.first)
+                    Text(text = usernameValid.second)
+            },
+            shape = MaterialTheme.shapes.small,
+            singleLine = true,
+            colors = TextFieldDefaults.colors().copy(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            )
+        )
+
+        TextField(
+            modifier = modifier
+                .constrainAs(txtPassword) {
+                    top.linkTo(txtUsername.bottom, 24.dp)
+                    start.linkTo(parent.start, 20.dp)
+                    end.linkTo(parent.end, 20.dp)
+                    width = Dimension.fillToConstraints
+                },
+            label = {
+                Text(text = "Password")
+            },
+            value = password,
+            onValueChange = {
+                password = it
+            },
+            isError = !passwordValid.first,
+            supportingText = {
+                if (!passwordValid.first)
+                    Text(text = passwordValid.second)
+            },
+            shape = MaterialTheme.shapes.small,
+            singleLine = true,
+            colors = TextFieldDefaults.colors().copy(
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                IconButton(onClick = { showPassword = !showPassword }) {
+                    Icon(
+                        imageVector = if (showPassword) Icons.Outlined.VisibilityOff else Icons.Outlined.Visibility,
+                        contentDescription = null
+                    )
+                }
+            }
+        )
+
+        Text(
+            text = "Forgot Password?",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = modifier
+                .clickable {
+                    onForgotPassword()
+                }
+                .constrainAs(txtForgotPassword) {
+                    top.linkTo(txtPassword.bottom, 8.dp)
+                    end.linkTo(parent.end, 20.dp)
+                })
+
+        Text(
+            modifier = modifier
+                .constrainAs(txtNoAccount) {
+                    bottom.linkTo(btnLogin.top, 30.dp)
+                    start.linkTo(parent.start, 20.dp)
+                    end.linkTo(parent.end, 20.dp)
+                },
+            style = MaterialTheme.typography.bodyLarge,
+            text = buildAnnotatedString {
+                append("Don't have an account? ")
+                withLink(
+                    link = LinkAnnotation.Clickable(
+                        tag = "Sign up",
+                        styles = TextLinkStyles(
+                            SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            ),
+                        ),
+                        linkInteractionListener = { onSignUp() }
+                    )) {
+                    append("Sign up")
+                }
+            }
+        )
+
+        Button(
+            modifier = modifier.constrainAs(btnLogin) {
+                bottom.linkTo(parent.bottom, 24.dp)
+                start.linkTo(parent.start, 20.dp)
+                end.linkTo(parent.end, 20.dp)
+                width = Dimension.fillToConstraints
+            },
+            onClick = {
+                if (username.isNotEmpty() && password.isNotEmpty()) {
+                    authViewModel.login(username, password)
+                } else {
+                    if (username.isEmpty())
+                        username = "Username is required"
+                    if (password.isEmpty())
+                        password = "Password is required"
+                }
+            }
+        ) {
+            if (loginState.isLoading)
+                CircularProgressIndicator()
+            else
+                Text(text = "Login")
+        }
+    }
+
+    LaunchedEffect(loginState) {
+        if (loginState.token != null && token == loginState.token) {
+            navController().navigate(Route.Dashboard)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun LoginScreenPreview() {
+    val navController = rememberNavController()
+    TreasureMartTheme(darkTheme = false) {
+        ScreenPreview {
+            LoginScreen(navController = { navController })
+        }
+    }
+}
