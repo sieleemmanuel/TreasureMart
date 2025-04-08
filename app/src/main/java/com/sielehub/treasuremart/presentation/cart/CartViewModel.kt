@@ -36,21 +36,23 @@ class CartViewModel(
 
     fun createCart(cart: Cart) {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = createCartUseCase.invoke(cart)) {
-                is Resource.Success -> {
-                    _createCartState.value = CreateCartState(cart = result.data)
+            createCartUseCase(cart).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _createCartState.value = CreateCartState(cart = result.data)
+                    }
+
+                    is Resource.Error -> {
+                        _createCartState.value =
+                            CreateCartState(error = result.message ?: "Unknown error occurred")
+                    }
+
+                    is Resource.Loading -> {
+                        _createCartState.value = CreateCartState(isLoading = true)
+                    }
                 }
 
-                is Resource.Error -> {
-                    _createCartState.value =
-                        CreateCartState(error = result.message ?: "Unknown error occurred")
-                }
-
-                is Resource.Loading -> {
-                    _createCartState.value = CreateCartState(isLoading = true)
-                }
-
-            }
+            }.launchIn(this)
         }
     }
 
@@ -78,8 +80,8 @@ class CartViewModel(
 
     fun getCarts() {
         viewModelScope.launch(Dispatchers.IO) {
-            getCartsUseCase.invoke().onEach {
-                when (val result = it) {
+            getCartsUseCase.invoke().onEach { result ->
+                when (result) {
                     is Resource.Success -> {
                         _cartListState.value = CartListState(carts = result.data ?: emptyList())
                     }
@@ -100,21 +102,21 @@ class CartViewModel(
 
     fun updateCart(cart: Cart) {
         viewModelScope.launch(Dispatchers.IO) {
+            updateCartUseCase(cart).onEach { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _updateCartState.value = UpdateCartState(cart = result.data)
+                    }
 
-            when (val result = updateCartUseCase.invoke(cart)) {
-                is Resource.Success -> {
-                    _updateCartState.value = UpdateCartState(cart = result.data)
+                    is Resource.Error -> {
+                        _updateCartState.value =
+                            UpdateCartState(error = result.message ?: "Unknown error occurred")
+                    }
+
+                    is Resource.Loading -> {
+                        _updateCartState.value = UpdateCartState(isLoading = true)
+                    }
                 }
-
-                is Resource.Error -> {
-                    _updateCartState.value =
-                        UpdateCartState(error = result.message ?: "Unknown error occurred")
-                }
-
-                is Resource.Loading -> {
-                    _updateCartState.value = UpdateCartState(isLoading = true)
-                }
-
             }
         }
     }
