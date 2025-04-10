@@ -24,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,6 +45,7 @@ fun OnBoardingScreen(
     onFinish: () -> Unit = {}
 ) {
     val viewModel: OnBoardingViewModel = koinViewModel()
+    val context = LocalContext.current
 
     ConstraintLayout(
         modifier = modifier
@@ -56,18 +58,18 @@ fun OnBoardingScreen(
             listOf(
                 OnboardingPage(
                     image = R.drawable.img_purchase_online,
-                    title = "Choose your product",
-                    description = "Find your favorite products that you want to buy easily"
+                    title = context.getString(R.string.onboarding_one_title),
+                    description = context.getString(R.string.onboarding_one_desc)
                 ),
                 OnboardingPage(
                     image = R.drawable.img_track_order,
-                    title = "Add to Cart",
-                    description = "Start building your cart now! Add the items you love and get ready to complete your order. It's easy to get started."
+                    title = context.getString(R.string.onboarding_two_title),
+                    description = context.getString(R.string.onboarding_two_desc)
                 ),
                 OnboardingPage(
                     image = R.drawable.img_get_your_order,
-                    title = "Easy & Fast Delivery",
-                    description = "Get your items delivered quickly and effortlessly! We offer easy and fast delivery, right to your doorstep"
+                    title = context.getString(R.string.onboarding_three_title),
+                    description = context.getString(R.string.onboarding_three_desc)
                 ),
             )
         }
@@ -97,7 +99,10 @@ fun OnBoardingScreen(
                     end.linkTo(parent.end, 16.dp)
                 }
         ) {
-            Text(text = "Skip", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = stringResource(R.string.skip),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         HorizontalPager(
@@ -176,7 +181,7 @@ fun Page(
         val (image, title, description) = createRefs()
         Image(
             painter = painterResource(id = onboardingPage().image),
-            contentDescription = "",
+            contentDescription = null,
             modifier = modifier
                 .size(240.dp)
                 .constrainAs(image) {
@@ -211,8 +216,8 @@ fun Page(
 
 data class OnboardingPage(
     val image: Int = R.drawable.img_purchase_online,
-    val title: String = "Purchase online?",
-    val description: String = "OnBoarding page description goes here"
+    val title: String = "",
+    val description: String = ""
 )
 
 @Preview(showBackground = true, showSystemUi = true)

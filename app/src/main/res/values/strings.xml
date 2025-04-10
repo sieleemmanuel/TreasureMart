@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">VerveMart</string>
+    <string name="app_name">T-Mart</string>
+    <!--OnBoarding Screen-->
+    <string name="get_started">Get Started</string>
+    <string name="next">Next</string>
+    <string name="skip">Skip</string>
+    <string name="onboarding_one_title">Choose your product</string>
+    <string name="onboarding_one_desc">Find your favorite products that you want to buy easily</string>
+    <string name="onboarding_two_title">Add to Cart</string>
+    <string name="onboarding_two_desc">Start building your cart now! Add the items you love and get ready to complete your order. It\'s easy to get started.</string>
+    <string name="onboarding_three_title"><![CDATA[Easy & Fast Delivery]]></string>
+    <string name="onboarding_three_desc">Get your items delivered quickly and effortlessly! We offer easy and fast delivery, right to your doorstep</string>
 </resources>
