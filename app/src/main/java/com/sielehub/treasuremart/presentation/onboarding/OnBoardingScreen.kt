@@ -2,7 +2,6 @@ package com.sielehub.treasuremart.presentation.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,14 +14,18 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,24 +75,30 @@ fun OnBoardingScreen(
             pageCount = { pages.count() }
         )
         val scope = rememberCoroutineScope()
-        Text(text = "Skip",
-            modifier = modifier
-                .clickable {
-                    scope.launch {
-                        if (pagerState.currentPage != pages.count() - 1)
-                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                        else {
-                            onFinish()
-                            viewModel.setOnBoardingDone(true)
-                        }
+        TextButton(
+            onClick = {
+                scope.launch {
+                    if (pagerState.currentPage != pages.count() - 1)
+                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                    else {
+                        onFinish()
+                        viewModel.setOnBoardingDone(true)
                     }
                 }
-                .zIndex(10f)
+            },
+            colors = ButtonDefaults.textButtonColors(
+                contentColor = MaterialTheme.colorScheme.onBackground,
+                containerColor = Color.Transparent
+            ),
+            modifier = modifier
+                .zIndex(1f)
                 .constrainAs(skip) {
-                    top.linkTo(parent.top, margin = 16.dp)
-                    end.linkTo(parent.end, margin = 16.dp)
+                    top.linkTo(parent.top)
+                    end.linkTo(parent.end, 16.dp)
                 }
-        )
+        ) {
+            Text(text = "Skip", style = MaterialTheme.typography.bodyMedium)
+        }
 
         HorizontalPager(
             modifier = modifier
@@ -147,8 +156,8 @@ fun OnBoardingScreen(
                     bottom.linkTo(parent.bottom)
                 }
         ) {
-            val buttonText =
-                if (pagerState.currentPage == pages.count() - 1) "Get Started" else "Next"
+            val buttonText = if (pagerState.currentPage == pages.count() - 1)
+                stringResource(R.string.get_started) else stringResource(R.string.next)
             Text(text = buttonText)
         }
     }
