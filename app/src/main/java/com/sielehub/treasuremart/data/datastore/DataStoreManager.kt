@@ -1,0 +1,35 @@
+package com.sielehub.treasuremart.data.datastore
+
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+
+class DataStoreManager(private val dataStore: DataStore<Preferences>) {
+    companion object {
+        val ON_BOARDING_DONE_KEY = booleanPreferencesKey("on_boarding_done")
+        val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
+    }
+
+    val onBoardingDone: Flow<Boolean> = dataStore.data.map { prefs ->
+        prefs[ON_BOARDING_DONE_KEY] ?: false
+    }
+    val authToken: Flow<String?> = dataStore.data.map { prefs ->
+        prefs[AUTH_TOKEN_KEY]
+    }
+
+    suspend fun setOnBoardingDone(onBoardingDone: Boolean) {
+        dataStore.edit { prefs ->
+            prefs[ON_BOARDING_DONE_KEY] = onBoardingDone
+        }
+    }
+
+    suspend fun setAuthToken(authToken: String) {
+        dataStore.edit { prefs ->
+            prefs[AUTH_TOKEN_KEY] = authToken
+        }
+    }
+}
