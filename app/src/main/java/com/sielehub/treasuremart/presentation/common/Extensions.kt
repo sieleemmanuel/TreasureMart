@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
+import kotlinx.serialization.json.Json
 
 fun Modifier.shimmerEffect(): Modifier = composed {
     var size by remember {
@@ -52,9 +53,15 @@ fun Modifier.applyChoice(
         condition == true -> {
             then(modifierTrue(Modifier))
         }
+
         condition?.not() == true -> {
             then(modifierFalse(Modifier))
         }
+
         else -> this
     }
+}
+
+inline fun <reified T> String.jsonToModel(): T {
+    return Json.decodeFromString<T>(this)
 }
