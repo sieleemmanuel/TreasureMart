@@ -1,21 +1,25 @@
 package com.sielehub.treasuremart.presentation.auth
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.data.datastore.DataStoreManager
+import com.sielehub.treasuremart.domain.model.SignupRequest
 import com.sielehub.treasuremart.domain.model.User
-import com.sielehub.treasuremart.domain.use_case.user.CreateUserUseCase
-import com.sielehub.treasuremart.domain.use_case.user.GetUserUseCase
-import com.sielehub.treasuremart.domain.use_case.user.LoginUseCase
-import com.sielehub.treasuremart.domain.use_case.user.UpdateUserUseCase
-import com.sielehub.treasuremart.presentation.user.CreateUserState
-import com.sielehub.treasuremart.presentation.user.UserState
-import com.sielehub.treasuremart.presentation.user.UserUpdateState
+import com.sielehub.treasuremart.domain.use_case.account.CreateUserUseCase
+import com.sielehub.treasuremart.domain.use_case.account.GetUserUseCase
+import com.sielehub.treasuremart.domain.use_case.account.LoginUseCase
+import com.sielehub.treasuremart.domain.use_case.account.UpdateUserUseCase
+import com.sielehub.treasuremart.presentation.account.UserState
+import com.sielehub.treasuremart.presentation.account.UserUpdateState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -34,36 +38,36 @@ class AuthViewModel(
     private val _userState = mutableStateOf(UserState())
     val userState: State<UserState> = _userState
 
-    private val _createUserState = mutableStateOf(CreateUserState())
-    val createUserState: State<CreateUserState> = _createUserState
+    private val _signupState = mutableStateOf(SignupState())
+    val signupState: State<SignupState> = _signupState
 
     private val _userUpdateState = mutableStateOf(UserUpdateState())
     val userUpdateState: State<UserUpdateState> = _userUpdateState
 
-    private val _loginState = mutableStateOf(LoginState())
-    val loginState: State<LoginState> = _loginState
+    private val _loginState = MutableStateFlow(LoginState())
+    val loginState: StateFlow<LoginState> get() = _loginState.asStateFlow()
 
     val authToken = dataStoreManager.authToken.stateIn(
         viewModelScope,
         initialValue = runBlocking { dataStoreManager.authToken.first() },
-        started = SharingStarted.WhileSubscribed()
+        started = SharingStarted.Eagerly
     )
 
-    fun createUser(user: User) {
+    fun createUser(signupRequest: SignupRequest) {
         viewModelScope.launch {
-            createUserUseCase(user).onEach {
+            createUserUseCase(signupRequest).onEach {
                 when (val result = it) {
                     is Resource.Success -> {
-                        _createUserState.value = CreateUserState(id = result.data)
+                        _signupState.value = SignupState(signupRequest = result.data)
                     }
 
                     is Resource.Error -> {
-                        _createUserState.value =
-                            CreateUserState(error = result.message ?: "Unknown error occurred")
+                        _signupState.value =
+                            SignupState(error = result.message ?: "Unknown error occurred")
                     }
 
                     is Resource.Loading -> {
-                        _createUserState.value = CreateUserState(isLoading = true)
+                        _signupState.value = SignupState(isLoading = true)
                     }
                 }
             }.launchIn(viewModelScope)
@@ -92,23 +96,30 @@ class AuthViewModel(
     fun login(username: String, password: String) {
         viewModelScope.launch(Dispatchers.IO) {
             loginUseCase(username, password).onEach { result ->
+                Log.d(TAG, "login state: ${result.data}")
                 when (result) {
-                    is Resource.Success -> {
-                        dataStoreManager.setAuthToken(result.data ?: "")
-                        _loginState.value = LoginState(token = result.data)
-                    }
-
-                    is Resource.Error -> {
-                        _loginState.value =
-                            LoginState(error = result.message ?: "Unknown error occurred")
-                    }
-
                     is Resource.Loading -> {
                         _loginState.value = LoginState(isLoading = true)
                     }
 
+                    is Resource.Success -> {
+                        dataStoreManager.setAuthToken(result.data?.token ?: "")
+                        _loginState.value = LoginState(token = result.data?.token)
+                    }
+
+                    is Resource.Error -> {
+                        Log.d(TAG, "login error: ${result.message}")
+                        _loginState.value =
+                            LoginState(error = result.message ?: "Unknown error occurred")
+                    }
                 }
-            }
+            }.launchIn(this)
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            dataStoreManager.setAuthToken("")
         }
     }
 
@@ -134,4 +145,7 @@ class AuthViewModel(
         }
     }
 
+    companion object {
+        private const val TAG = "AuthViewModel"
+    }
 }
