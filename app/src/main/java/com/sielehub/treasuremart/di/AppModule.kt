@@ -5,12 +5,17 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.sielehub.treasuremart.data.datastore.DataStoreManager
-import com.sielehub.treasuremart.data.remote.StoreService
-import com.sielehub.treasuremart.data.remote.StoreServiceImp
+import com.sielehub.treasuremart.data.network.ApiServiceImp
 import com.sielehub.treasuremart.data.repository.AuthRepositoryImpl
 import com.sielehub.treasuremart.data.repository.StoreRepositoryImpl
+import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.AuthRepository
 import com.sielehub.treasuremart.domain.repository.StoreRepository
+import com.sielehub.treasuremart.domain.use_case.account.CreateUserUseCase
+import com.sielehub.treasuremart.domain.use_case.account.GetUserUseCase
+import com.sielehub.treasuremart.domain.use_case.account.LoginUseCase
+import com.sielehub.treasuremart.domain.use_case.account.LogoutUseCase
+import com.sielehub.treasuremart.domain.use_case.account.UpdateUserUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.CreateCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartsUseCase
@@ -19,15 +24,12 @@ import com.sielehub.treasuremart.domain.use_case.categories.GetCategoriesUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsUseCase
-import com.sielehub.treasuremart.domain.use_case.user.CreateUserUseCase
-import com.sielehub.treasuremart.domain.use_case.user.GetUserUseCase
-import com.sielehub.treasuremart.domain.use_case.user.LoginUseCase
-import com.sielehub.treasuremart.domain.use_case.user.UpdateUserUseCase
+import com.sielehub.treasuremart.presentation.account.AccountViewModel
 import com.sielehub.treasuremart.presentation.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.cart.CartViewModel
 import com.sielehub.treasuremart.presentation.categories.CategoriesViewModel
 import com.sielehub.treasuremart.presentation.onboarding.OnBoardingViewModel
-import com.sielehub.treasuremart.presentation.product.ProductViewModel
+import com.sielehub.treasuremart.presentation.product.ProductsViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -57,7 +59,7 @@ object AppModule {
         single<DataStore<Preferences>> { androidContext().dataStore }
         factory { DataStoreManager(get()) }
 
-        singleOf(::StoreServiceImp) { bind<StoreService>() }
+        singleOf(::ApiServiceImp) { bind<ApiService>() }
         singleOf(::AuthRepositoryImpl) { bind<AuthRepository>() }
         singleOf(::StoreRepositoryImpl) { bind<StoreRepository>() }
 
@@ -77,10 +79,13 @@ object AppModule {
         factory { UpdateUserUseCase(get()) }
         factory { LoginUseCase(get()) }
 
+        factory { LogoutUseCase(get()) }
+
         viewModelOf(::OnBoardingViewModel)
         viewModelOf(::AuthViewModel)
-        viewModelOf(::ProductViewModel)
+        viewModelOf(::ProductsViewModel)
         viewModelOf(::CartViewModel)
         viewModelOf(::CategoriesViewModel)
+        viewModelOf(::AccountViewModel)
     }
 }
