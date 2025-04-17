@@ -1,0 +1,7 @@
+package com.sielehub.treasuremart.presentation.account
+
+data class LogoutState(
+    val isLoading: Boolean = false,
+    val isLoggedOut: Boolean = false,
+    val error: String = ""
+)
