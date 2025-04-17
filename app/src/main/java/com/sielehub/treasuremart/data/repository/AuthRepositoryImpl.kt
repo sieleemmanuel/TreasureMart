@@ -1,23 +1,25 @@
 package com.sielehub.treasuremart.data.repository
 
-import com.sielehub.treasuremart.data.remote.StoreService
+import com.sielehub.treasuremart.domain.model.SignupRequest
+import com.sielehub.treasuremart.domain.model.Token
 import com.sielehub.treasuremart.domain.model.User
+import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.AuthRepository
 
-class AuthRepositoryImpl(private val storeService: StoreService) : AuthRepository {
+class AuthRepositoryImpl(private val apiService: ApiService) : AuthRepository {
     override suspend fun getUser(userId: Int): User? {
-        return storeService.getUser(userId)?.toUser()
+        return apiService.getUser(userId)?.toUser()
     }
 
-    override suspend fun authenticateUser(username: String, password: String): String? {
-        return storeService.authenticateUser(username, password)
+    override suspend fun authenticateUser(username: String, password: String): Token? {
+        return apiService.authenticateUser(username, password)
+
     }
 
-    override suspend fun createUser(user: User): Int? {
-        return storeService.createUser(user)
+    override suspend fun createUser(signupRequest: SignupRequest): SignupRequest? {
+        return apiService.createUser(signupRequest)
     }
 
-    override suspend fun updateUser(user: User): User? {
-        return storeService.updateUser(user)?.toUser()
-    }
+    override suspend fun updateUser(user: User): User? = apiService.updateUser(user)?.toUser()
+
 }
