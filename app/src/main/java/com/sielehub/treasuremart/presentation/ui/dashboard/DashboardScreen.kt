@@ -355,7 +355,7 @@ fun ExplorePage(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            modifier = modifier.padding(vertical = 24.dp),
+                            modifier = modifier.padding(vertical = 56.dp),
                             strokeWidth = 2.dp
                         )
                     }
@@ -449,7 +449,7 @@ fun CategoryPage(
                             contentAlignment = Alignment.Center
                         ) {
                             CircularProgressIndicator(
-                                modifier = modifier.padding(vertical = 24.dp),
+                                modifier = modifier.padding(vertical = 56.dp),
                                 strokeWidth = 2.dp
                             )
                         }
