@@ -1,9 +1,13 @@
-package com.sielehub.treasuremart.presentation.auth
+package com.sielehub.treasuremart.presentation.ui.auth
 
+import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
@@ -23,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -39,7 +45,8 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.sielehub.treasuremart.presentation.navigation.Route
+import com.sielehub.treasuremart.R
+import com.sielehub.treasuremart.presentation.ui.navigation.Route
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -51,13 +58,29 @@ fun LoginScreen(
     onSignUp: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
 ) {
+    val context = LocalContext.current
     val authViewModel = koinViewModel<AuthViewModel>()
     var username by remember { mutableStateOf("johnd") }
-    var password by remember { mutableStateOf("m38rmF\$") }
+    var password by remember { mutableStateOf("m38rmF$") }
     var showPassword by remember { mutableStateOf(false) }
-    var usernameValid by remember { mutableStateOf(isFieldValid("username", username)) }
-    var passwordValid by remember { mutableStateOf(isFieldValid("password", password)) }
-    val loginState = authViewModel.loginState.value
+    var usernameValid by remember {
+        mutableStateOf(
+            isFieldValid(
+                context.getString(R.string.username_label).lowercase(),
+                username, context
+            )
+        )
+    }
+    var passwordValid by remember {
+        mutableStateOf(
+            isFieldValid(
+                context.getString(R.string.password_label).lowercase(),
+                password,
+                context
+            )
+        )
+    }
+    val loginState by authViewModel.loginState.collectAsStateWithLifecycle()
     val token by authViewModel.authToken.collectAsStateWithLifecycle()
     ConstraintLayout(
         modifier = modifier
@@ -75,7 +98,7 @@ fun LoginScreen(
         ) = createRefs()
 
         Text(
-            text = "Welcome \nBack!",
+            text = stringResource(R.string.welcome_back),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Bold,
                 fontSize = 30.sp
@@ -87,7 +110,7 @@ fun LoginScreen(
         )
 
         Text(
-            text = "Login to continue",
+            text = stringResource(R.string.login_to_continue),
             style = MaterialTheme.typography.bodyLarge.copy(
                 fontWeight = FontWeight.Light,
                 fontSize = 18.sp
@@ -107,7 +130,7 @@ fun LoginScreen(
                     width = Dimension.fillToConstraints
                 },
             label = {
-                Text(text = "Username")
+                Text(text = stringResource(R.string.username_label))
             },
             value = username,
             onValueChange = {
@@ -116,7 +139,10 @@ fun LoginScreen(
             isError = !usernameValid.first,
             supportingText = {
                 if (!usernameValid.first)
-                    Text(text = usernameValid.second)
+                    Text(
+                        text = usernameValid.second,
+                        color = MaterialTheme.colorScheme.error
+                    )
             },
             shape = MaterialTheme.shapes.small,
             singleLine = true,
@@ -135,7 +161,7 @@ fun LoginScreen(
                     width = Dimension.fillToConstraints
                 },
             label = {
-                Text(text = "Password")
+                Text(text = stringResource(R.string.password_label))
             },
             value = password,
             onValueChange = {
@@ -144,7 +170,10 @@ fun LoginScreen(
             isError = !passwordValid.first,
             supportingText = {
                 if (!passwordValid.first)
-                    Text(text = passwordValid.second)
+                    Text(
+                        text = passwordValid.second,
+                        color = MaterialTheme.colorScheme.error
+                    )
             },
             shape = MaterialTheme.shapes.small,
             singleLine = true,
@@ -164,7 +193,7 @@ fun LoginScreen(
         )
 
         Text(
-            text = "Forgot Password?",
+            text = stringResource(R.string.forgot_password),
             style = MaterialTheme.typography.bodyLarge,
             modifier = modifier
                 .clickable {
@@ -184,10 +213,10 @@ fun LoginScreen(
                 },
             style = MaterialTheme.typography.bodyLarge,
             text = buildAnnotatedString {
-                append("Don't have an account? ")
+                append(stringResource(R.string.don_t_have_an_account))
                 withLink(
                     link = LinkAnnotation.Clickable(
-                        tag = "Sign up",
+                        tag = stringResource(R.string.sign_up),
                         styles = TextLinkStyles(
                             SpanStyle(
                                 fontWeight = FontWeight.Bold,
@@ -196,39 +225,61 @@ fun LoginScreen(
                         ),
                         linkInteractionListener = { onSignUp() }
                     )) {
-                    append("Sign up")
+                    append(stringResource(R.string.sign_up))
                 }
             }
         )
 
         Button(
-            modifier = modifier.constrainAs(btnLogin) {
-                bottom.linkTo(parent.bottom, 24.dp)
-                start.linkTo(parent.start, 20.dp)
-                end.linkTo(parent.end, 20.dp)
-                width = Dimension.fillToConstraints
-            },
+            modifier = modifier
+                .height(56.dp)
+                .constrainAs(btnLogin) {
+                    bottom.linkTo(parent.bottom, 24.dp)
+                    start.linkTo(parent.start, 20.dp)
+                    end.linkTo(parent.end, 20.dp)
+                    width = Dimension.fillToConstraints
+                },
             onClick = {
-                if (username.isNotEmpty() && password.isNotEmpty()) {
+                usernameValid = isFieldValid(
+                    context.getString(R.string.username_label).lowercase(),
+                    username,
+                    context
+                )
+                passwordValid = isFieldValid(
+                    context.getString(R.string.password_label).lowercase(),
+                    password,
+                    context
+                )
+                if (usernameValid.first && passwordValid.first) {
                     authViewModel.login(username, password)
-                } else {
-                    if (username.isEmpty())
-                        username = "Username is required"
-                    if (password.isEmpty())
-                        password = "Password is required"
                 }
             }
         ) {
-            if (loginState.isLoading)
-                CircularProgressIndicator()
-            else
-                Text(text = "Login")
+            if (loginState.isLoading) {
+                CircularProgressIndicator(
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = modifier.size(30.dp),
+                    strokeWidth = 2.dp
+                )
+                Spacer(modifier = modifier.size(16.dp))
+            }
+            Text(
+                text = stringResource(R.string.login),
+                style = MaterialTheme.typography.titleMedium
+            )
         }
     }
 
     LaunchedEffect(loginState) {
         if (loginState.token != null && token == loginState.token) {
-            navController().navigate(Route.Dashboard)
+            navController().navigate(Route.Dashboard) {
+                popUpTo(Route.Auth) {
+                    inclusive = true
+                }
+            }
+        }
+        if (loginState.error.isNullOrEmpty().not()) {
+            Toast.makeText(context, loginState.error, Toast.LENGTH_SHORT).show()
         }
     }
 }
