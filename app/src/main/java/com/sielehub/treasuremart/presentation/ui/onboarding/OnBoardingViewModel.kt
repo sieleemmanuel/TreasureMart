@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.onboarding
+package com.sielehub.treasuremart.presentation.ui.onboarding
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
