@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.onboarding
+package com.sielehub.treasuremart.presentation.ui.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
@@ -27,12 +28,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import androidx.constraintlayout.compose.Visibility
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import kotlinx.coroutines.launch
@@ -42,7 +51,7 @@ import org.koin.androidx.compose.koinViewModel
 fun OnBoardingScreen(
     modifier: Modifier = Modifier,
     paddingValues: () -> PaddingValues,
-    onFinish: () -> Unit = {}
+    onFinish: (Boolean) -> Unit = {}
 ) {
     val viewModel: OnBoardingViewModel = koinViewModel()
     val context = LocalContext.current
@@ -52,7 +61,7 @@ fun OnBoardingScreen(
             .fillMaxSize()
             .padding(paddingValues())
     ) {
-        val (skip, pager, indicators, button) = createRefs()
+        val (skip, pager, indicators, button, textHaveAccount) = createRefs()
 
         val pages = remember {
             listOf(
@@ -77,33 +86,34 @@ fun OnBoardingScreen(
             pageCount = { pages.count() }
         )
         val scope = rememberCoroutineScope()
-        TextButton(
-            onClick = {
-                scope.launch {
-                    if (pagerState.currentPage != pages.count() - 1)
-                        pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                    else {
-                        onFinish()
-                        viewModel.setOnBoardingDone(true)
+        if (pagerState.currentPage != pages.count() - 1)
+            TextButton(
+                onClick = {
+                    scope.launch {
+                        // if (pagerState.currentPage != pages.count() - 1)
+                        pagerState.animateScrollToPage(pages.count() - 1)
+                        /*else {
+                            onFinish()
+                            viewModel.setOnBoardingDone(true)
+                        }*/
                     }
-                }
-            },
-            colors = ButtonDefaults.textButtonColors(
-                contentColor = MaterialTheme.colorScheme.onBackground,
-                containerColor = Color.Transparent
-            ),
-            modifier = modifier
-                .zIndex(1f)
-                .constrainAs(skip) {
-                    top.linkTo(parent.top)
-                    end.linkTo(parent.end, 16.dp)
-                }
-        ) {
-            Text(
-                text = stringResource(R.string.skip),
-                style = MaterialTheme.typography.bodyMedium
-            )
-        }
+                },
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                    containerColor = Color.Transparent
+                ),
+                modifier = modifier
+                    .zIndex(1f)
+                    .constrainAs(skip) {
+                        top.linkTo(parent.top)
+                        end.linkTo(parent.end, 16.dp)
+                    }
+            ) {
+                Text(
+                    text = stringResource(R.string.skip),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
 
         HorizontalPager(
             modifier = modifier
@@ -122,7 +132,7 @@ fun OnBoardingScreen(
             modifier = modifier
                 .fillMaxWidth()
                 .constrainAs(indicators) {
-                    bottom.linkTo(button.top)
+                    bottom.linkTo(button.top, margin = 24.dp)
                     start.linkTo(parent.start)
                     end.linkTo(parent.end)
                 },
@@ -149,22 +159,59 @@ fun OnBoardingScreen(
                     if (pagerState.currentPage != pages.count() - 1)
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     else {
-                        onFinish()
+                        onFinish(false)
                         viewModel.setOnBoardingDone(true)
                     }
                 }
             },
             modifier = modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .height(56.dp)
+                .padding(horizontal = 20.dp)
                 .constrainAs(button) {
-                    bottom.linkTo(parent.bottom)
+                    bottom.linkTo(
+                        if (pagerState.currentPage == pages.count() - 1)
+                            textHaveAccount.top else parent.bottom,
+                        16.dp
+                    )
                 }
         ) {
             val buttonText = if (pagerState.currentPage == pages.count() - 1)
                 stringResource(R.string.get_started) else stringResource(R.string.next)
-            Text(text = buttonText)
+            Text(text = buttonText, style = MaterialTheme.typography.titleMedium)
         }
+        Text(
+            modifier = modifier
+                .constrainAs(textHaveAccount) {
+                    bottom.linkTo(parent.bottom, 16.dp)
+                    start.linkTo(parent.start, 16.dp)
+                    end.linkTo(parent.end, 16.dp)
+                    visibility = if (pagerState.currentPage == pages.count() - 1)
+                        Visibility.Visible else Visibility.Gone
+                },
+            style = MaterialTheme.typography.bodyLarge,
+            text = buildAnnotatedString {
+                append(stringResource(R.string.already_have_an_account))
+                withLink(
+                    link = LinkAnnotation.Clickable(
+                        tag = stringResource(R.string.login),
+                        styles = TextLinkStyles(
+                            SpanStyle(
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary,
+                                textDecoration = TextDecoration.Underline
+                            ),
+                        ),
+                        linkInteractionListener = {
+                            onFinish(true)
+                            viewModel.setOnBoardingDone(true)
+                        }
+                    )
+                ) {
+                    append(stringResource(R.string.login))
+                }
+            }
+        )
     }
 }
 
