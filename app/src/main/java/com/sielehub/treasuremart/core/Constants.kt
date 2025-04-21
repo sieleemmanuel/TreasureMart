@@ -1,6 +1,5 @@
 package com.sielehub.treasuremart.core
 
-import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.domain.model.Cart
 import com.sielehub.treasuremart.domain.model.CartProduct
 import com.sielehub.treasuremart.domain.model.Product
@@ -147,10 +146,10 @@ class Constants {
         )
 
         fun categories() = listOf(
-            Pair("electronics", R.drawable.ic_electronics),
-            Pair("jewelery", R.drawable.ic_jewelry),
-            Pair("men's clothing", R.drawable.ic_men_clothing),
-            Pair("women's clothing", R.drawable.ic_women_clothing)
+            "electronics",
+            "jewelery",
+            "men's clothing",
+            "women's clothing"
         )
 
         fun cartProducts() = listOf(
