@@ -1,7 +1,9 @@
 package com.sielehub.treasuremart.data.remote.dto
 
 import com.sielehub.treasuremart.domain.model.Product
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class ProductDto(
     val category: String,
     val description: String,
@@ -10,7 +12,7 @@ data class ProductDto(
     val price: Double,
     val rating: RatingDto,
     val title: String
-){
+) {
     fun toProduct() = Product(
         category = category,
         description = description,
