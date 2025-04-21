@@ -10,7 +10,7 @@ data class UserDto(
     val password: String,
     val phone: String,
     val username: String
-){
+) {
     fun toUser(): User {
         return User(
             address = address.toAddress(),
@@ -22,4 +22,5 @@ data class UserDto(
             username = username
         )
     }
+
 }
