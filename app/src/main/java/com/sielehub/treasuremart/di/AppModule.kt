@@ -21,15 +21,18 @@ import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartsUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartUseCase
 import com.sielehub.treasuremart.domain.use_case.categories.GetCategoriesUseCase
+import com.sielehub.treasuremart.domain.use_case.product.GetBestPickProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsUseCase
-import com.sielehub.treasuremart.presentation.account.AccountViewModel
-import com.sielehub.treasuremart.presentation.auth.AuthViewModel
-import com.sielehub.treasuremart.presentation.cart.CartViewModel
-import com.sielehub.treasuremart.presentation.categories.CategoriesViewModel
-import com.sielehub.treasuremart.presentation.onboarding.OnBoardingViewModel
-import com.sielehub.treasuremart.presentation.product.ProductsViewModel
+import com.sielehub.treasuremart.domain.use_case.product.GetSuperDealsProductsUseCase
+import com.sielehub.treasuremart.presentation.ui.account.AccountViewModel
+import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
+import com.sielehub.treasuremart.presentation.ui.cart.CartViewModel
+import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardViewModel
+import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingViewModel
+import com.sielehub.treasuremart.presentation.ui.product.categories.CategoriesViewModel
+import com.sielehub.treasuremart.presentation.ui.product.list.ProductsViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -66,6 +69,8 @@ object AppModule {
         factory { GetProductsUseCase(get()) }
         factory { GetProductUseCase(get()) }
         factory { GetProductsByCategoryUseCase(get()) }
+        factory { GetSuperDealsProductsUseCase(get()) }
+        factory { GetBestPickProductsUseCase(get()) }
 
         factory { GetCategoriesUseCase(get()) }
 
@@ -87,5 +92,6 @@ object AppModule {
         viewModelOf(::CartViewModel)
         viewModelOf(::CategoriesViewModel)
         viewModelOf(::AccountViewModel)
+        viewModelOf(::DashboardViewModel)
     }
 }
