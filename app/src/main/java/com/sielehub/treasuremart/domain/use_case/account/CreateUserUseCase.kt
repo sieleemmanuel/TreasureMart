@@ -11,8 +11,7 @@ class CreateUserUseCase(private val authRepository: AuthRepositoryImpl) {
     operator fun invoke(signupRequest: SignupRequest): Flow<Resource<SignupRequest?>> = flow {
         try {
             emit(Resource.Loading())
-            val id = authRepository.createUser(signupRequest)
-            emit(Resource.Success(data = signupRequest))
+            emit(Resource.Success(data = authRepository.createUser(signupRequest)))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unknown error occurred"))
         }
