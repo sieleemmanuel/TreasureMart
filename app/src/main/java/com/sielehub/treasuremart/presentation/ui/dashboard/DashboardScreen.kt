@@ -1,5 +1,7 @@
 package com.sielehub.treasuremart.presentation.ui.dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +54,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -62,8 +65,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
@@ -71,20 +72,35 @@ import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.core.Constants.Companion.categories
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
-import com.sielehub.treasuremart.presentation.ui.navigation.Route
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
+import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
-    navController: NavController,
     paddingValues: PaddingValues,
+    onOpenNotification: () -> Unit = {},
     onSearchBarClick: () -> Unit = {},
 ) {
+    var searchedProduct by remember { mutableStateOf("Find products") }
+    val searchHistory = remember {
+        mutableListOf<String>("Power station", "jacket", "water filter", "loafer shoes")
+    }
+    var searchHistoryIndex by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(true) {
+        while (true) {
+            searchedProduct = ""
+            delay(500)
+            searchedProduct = searchHistory[searchHistoryIndex]
+            searchHistoryIndex = (searchHistoryIndex + 1) % searchHistory.size
+            delay(5000)
+        }
+    }
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -103,7 +119,7 @@ fun DashboardScreen(
             )
             FilledIconButton(
                 onClick = {
-                    navController.navigate(Route.Notifications)
+                    onOpenNotification()
                 },
                 colors = IconButtonDefaults.iconButtonColors(),
                 shape = RoundedCornerShape(4.dp)
@@ -135,12 +151,17 @@ fun DashboardScreen(
                 contentDescription = "Search",
                 modifier = modifier.padding(10.dp)
             )
-            Text(
-                text = "Search for products",
-                modifier = modifier
-                    .weight(1f)
-                    .padding(end = 8.dp)
-            )
+            AnimatedVisibility(
+                visible = searchedProduct.isNotEmpty(),
+                enter = slideInVertically(),
+                modifier = modifier.weight(1f)
+            ) {
+                Text(
+                    text = searchedProduct,
+                    modifier = modifier
+                        .padding(end = 8.dp)
+                )
+            }
         }
         Spacer(modifier = modifier.height(4.dp))
         ProductsPages()
@@ -496,11 +517,10 @@ fun CategoryPage(
 @Composable
 fun DashboardPreview(
     modifier: Modifier = Modifier,
-    navController: NavController = rememberNavController()
 ) {
     TreasureMartTheme(false) {
         Surface {
-            DashboardScreen(modifier, navController, PaddingValues())
+            DashboardScreen(modifier, PaddingValues())
         }
 
     }
