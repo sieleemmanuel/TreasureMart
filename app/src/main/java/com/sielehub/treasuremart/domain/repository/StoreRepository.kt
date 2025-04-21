@@ -10,6 +10,10 @@ interface StoreRepository {
 
     suspend fun getProductsByCategory(category: String): List<Product>
 
+    suspend fun getSuperDealsProducts(): List<Product>
+
+    suspend fun getBestPickProducts(): List<Product>
+
     suspend fun getProduct(id: Int): Product?
 
     suspend fun getCategories(): List<String>
