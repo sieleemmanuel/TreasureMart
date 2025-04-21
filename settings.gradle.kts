@@ -13,6 +13,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "KtorClient"
+rootProject.name = "TreasureMart"
 include(":app")
  
