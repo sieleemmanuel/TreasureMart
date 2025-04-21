@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.dashboard
+package com.sielehub.treasuremart.presentation.ui.dashboard
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,6 +33,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -48,7 +49,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -65,15 +65,15 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import coil.compose.AsyncImage
+import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.core.Constants.Companion.categories
-import com.sielehub.treasuremart.core.Constants.Companion.products
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
-import com.sielehub.treasuremart.presentation.navigation.Route
-import com.sielehub.treasuremart.presentation.product.ProductsViewModel
-import com.sielehub.treasuremart.presentation.product.component.ProductCardGrid
+import com.sielehub.treasuremart.presentation.ui.navigation.Route
+import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
+import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -82,7 +82,8 @@ import org.koin.androidx.compose.koinViewModel
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     navController: NavController,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    onSearchBarClick: () -> Unit = {},
 ) {
     Column(
         modifier = modifier
@@ -125,7 +126,7 @@ fun DashboardScreen(
                 )
                 .clip(RoundedCornerShape(24.dp))
                 .clickable {
-                    navController.navigate(Route.Search)
+                    onSearchBarClick()
                 },
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -147,9 +148,12 @@ fun DashboardScreen(
 }
 
 @Composable
-fun ProductsPages(modifier: Modifier = Modifier) {
+fun ProductsPages(
+    modifier: Modifier = Modifier,
+    dashboardViewModel: DashboardViewModel = koinViewModel(),
+) {
     var tabItems = mutableListOf("Explore")
-        .plus(categories().map { it.first.replaceFirstChar { it.uppercase() } })
+        .plus(categories().map { it.replaceFirstChar { it.uppercase() } })
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(
         initialPage = selectedTabIndex,
@@ -157,8 +161,12 @@ fun ProductsPages(modifier: Modifier = Modifier) {
             tabItems.size
         }
     )
+    val categoryProductsState = dashboardViewModel.productSByCategoryState.value
 
     LaunchedEffect(selectedTabIndex) {
+        if (selectedTabIndex != 0) {
+            dashboardViewModel.getProductsByCategory(tabItems[selectedTabIndex].lowercase())
+        }
         pagerState.animateScrollToPage(selectedTabIndex)
     }
     LaunchedEffect(pagerState.currentPage, pagerState.isScrollInProgress) {
@@ -209,7 +217,10 @@ fun ProductsPages(modifier: Modifier = Modifier) {
             if (it == 0) {
                 ExplorePage()
             } else {
-                CategoryPage(category = tabItems[selectedTabIndex])
+                CategoryPage(
+                    category = tabItems[selectedTabIndex],
+                    categoryProductsState = categoryProductsState,
+                )
             }
         }
     }
@@ -219,10 +230,13 @@ fun ProductsPages(modifier: Modifier = Modifier) {
 @Composable
 fun ExplorePage(
     modifier: Modifier = Modifier,
-    productsViewModel: ProductsViewModel = koinViewModel()
+    dashboardViewModel: DashboardViewModel = koinViewModel()
 ) {
-    val superDealsProductsState = productsViewModel.superDealsProductsState.value
-    val bestPickProductsState = productsViewModel.bestPickProductsState.value
+    val superDealsProductsState: SuperDealsProductsState =
+        dashboardViewModel.superDealsProductsState.value
+    val bestPickProductsState: BestPickProductsState =
+        dashboardViewModel.bestPickProductsState.value
+
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         state = rememberLazyGridState(),
@@ -284,18 +298,45 @@ fun ExplorePage(
                         )
                     }
                 }
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = modifier
-                ) {
-                    if (superDealsProductsState.products.isNotEmpty())
-                        items(superDealsProductsState.products) { product ->
-                            DealsProductCard(
-                                product = product,
-                                onClick = {
-                                    // navController.navigate(Route.ProductDetail(product.id))
-                                })
+                when {
+                    superDealsProductsState.isLoading -> {
+                        Box(
+                            modifier = modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = modifier.padding(vertical = 24.dp),
+                                strokeWidth = 2.dp
+                            )
                         }
+                    }
+
+                    superDealsProductsState.error.isNotBlank() -> {
+                        Box(
+                            modifier = modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = superDealsProductsState.error,
+                                modifier = modifier.padding(vertical = 24.dp)
+                            )
+                        }
+                    }
+
+                    superDealsProductsState.products.isNotEmpty() -> {
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = modifier
+                        ) {
+                            items(superDealsProductsState.products) { product ->
+                                DealsProductCard(
+                                    product = product,
+                                    onClick = {
+                                        // navController.navigate(Route.ProductDetail(product.id))
+                                    })
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -306,13 +347,42 @@ fun ExplorePage(
                 modifier = modifier
             )
         }
-        items(items = bestPickProductsState.products) { product ->
-            ProductCardGrid(
-                product = product,
-                onFavClick = {},
-                onClick = {
-                    // navController.navigate(Route.ProductDetail(product.id))
-                })
+        when {
+            bestPickProductsState.isLoading -> {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        modifier = modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = modifier.padding(vertical = 24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            }
+
+            bestPickProductsState.error.isNotBlank() -> {
+                item(span = { GridItemSpan(maxLineSpan) }) {
+                    Box(
+                        modifier = modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = bestPickProductsState.error)
+                    }
+                }
+            }
+
+            bestPickProductsState.products.isNotEmpty() -> {
+                items(items = bestPickProductsState.products.distinct()) { product ->
+                    ProductCardGrid(
+                        product = product,
+                        onFavClick = {},
+                        onClick = {
+                            // navController.navigate(Route.ProductDetail(product.id))
+                        })
+                }
+            }
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Spacer(
@@ -322,118 +392,23 @@ fun ExplorePage(
             )
         }
     }
-
-    /*LazyColumn(
-        modifier = modifier
-            //.padding(bottom = paddingValues.calculateBottomPadding())
-            .fillMaxWidth()
-            .fillMaxHeight(1f)
-    ) {
-        item {
-            Box(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight(),
-                contentAlignment = Alignment.Center,
-            ) {
-                AsyncImage(
-                    model = R.drawable.promotions,
-                    contentDescription = null,
-                    placeholder = painterResource(id = R.drawable.promotions),
-                    modifier = modifier
-                        .height(150.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.FillBounds
-                )
-            }
-            Spacer(modifier = modifier.height(8.dp))
-        }
-        item {
-            Row(
-                modifier = modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Super deals!",
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = modifier.padding(horizontal = 12.dp)
-                )
-                TextButton(
-                    onClick = {
-                        //navController.navigate(Route.Categories)
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onBackground
-                    )
-                ) {
-                    Text("Ends:")
-                    Text(text = "10:20:00")
-                    Spacer(modifier = modifier.width(1.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
-                        contentDescription = null,
-                        modifier = modifier.size(10.dp)
-                    )
-                }
-            }
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = modifier
-                    .padding(horizontal = 12.dp)
-            ) {
-                val products = products().filter { it.category == "men's clothing" }
-                items(products) { product ->
-                    DealsProductCard(
-                        product = product,
-                        onClick = {
-                            // navController.navigate(Route.ProductDetail(product.id))
-                        })
-                }
-            }
-            Spacer(modifier = modifier.height(16.dp))
-        }
-        item {
-            Text(
-                text = "Best picks for you",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = modifier.padding(horizontal = 12.dp, vertical = 16.dp)
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                modifier = modifier
-                    .padding(horizontal = 12.dp)
-            ) {
-                products().forEach { product ->
-                    ProductCardGrid(
-                        product = product,
-                        onFavClick = {},
-                        onClick = {
-                            // navController.navigate(Route.ProductDetail(product.id))
-                        })
-                }
-            }
-            Spacer(modifier = modifier.navigationBarsPadding())
-        }
-    }*/
 }
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun CategoryPage(category: String, modifier: Modifier = Modifier) {
+fun CategoryPage(
+    modifier: Modifier = Modifier,
+    category: String,
+    categoryProductsState: ProductsByCategoryState
+) {
     key(category) {
-        val categoryProducts by remember {
-            derivedStateOf {
-                products().filter { it.category == category.lowercase() }
-            }
-        }
         val categoryResImage = remember {
             when (category.lowercase()) {
                 "electronics" -> R.drawable.electronics
                 "jewelery" -> R.drawable.jewelry
                 "men's clothing" -> R.drawable.men_clothings
-                else -> R.drawable.women_clothings
+                "women's clothing" -> R.drawable.women_clothings
+                else -> R.drawable.loading_progress
             }
         }
         LazyVerticalGrid(
@@ -458,7 +433,7 @@ fun CategoryPage(category: String, modifier: Modifier = Modifier) {
                     AsyncImage(
                         model = categoryResImage,
                         contentDescription = null,
-                        placeholder = painterResource(id = R.drawable.promotions),
+                        placeholder = rememberAsyncImagePainter(R.drawable.loading_progress),
                         modifier = modifier
                             .height(180.dp)
                             .fillMaxWidth(),
@@ -466,16 +441,46 @@ fun CategoryPage(category: String, modifier: Modifier = Modifier) {
                     )
                 }
             }
-            items(
-                items = categoryProducts,
-                span = { GridItemSpan(1) }) { product ->
-                ProductCardGrid(
-                    product = product,
-                    onFavClick = {},
-                    onClick = {
-                        // navController.navigate(Route.ProductDetail(product.id))
-                    })
+            when {
+                categoryProductsState.isLoading -> {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = modifier.padding(vertical = 24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
+                }
+
+                categoryProductsState.error.isNotBlank() -> {
+                    item(span = { GridItemSpan(maxLineSpan) }) {
+                        Box(
+                            modifier = modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(text = categoryProductsState.error)
+                        }
+                    }
+                }
+
+                categoryProductsState.products.isNotEmpty() -> {
+                    items(
+                        items = categoryProductsState.products,
+                        span = { GridItemSpan(1) }) { product ->
+                        ProductCardGrid(
+                            product = product,
+                            onFavClick = {},
+                            onClick = {
+                                // navController.navigate(Route.ProductDetail(product.id))
+                            })
+                    }
+                }
             }
+
             item(span = { GridItemSpan(maxLineSpan) }) {
                 Spacer(
                     modifier = modifier
@@ -484,35 +489,6 @@ fun CategoryPage(category: String, modifier: Modifier = Modifier) {
                 )
             }
         }
-        /*LazyColumn(
-            modifier = modifier
-                //.padding(bottom = paddingValues.calculateBottomPadding())
-                .fillMaxWidth()
-                .fillMaxHeight(1f)
-        ) {
-            item {
-
-            }
-            item {
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = modifier
-                        .padding(12.dp)
-                ) {
-                    categoryProducts.forEach { product ->
-                        ProductCardGrid(
-                            product = product,
-                            addButton = false,
-                            onFavClick = {},
-                            onClick = {
-                                // navController.navigate(Route.ProductDetail(product.id))
-                            })
-                    }
-                }
-                Spacer(modifier = modifier.navigationBarsPadding())
-            }
-        }*/
     }
 }
 
