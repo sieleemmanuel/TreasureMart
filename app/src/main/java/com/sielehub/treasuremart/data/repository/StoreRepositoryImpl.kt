@@ -39,7 +39,15 @@ class StoreRepositoryImpl(private val apiService: ApiService) : StoreRepository 
     override suspend fun getProduct(id: Int): Product? =
         apiService.getProduct(id)?.toProduct()
 
+
     override suspend fun getCategories(): List<String> = apiService.getCategories()
+
+    override suspend fun getSearchedProducts(query: String): List<Product> {
+        val products = apiService.getProducts().map { it.toProduct() }
+        return products.filter {
+            it.title.contains(query, true) || it.description.contains(query, true)
+        }
+    }
 
     override suspend fun getCarts(): List<Cart> = apiService.getCarts().map { it.toCart() }
 

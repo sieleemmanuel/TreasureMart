@@ -18,6 +18,8 @@ interface StoreRepository {
 
     suspend fun getCategories(): List<String>
 
+    suspend fun getSearchedProducts(query: String): List<Product>
+
     suspend fun createCart(cart: Cart): Cart?
 
     suspend fun updateCart(cart: Cart): Cart?
