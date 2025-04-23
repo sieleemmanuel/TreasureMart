@@ -3,6 +3,7 @@ package com.sielehub.treasuremart.presentation.ui.dashboard
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +43,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ScrollableTabRow
-import androidx.compose.material3.SearchBarDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
@@ -70,6 +70,7 @@ import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.core.Constants.Companion.categories
+import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
@@ -85,6 +86,8 @@ fun DashboardScreen(
     paddingValues: PaddingValues,
     onOpenNotification: () -> Unit = {},
     onSearchBarClick: () -> Unit = {},
+    onOpenProductDeals: () -> Unit = {},
+    onOpenBestPicksProduct: (Product) -> Unit = {},
 ) {
     var searchedProduct by remember { mutableStateOf("Find products") }
     val searchHistory = remember {
@@ -106,6 +109,7 @@ fun DashboardScreen(
             .fillMaxWidth()
             .padding(paddingValues),
     ) {
+        Spacer(modifier = modifier.height(8.dp))
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -136,8 +140,9 @@ fun DashboardScreen(
                 .fillMaxWidth()
                 .height(48.dp)
                 .padding(horizontal = 16.dp)
-                .background(
-                    color = SearchBarDefaults.colors().containerColor,
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.onBackground,
                     shape = RoundedCornerShape(24.dp)
                 )
                 .clip(RoundedCornerShape(24.dp))
@@ -148,7 +153,7 @@ fun DashboardScreen(
         ) {
             Icon(
                 imageVector = Icons.Rounded.Search,
-                contentDescription = "Search",
+                contentDescription = stringResource(R.string.search),
                 modifier = modifier.padding(10.dp)
             )
             AnimatedVisibility(
@@ -164,7 +169,10 @@ fun DashboardScreen(
             }
         }
         Spacer(modifier = modifier.height(4.dp))
-        ProductsPages()
+        ProductsPages(
+            onOpenProductDeals = onOpenProductDeals,
+            onOpenBestPicksProduct = onOpenBestPicksProduct,
+        )
     }
 }
 
@@ -172,8 +180,10 @@ fun DashboardScreen(
 fun ProductsPages(
     modifier: Modifier = Modifier,
     dashboardViewModel: DashboardViewModel = koinViewModel(),
+    onOpenProductDeals: () -> Unit = {},
+    onOpenBestPicksProduct: (Product) -> Unit = {}
 ) {
-    var tabItems = mutableListOf("Explore")
+    var tabItems = mutableListOf(stringResource(R.string.explore))
         .plus(categories().map { it.replaceFirstChar { it.uppercase() } })
     var selectedTabIndex by remember { mutableIntStateOf(0) }
     val pagerState = rememberPagerState(
@@ -236,7 +246,10 @@ fun ProductsPages(
             modifier = modifier.fillMaxWidth()
         ) {
             if (it == 0) {
-                ExplorePage()
+                ExplorePage(
+                    onOpenProductDeals = onOpenProductDeals,
+                    onOpenBestPicksProduct = onOpenBestPicksProduct
+                )
             } else {
                 CategoryPage(
                     category = tabItems[selectedTabIndex],
@@ -251,7 +264,9 @@ fun ProductsPages(
 @Composable
 fun ExplorePage(
     modifier: Modifier = Modifier,
-    dashboardViewModel: DashboardViewModel = koinViewModel()
+    dashboardViewModel: DashboardViewModel = koinViewModel(),
+    onOpenProductDeals: () -> Unit,
+    onOpenBestPicksProduct: (Product) -> Unit
 ) {
     val superDealsProductsState: SuperDealsProductsState =
         dashboardViewModel.superDealsProductsState.value
@@ -296,13 +311,13 @@ fun ExplorePage(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Super deals!",
+                        text = stringResource(R.string.super_deals),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = modifier
                     )
                     TextButton(
                         onClick = {
-                            //navController.navigate(Route.Categories)
+                            onOpenProductDeals()
                         },
                         colors = ButtonDefaults.textButtonColors(
                             contentColor = MaterialTheme.colorScheme.onBackground
@@ -310,7 +325,7 @@ fun ExplorePage(
                         contentPadding = PaddingValues(end = 0.dp)
                     ) {
                         Text("Ends:")
-                        Text(text = "10:20:00")
+                        CountDownTimer(hours = 24)
                         Spacer(modifier = modifier.width(1.dp))
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.ArrowForwardIos,
@@ -353,7 +368,7 @@ fun ExplorePage(
                                 DealsProductCard(
                                     product = product,
                                     onClick = {
-                                        // navController.navigate(Route.ProductDetail(product.id))
+                                        onOpenProductDeals()
                                     })
                             }
                         }
@@ -363,7 +378,7 @@ fun ExplorePage(
         }
         item(span = { GridItemSpan(maxLineSpan) }) {
             Text(
-                text = "Best picks for you",
+                text = stringResource(R.string.best_picks_for_you),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = modifier
             )
@@ -400,7 +415,7 @@ fun ExplorePage(
                         product = product,
                         onFavClick = {},
                         onClick = {
-                            // navController.navigate(Route.ProductDetail(product.id))
+                            onOpenBestPicksProduct(product)
                         })
                 }
             }
@@ -510,6 +525,71 @@ fun CategoryPage(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun CountDownTimer(
+    modifier: Modifier = Modifier,
+    hours: Int = 12
+) {
+    var remainingHours by remember { mutableIntStateOf(hours) }
+    var minutes by remember { mutableIntStateOf(0) }
+    var seconds by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(true) {
+        while (remainingHours > 0 || minutes > 0 || seconds > 0) {
+            delay(1000)
+            if (seconds > 0) {
+                seconds--
+            } else {
+                seconds = 59
+                if (minutes > 0) {
+                    minutes--
+                } else {
+                    minutes = 59
+                    if (remainingHours > 0) {
+                        remainingHours--
+                    }
+                }
+            }
+        }
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TimeValue(modifier, remainingHours)
+        TimeSeparator()
+        TimeValue(modifier, minutes)
+        TimeSeparator()
+        TimeValue(modifier, seconds)
+    }
+}
+
+@Composable
+private fun TimeSeparator() {
+    Box {
+        Text(
+            text = " : ",
+            style = MaterialTheme.typography.titleMedium
+        )
+    }
+}
+
+@Composable
+private fun TimeValue(modifier: Modifier, timeValue: Int) {
+    Box(
+        modifier = modifier.background(
+            color = MaterialTheme.colorScheme.onBackground,
+            shape = RoundedCornerShape(4.dp)
+        )
+    ) {
+        Text(
+            text = if (timeValue < 10) "0$timeValue" else "$timeValue",
+            color = MaterialTheme.colorScheme.background,
+            modifier = modifier.padding(2.dp)
+        )
     }
 }
 
