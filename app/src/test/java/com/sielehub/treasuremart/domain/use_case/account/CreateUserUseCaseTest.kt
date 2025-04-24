@@ -3,6 +3,7 @@ package com.sielehub.treasuremart.domain.use_case.account
 import com.google.common.truth.Truth.assertThat
 import com.sielehub.treasuremart.data.repository.AuthRepositoryImpl
 import com.sielehub.treasuremart.fakeNewUser
+import com.sielehub.treasuremart.fakeSignupResponse
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
@@ -22,7 +23,7 @@ class CreateUserUseCaseTest {
     @Test
     fun `invoke should return user when createUser is successful`() = runTest {
         val newUser = fakeNewUser
-        val expectedResult = fakeNewUser
+        val expectedResult = fakeSignupResponse
         coEvery { repository.createUser(newUser) } returns expectedResult
         val result = createUserUseCase(newUser).toList()
         assertThat(result[1].data).isEqualTo(expectedResult)

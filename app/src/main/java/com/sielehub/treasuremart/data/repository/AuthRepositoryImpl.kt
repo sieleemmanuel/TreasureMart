@@ -1,6 +1,7 @@
 package com.sielehub.treasuremart.data.repository
 
 import com.sielehub.treasuremart.domain.model.SignupRequest
+import com.sielehub.treasuremart.domain.model.SignupResponse
 import com.sielehub.treasuremart.domain.model.Token
 import com.sielehub.treasuremart.domain.model.User
 import com.sielehub.treasuremart.domain.network.ApiService
@@ -16,7 +17,7 @@ class AuthRepositoryImpl(private val apiService: ApiService) : AuthRepository {
 
     }
 
-    override suspend fun createUser(signupRequest: SignupRequest): SignupRequest? {
+    override suspend fun createUser(signupRequest: SignupRequest): SignupResponse {
         return apiService.createUser(signupRequest)
     }
 

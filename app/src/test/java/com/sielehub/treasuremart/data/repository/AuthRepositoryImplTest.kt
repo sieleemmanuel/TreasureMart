@@ -3,6 +3,7 @@ package com.sielehub.treasuremart.data.repository
 import com.google.common.truth.Truth.assertThat
 import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.fakeNewUser
+import com.sielehub.treasuremart.fakeSignupResponse
 import com.sielehub.treasuremart.fakeToken
 import com.sielehub.treasuremart.fakeUser
 import io.mockk.coEvery
@@ -32,9 +33,9 @@ class AuthRepositoryImplTest {
 
     @Test
     fun `createUser valid user should return new user`() = runTest {
-        coEvery { authRepository.createUser(fakeNewUser) } returns fakeNewUser
-        val createdUser = authRepository.createUser(fakeNewUser)
-        assertThat(createdUser).isEqualTo(fakeNewUser)
+        coEvery { authRepository.createUser(fakeNewUser) } returns fakeSignupResponse
+        val createdUserRes = authRepository.createUser(fakeNewUser)
+        assertThat(createdUserRes).isEqualTo(fakeSignupResponse)
     }
 
     @Test
