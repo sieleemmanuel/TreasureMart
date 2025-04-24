@@ -58,10 +58,11 @@ class AuthViewModel(
             createUserUseCase(signupRequest).onEach {
                 when (val result = it) {
                     is Resource.Success -> {
-                        _signupState.value = SignupState(signupRequest = result.data)
+                        _signupState.value = SignupState(signupResponse = result.data)
                     }
 
                     is Resource.Error -> {
+                        Log.d(TAG, "createUser error: ${result.message}")
                         _signupState.value =
                             SignupState(error = result.message ?: "Unknown error occurred")
                     }
