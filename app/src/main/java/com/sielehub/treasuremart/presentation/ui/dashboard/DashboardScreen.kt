@@ -413,7 +413,6 @@ fun ExplorePage(
                 items(items = bestPickProductsState.products.distinct()) { product ->
                     ProductCardGrid(
                         product = product,
-                        onFavClick = {},
                         onClick = {
                             onOpenBestPicksProduct(product)
                         })
@@ -509,7 +508,6 @@ fun CategoryPage(
                         span = { GridItemSpan(1) }) { product ->
                         ProductCardGrid(
                             product = product,
-                            onFavClick = {},
                             onClick = {
                                 // navController.navigate(Route.ProductDetail(product.id))
                             })
@@ -588,7 +586,7 @@ private fun TimeValue(modifier: Modifier, timeValue: Int) {
         Text(
             text = if (timeValue < 10) "0$timeValue" else "$timeValue",
             color = MaterialTheme.colorScheme.background,
-            modifier = modifier.padding(2.dp)
+            modifier = modifier.padding(horizontal = 3.dp, vertical = 1.dp)
         )
     }
 }
