@@ -26,6 +26,10 @@ import com.sielehub.treasuremart.domain.use_case.product.GetProductUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetSuperDealsProductsUseCase
+import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchSuggestionsUseCase
+import com.sielehub.treasuremart.domain.use_case.product.wishlist.AddToWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.product.wishlist.GetWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.product.wishlist.RemoveFromWishListUseCase
 import com.sielehub.treasuremart.presentation.ui.account.AccountViewModel
 import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.ui.cart.CartViewModel
@@ -33,12 +37,16 @@ import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardViewModel
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingViewModel
 import com.sielehub.treasuremart.presentation.ui.product.categories.CategoriesViewModel
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsViewModel
+import com.sielehub.treasuremart.presentation.ui.product.search.SearchViewModel
+import com.sielehub.treasuremart.presentation.ui.product.wish.WishListViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModelOf
 import org.koin.core.module.dsl.bind
@@ -48,6 +56,7 @@ import org.koin.dsl.module
 object AppModule {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
+    @OptIn(ExperimentalSerializationApi::class)
     val appModule = module {
         single {
             HttpClient(Android) {
@@ -55,7 +64,14 @@ object AppModule {
                     level = LogLevel.ALL
                 }
                 install(ContentNegotiation) {
-                    json()
+                    json(
+                        json = Json {
+                            explicitNulls = false
+                            prettyPrint = true
+                            isLenient = true
+                            ignoreUnknownKeys = true
+                        }
+                    )
                 }
             }
         }
@@ -71,6 +87,10 @@ object AppModule {
         factory { GetProductsByCategoryUseCase(get()) }
         factory { GetSuperDealsProductsUseCase(get()) }
         factory { GetBestPickProductsUseCase(get()) }
+        factory { GetWishListUseCase(get()) }
+        factory { RemoveFromWishListUseCase(get()) }
+        factory { AddToWishListUseCase(get()) }
+        factory { GetSearchSuggestionsUseCase(get()) }
 
         factory { GetCategoriesUseCase(get()) }
 
@@ -93,5 +113,7 @@ object AppModule {
         viewModelOf(::CategoriesViewModel)
         viewModelOf(::AccountViewModel)
         viewModelOf(::DashboardViewModel)
+        viewModelOf(::WishListViewModel)
+        viewModelOf(::SearchViewModel)
     }
 }
