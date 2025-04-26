@@ -65,6 +65,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
@@ -75,6 +76,7 @@ import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
+import com.sielehub.treasuremart.presentation.ui.product.search.SearchViewModel
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -83,16 +85,16 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun DashboardScreen(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
+    dashboardViewModel: DashboardViewModel = koinViewModel(),
+    searchViewModel: SearchViewModel = koinViewModel(),
+    paddingValues: PaddingValues = PaddingValues(),
     onOpenNotification: () -> Unit = {},
     onSearchBarClick: () -> Unit = {},
     onOpenProductDeals: () -> Unit = {},
     onOpenBestPicksProduct: (Product) -> Unit = {},
 ) {
     var searchedProduct by remember { mutableStateOf("Find products") }
-    val searchHistory = remember {
-        mutableListOf<String>("Power station", "jacket", "water filter", "loafer shoes")
-    }
+    val searchHistory by searchViewModel.searchHistory.collectAsStateWithLifecycle()
     var searchHistoryIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(true) {
@@ -162,7 +164,7 @@ fun DashboardScreen(
                 modifier = modifier.weight(1f)
             ) {
                 Text(
-                    text = searchedProduct,
+                    text = if (searchHistory.isNotEmpty()) searchedProduct else "Find products",
                     modifier = modifier
                         .padding(end = 8.dp)
                 )
@@ -170,6 +172,7 @@ fun DashboardScreen(
         }
         Spacer(modifier = modifier.height(4.dp))
         ProductsPages(
+            dashboardViewModel = dashboardViewModel,
             onOpenProductDeals = onOpenProductDeals,
             onOpenBestPicksProduct = onOpenBestPicksProduct,
         )
@@ -598,7 +601,7 @@ fun DashboardPreview(
 ) {
     TreasureMartTheme(false) {
         Surface {
-            DashboardScreen(modifier, PaddingValues())
+            DashboardScreen()
         }
 
     }
