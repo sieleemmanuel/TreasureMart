@@ -51,6 +51,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
@@ -98,10 +99,11 @@ fun DashboardScreen(
     var searchHistoryIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(true) {
-        while (true) {
+        while (searchHistory.isNotEmpty()) {
             searchedProduct = ""
             delay(500)
-            searchedProduct = searchHistory[searchHistoryIndex]
+            searchedProduct =
+                if (searchHistory.isNotEmpty()) searchHistory[searchHistoryIndex] else "Find products"
             searchHistoryIndex = (searchHistoryIndex + 1) % searchHistory.size
             delay(5000)
         }
@@ -271,8 +273,7 @@ fun ExplorePage(
     onOpenProductDeals: () -> Unit,
     onOpenBestPicksProduct: (Product) -> Unit
 ) {
-    val superDealsProductsState: SuperDealsProductsState =
-        dashboardViewModel.superDealsProductsState.value
+    val superDealsProductsState by dashboardViewModel.superDealsProductsState.collectAsState()
     val bestPickProductsState: BestPickProductsState =
         dashboardViewModel.bestPickProductsState.value
 
