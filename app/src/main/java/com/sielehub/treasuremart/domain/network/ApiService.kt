@@ -5,6 +5,7 @@ import com.sielehub.treasuremart.data.remote.dto.ProductDto
 import com.sielehub.treasuremart.data.remote.dto.UserDto
 import com.sielehub.treasuremart.domain.model.Cart
 import com.sielehub.treasuremart.domain.model.SignupRequest
+import com.sielehub.treasuremart.domain.model.SignupResponse
 import com.sielehub.treasuremart.domain.model.Token
 import com.sielehub.treasuremart.domain.model.User
 
@@ -22,7 +23,7 @@ interface ApiService {
 
     suspend fun getUser(userId: Int): UserDto?
 
-    suspend fun createUser(signupRequest: SignupRequest): SignupRequest?
+    suspend fun createUser(signupRequest: SignupRequest): SignupResponse
 
     suspend fun updateUser(user: User): UserDto?
 
