@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -174,10 +175,14 @@ fun AccountScreen(
                         modifier = modifier
                             .weight(1f)
                             .height(72.dp),
-                        category = category
+                        category = category,
+                        onClick = {
+
+                        }
                     )
                 }
             }
+            Spacer(modifier = modifier.height(16.dp))
         }
         Spacer(modifier = modifier.height(8.dp))
         Card(
@@ -200,21 +205,22 @@ fun AccountScreen(
                     Column(
                         modifier = modifier
                             .width(100.dp)
+                            .aspectRatio(1f)
                             .clickable {
 
                             },
                         verticalArrangement = Arrangement.Center,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Spacer(modifier = modifier.height(4.dp))
+                        Spacer(modifier = modifier.height(8.dp))
                         Icon(imageVector = service.first,
                             contentDescription = null)
-                        Spacer(modifier = modifier.height(4.dp))
+                        Spacer(modifier = modifier.height(8.dp))
                         Text(text = service.second,
                             textAlign = TextAlign.Center,
                             modifier = modifier.fillMaxWidth(),
                             )
-                        Spacer(modifier = modifier.height(4.dp))
+                        Spacer(modifier = modifier.height(8.dp))
                     }
                 }
             }
@@ -254,7 +260,7 @@ fun OrderCategoryItem(
     Column(
         modifier = modifier
             .clickable { onClick() }
-            .fillMaxSize(),
+            .aspectRatio(1f, false),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
