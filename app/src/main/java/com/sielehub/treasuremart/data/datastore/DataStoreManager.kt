@@ -12,13 +12,17 @@ class DataStoreManager(private val dataStore: DataStore<Preferences>) {
     companion object {
         val ON_BOARDING_DONE_KEY = booleanPreferencesKey("on_boarding_done")
         val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
+        val SEARCH_HISTORY_KEY = stringPreferencesKey("search_history")
     }
 
     val onBoardingDone: Flow<Boolean> = dataStore.data.map { prefs ->
-        prefs[ON_BOARDING_DONE_KEY] ?: false
+        prefs[ON_BOARDING_DONE_KEY] == true
     }
     val authToken: Flow<String?> = dataStore.data.map { prefs ->
         prefs[AUTH_TOKEN_KEY]
+    }
+    val searchHistory: Flow<String> = dataStore.data.map { prefs ->
+        prefs[SEARCH_HISTORY_KEY] ?: "[]"
     }
 
     suspend fun setOnBoardingDone(onBoardingDone: Boolean) {
@@ -30,6 +34,12 @@ class DataStoreManager(private val dataStore: DataStore<Preferences>) {
     suspend fun setAuthToken(authToken: String) {
         dataStore.edit { prefs ->
             prefs[AUTH_TOKEN_KEY] = authToken
+        }
+    }
+
+    suspend fun setSearchHistory(searchHistory: String) {
+        dataStore.edit { prefs ->
+            prefs[SEARCH_HISTORY_KEY] = searchHistory
         }
     }
 }
