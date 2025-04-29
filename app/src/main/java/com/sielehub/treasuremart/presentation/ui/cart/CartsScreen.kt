@@ -16,11 +16,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -50,11 +53,12 @@ fun CartsScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .statusBarsPadding()
         ) {
             Row(
                 modifier = modifier
                     .fillMaxWidth()
+                    .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                    .statusBarsPadding()
                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -72,6 +76,7 @@ fun CartsScreen(
             LazyColumn(
                 modifier = modifier.padding(horizontal = 10.dp),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
+                contentPadding = PaddingValues(top = 10.dp)
             ) {
                 items(items = cart.products) {
                     CartCard(cartProduct = it)
@@ -82,7 +87,7 @@ fun CartsScreen(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.background)
+                .background(color =  MaterialTheme.colorScheme.surfaceContainer)
                 .padding(16.dp)
                 .align(Alignment.BottomCenter),
             verticalAlignment = Alignment.CenterVertically,
@@ -94,7 +99,7 @@ fun CartsScreen(
                 fontSize = 20.sp,
                 text = "KSh 156, 000"
             )
-            ElevatedButton(
+            Button(
                 onClick = {
                     navController.navigate(Route.Checkout)
                 },
@@ -109,7 +114,7 @@ fun CartsScreen(
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CartsScreenPreview() {
     CartsScreen(paddingValues = PaddingValues(0.dp), navController = rememberNavController())
