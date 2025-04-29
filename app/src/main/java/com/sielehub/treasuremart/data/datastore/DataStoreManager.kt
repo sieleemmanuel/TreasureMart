@@ -13,6 +13,7 @@ class DataStoreManager(private val dataStore: DataStore<Preferences>) {
         val ON_BOARDING_DONE_KEY = booleanPreferencesKey("on_boarding_done")
         val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
         val SEARCH_HISTORY_KEY = stringPreferencesKey("search_history")
+        val THEME_MODE_KEY = stringPreferencesKey("theme_mode")
     }
 
     val onBoardingDone: Flow<Boolean> = dataStore.data.map { prefs ->
@@ -23,6 +24,9 @@ class DataStoreManager(private val dataStore: DataStore<Preferences>) {
     }
     val searchHistory: Flow<String> = dataStore.data.map { prefs ->
         prefs[SEARCH_HISTORY_KEY] ?: "[]"
+    }
+    val themeMode: Flow<String> = dataStore.data.map { prefs ->
+        prefs[THEME_MODE_KEY] ?: "System default"
     }
 
     suspend fun setOnBoardingDone(onBoardingDone: Boolean) {
@@ -40,6 +44,12 @@ class DataStoreManager(private val dataStore: DataStore<Preferences>) {
     suspend fun setSearchHistory(searchHistory: String) {
         dataStore.edit { prefs ->
             prefs[SEARCH_HISTORY_KEY] = searchHistory
+        }
+    }
+
+    suspend fun setAppTheme(selectedMode: String) {
+        dataStore.edit { prefs ->
+            prefs[THEME_MODE_KEY] = selectedMode
         }
     }
 }
