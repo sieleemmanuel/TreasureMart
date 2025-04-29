@@ -1,5 +1,6 @@
 package com.sielehub.treasuremart.domain.model
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -42,8 +43,16 @@ data class LoginRequest(
 
 @Serializable
 data class SignupRequest(
+    @SerialName("username")
+    val username: String,
+    @SerialName("email")
     val email: String,
-    val id: Int? = null,
+    @SerialName("password")
     val password: String,
-    val username: String
+)
+
+@Serializable
+data class SignupResponse(
+    @SerialName("id")
+    val id: Int
 )

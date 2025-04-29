@@ -105,7 +105,6 @@ fun SignupScreen(
             SignupRequest(
                 username = username,
                 email = email,
-                id = 1,
                 password = password
             )
         )
@@ -114,7 +113,7 @@ fun SignupScreen(
     val signupState by authViewModel.signupState
 
     LaunchedEffect(signupState) {
-        if (signupState.signupRequest != null && newUser == signupState.signupRequest) {
+        if (signupState.signupResponse != null && (signupState.signupResponse?.id ?: 0) > 0) {
             Toast.makeText(
                 context,
                 context.getString(R.string.signup_successful),
@@ -390,7 +389,6 @@ fun SignupScreen(
                     ).first
                 ) {
                     newUser = SignupRequest(
-                        id = 1,
                         email = email,
                         password = password,
                         username = username,

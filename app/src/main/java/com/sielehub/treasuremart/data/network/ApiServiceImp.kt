@@ -1,13 +1,13 @@
 package com.sielehub.treasuremart.data.network
 
 import com.sielehub.treasuremart.core.Constants
-import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.data.remote.dto.CartDto
 import com.sielehub.treasuremart.data.remote.dto.ProductDto
 import com.sielehub.treasuremart.data.remote.dto.UserDto
 import com.sielehub.treasuremart.domain.model.Cart
 import com.sielehub.treasuremart.domain.model.LoginRequest
 import com.sielehub.treasuremart.domain.model.SignupRequest
+import com.sielehub.treasuremart.domain.model.SignupResponse
 import com.sielehub.treasuremart.domain.model.Token
 import com.sielehub.treasuremart.domain.model.User
 import com.sielehub.treasuremart.domain.network.ApiService
@@ -38,12 +38,11 @@ class ApiServiceImp(private val client: HttpClient) : ApiService {
         }.body<UserDto>()
     }
 
-    override suspend fun createUser(signupRequest: SignupRequest): SignupRequest? {
+    override suspend fun createUser(signupRequest: SignupRequest): SignupResponse {
         return client.post(Constants.HttpRoutes.CREATE_USER_ENDPOINT) {
             contentType(ContentType.Application.Json)
             setBody(signupRequest)
-        }.body<SignupRequest>()
-        Resource.Success(signupRequest)
+        }.body<SignupResponse>()
     }
 
     override suspend fun authenticateUser(username: String, password: String): Token? {
