@@ -26,19 +26,26 @@ import com.sielehub.treasuremart.domain.use_case.product.GetProductUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetSuperDealsProductsUseCase
+import com.sielehub.treasuremart.domain.use_case.product.search.AddSearchHistoryUseCase
+import com.sielehub.treasuremart.domain.use_case.product.search.ClearSearchHistoryUseCase
+import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchHistoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchSuggestionsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.wishlist.AddToWishListUseCase
 import com.sielehub.treasuremart.domain.use_case.product.wishlist.GetWishListUseCase
 import com.sielehub.treasuremart.domain.use_case.product.wishlist.RemoveFromWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.settings.GetAppThemeUseCase
+import com.sielehub.treasuremart.domain.use_case.settings.SetAppThemeUseCase
 import com.sielehub.treasuremart.presentation.ui.account.AccountViewModel
 import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.ui.cart.CartViewModel
 import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardViewModel
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingViewModel
 import com.sielehub.treasuremart.presentation.ui.product.categories.CategoriesViewModel
+import com.sielehub.treasuremart.presentation.ui.product.detail.ProductDetailViewModel
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsViewModel
 import com.sielehub.treasuremart.presentation.ui.product.search.SearchViewModel
 import com.sielehub.treasuremart.presentation.ui.product.wish.WishListViewModel
+import com.sielehub.treasuremart.presentation.ui.settings.SettingsViewModel
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -91,6 +98,9 @@ object AppModule {
         factory { RemoveFromWishListUseCase(get()) }
         factory { AddToWishListUseCase(get()) }
         factory { GetSearchSuggestionsUseCase(get()) }
+        factory { GetSearchHistoryUseCase(get()) }
+        factory { AddSearchHistoryUseCase(get()) }
+        factory { ClearSearchHistoryUseCase(get()) }
 
         factory { GetCategoriesUseCase(get()) }
 
@@ -106,14 +116,19 @@ object AppModule {
 
         factory { LogoutUseCase(get()) }
 
+        factory { GetAppThemeUseCase(get()) }
+        factory { SetAppThemeUseCase(get()) }
+
         viewModelOf(::OnBoardingViewModel)
         viewModelOf(::AuthViewModel)
         viewModelOf(::ProductsViewModel)
+        viewModelOf(::ProductDetailViewModel)
         viewModelOf(::CartViewModel)
         viewModelOf(::CategoriesViewModel)
         viewModelOf(::AccountViewModel)
         viewModelOf(::DashboardViewModel)
         viewModelOf(::WishListViewModel)
         viewModelOf(::SearchViewModel)
+        viewModelOf(::SettingsViewModel)
     }
 }
