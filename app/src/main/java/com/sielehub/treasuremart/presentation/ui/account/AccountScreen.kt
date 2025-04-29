@@ -1,6 +1,7 @@
 package com.sielehub.treasuremart.presentation.ui.account
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
@@ -45,6 +47,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -88,7 +91,6 @@ fun AccountScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(bottom = paddingValues.calculateBottomPadding())
     ) {
         TopAppBar(
@@ -125,12 +127,17 @@ fun AccountScreen(
                         count = Constants.myCart().products.size
                     )
                 }
-            }
+            },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            modifier = modifier.fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                .statusBarsPadding()
         )
-        Spacer(modifier = modifier.height(8.dp))
+        Spacer(modifier = modifier.height(1.dp))
         Card(
             shape = RoundedCornerShape(0.dp),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Row(
                 modifier = modifier
@@ -187,7 +194,8 @@ fun AccountScreen(
         Spacer(modifier = modifier.height(8.dp))
         Card(
             shape = RoundedCornerShape(0.dp),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Spacer(modifier = modifier.height(10.dp))
             Text(
