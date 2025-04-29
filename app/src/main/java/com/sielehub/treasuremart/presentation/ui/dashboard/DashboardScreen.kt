@@ -72,9 +72,9 @@ import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.core.Constants.Companion.categories
-import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
+import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import com.sielehub.treasuremart.presentation.ui.product.search.SearchViewModel
@@ -92,7 +92,7 @@ fun DashboardScreen(
     onOpenNotification: () -> Unit = {},
     onSearchBarClick: () -> Unit = {},
     onOpenProductDeals: () -> Unit = {},
-    onOpenBestPicksProduct: (Product) -> Unit = {},
+    onNavigateToProductDetails: (Int) -> Unit = {},
 ) {
     var searchedProduct by remember { mutableStateOf("Find products") }
     val searchHistory by searchViewModel.searchHistory.collectAsStateWithLifecycle()
@@ -111,39 +111,37 @@ fun DashboardScreen(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .padding(paddingValues),
+            .padding(bottom = paddingValues.calculateBottomPadding()),
     ) {
-        Spacer(modifier = modifier.height(8.dp))
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = stringResource(R.string.app_name),
-                style = MaterialTheme.typography.titleLarge
-            )
-            FilledIconButton(
-                onClick = {
-                    onOpenNotification()
-                },
-                colors = IconButtonDefaults.iconButtonColors(),
-                shape = RoundedCornerShape(4.dp)
-            ) {
-                BadgedIcon(
-                    icon = Icons.Outlined.Notifications,
-                    count = Constants.myCart().products.size
+        TopBar(
+            navigationIcon = {},
+            title = {
+                Text(
+                    text = stringResource(R.string.app_name),
+                    style = MaterialTheme.typography.titleLarge
                 )
+            },
+            actions = {
+                FilledIconButton(
+                    onClick = {
+                        onOpenNotification()
+                    },
+                    colors = IconButtonDefaults.iconButtonColors(),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    BadgedIcon(
+                        icon = Icons.Outlined.Notifications,
+                        count = Constants.myCart().products.size
+                    )
+                }
             }
-        }
-        Spacer(modifier = modifier.height(4.dp))
+        )
         Row(
             modifier = modifier
                 .fillMaxWidth()
                 .height(48.dp)
-                .padding(horizontal = 16.dp)
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                .padding(horizontal = 16.dp, vertical = 4.dp)
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -172,11 +170,10 @@ fun DashboardScreen(
                 )
             }
         }
-        Spacer(modifier = modifier.height(4.dp))
         ProductsPages(
             dashboardViewModel = dashboardViewModel,
             onOpenProductDeals = onOpenProductDeals,
-            onOpenBestPicksProduct = onOpenBestPicksProduct,
+            onNavigateToProductDetails = onNavigateToProductDetails,
         )
     }
 }
@@ -186,7 +183,7 @@ fun ProductsPages(
     modifier: Modifier = Modifier,
     dashboardViewModel: DashboardViewModel = koinViewModel(),
     onOpenProductDeals: () -> Unit = {},
-    onOpenBestPicksProduct: (Product) -> Unit = {}
+    onNavigateToProductDetails: (Int) -> Unit = {}
 ) {
     var tabItems = mutableListOf(stringResource(R.string.explore))
         .plus(categories().map { it.replaceFirstChar { it.uppercase() } })
@@ -226,7 +223,8 @@ fun ProductsPages(
                         .padding(horizontal = 12.dp),
                     color = MaterialTheme.colorScheme.onBackground
                 )
-            }
+            },
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
         ) {
             tabItems.forEachIndexed { index, title ->
                 Tab(
@@ -253,12 +251,13 @@ fun ProductsPages(
             if (it == 0) {
                 ExplorePage(
                     onOpenProductDeals = onOpenProductDeals,
-                    onOpenBestPicksProduct = onOpenBestPicksProduct
+                    onOpenBestPicksProduct = onNavigateToProductDetails
                 )
             } else {
                 CategoryPage(
                     category = tabItems[selectedTabIndex],
                     categoryProductsState = categoryProductsState,
+                    onNavigateToProductDetail = onNavigateToProductDetails
                 )
             }
         }
@@ -271,7 +270,7 @@ fun ExplorePage(
     modifier: Modifier = Modifier,
     dashboardViewModel: DashboardViewModel = koinViewModel(),
     onOpenProductDeals: () -> Unit,
-    onOpenBestPicksProduct: (Product) -> Unit
+    onOpenBestPicksProduct: (Int) -> Unit
 ) {
     val superDealsProductsState by dashboardViewModel.superDealsProductsState.collectAsState()
     val bestPickProductsState: BestPickProductsState =
@@ -418,7 +417,7 @@ fun ExplorePage(
                     ProductCardGrid(
                         product = product,
                         onClick = {
-                            onOpenBestPicksProduct(product)
+                            onOpenBestPicksProduct(product.id)
                         })
                 }
             }
@@ -438,7 +437,8 @@ fun ExplorePage(
 fun CategoryPage(
     modifier: Modifier = Modifier,
     category: String,
-    categoryProductsState: ProductsByCategoryState
+    categoryProductsState: ProductsByCategoryState,
+    onNavigateToProductDetail: (Int) -> Unit = {}
 ) {
     key(category) {
         val categoryResImage = remember {
@@ -513,7 +513,7 @@ fun CategoryPage(
                         ProductCardGrid(
                             product = product,
                             onClick = {
-                                // navController.navigate(Route.ProductDetail(product.id))
+                                onNavigateToProductDetail(product.id)
                             })
                     }
                 }
