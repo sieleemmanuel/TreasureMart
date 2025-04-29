@@ -18,13 +18,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,9 +46,9 @@ import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.sielehub.treasuremart.core.Constants.Companion.products
+import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.cart.component.SelectableRow
 import com.sielehub.treasuremart.presentation.ui.navigation.Route
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardList
@@ -50,8 +56,9 @@ import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardLi
 @Composable
 fun CheckoutScreen(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
-    navController: NavHostController,
+    paddingValues: PaddingValues = PaddingValues(),
+    onNavigateBack: () -> Unit = {},
+    onNavigateToProductDetail: (id: Int) -> Unit = {},
 ) {
     val paymentMethods = listOf("MPESA", "Wallet")
     var selectedPaymentMethod by rememberSaveable { mutableStateOf(paymentMethods[0]) }
@@ -64,9 +71,29 @@ fun CheckoutScreen(
         Column(
             modifier = modifier
                 .fillMaxSize()
-                .statusBarsPadding()
+                .padding(bottom = paddingValues.calculateBottomPadding())
         ) {
-            Row(
+            TopBar(
+                navigationIcon = {
+                    FilledIconButton(
+                        onClick = onNavigateBack,
+                        colors = IconButtonDefaults.iconButtonColors(),
+                        shape = MaterialTheme.shapes.extraSmall,
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ArrowBackIos,
+                            contentDescription = null
+                        )
+                    }
+                },
+                title = {
+                    Text(
+                        text = "Place Order",
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            )
+            /*Row(
                 modifier = modifier
                     .fillMaxWidth(1f)
                     .statusBarsPadding()
@@ -76,11 +103,11 @@ fun CheckoutScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 IconButton(
-                    onClick = { navController.navigateUp() },
-                    /*colors = IconButtonDefaults.filledIconButtonColors(
+                    onClick = onNavigateBack,
+                    *//*colors = IconButtonDefaults.filledIconButtonColors(
                         containerColor = Color.Gray,
                         contentColor = Color.White
-                    )*/
+                    )*//*
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -88,17 +115,20 @@ fun CheckoutScreen(
                     )
                 }
                 Text(text = "Place Order", style = MaterialTheme.typography.titleLarge)
-            }
+            }*/
             LazyColumn(
                 modifier = modifier
                     .fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 10.dp),
+                contentPadding = PaddingValues(start = 16.dp, top= 10.dp, end = 10.dp),
             ) {
                 item {
-                    ElevatedCard(
+                    Card(
                         modifier = modifier
                             .fillMaxWidth()
-                            .wrapContentHeight()
+                            .wrapContentHeight(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -144,9 +174,10 @@ fun CheckoutScreen(
                 }
                 item {
                     Spacer(modifier = modifier.height(16.dp))
-                    ElevatedCard(
+                    Card(
                         modifier = modifier
-                            .wrapContentHeight()
+                            .wrapContentHeight(),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
                     ) {
                         Text(
                             text = "Payment Method",
@@ -177,15 +208,18 @@ fun CheckoutScreen(
 
                 items(items = products().subList(0, 2)) {
                     ProductCardList(product = it) { productId ->
-                        navController.navigate(Route.ProductDetail(productId))
+                        onNavigateToProductDetail(productId)
                     }
                 }
                 item {
                     Spacer(modifier = modifier.height(6.dp))
-                    ElevatedCard(
+                    Card(
                         modifier = modifier
                             .fillMaxWidth()
-                            .wrapContentHeight()
+                            .wrapContentHeight(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
                     ) {
                         Text(
                             text = "Total",
@@ -254,11 +288,11 @@ fun CheckoutScreen(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.background)
-                .padding(horizontal = 16.dp, vertical = 10.dp)
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
                 .align(Alignment.BottomCenter),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             Text(
                 fontWeight = FontWeight.Bold,
@@ -266,7 +300,7 @@ fun CheckoutScreen(
                 text = "KSh 156, 000"
             )
 
-            ElevatedButton(
+            Button(
                 onClick = {
 
                 },
@@ -276,7 +310,6 @@ fun CheckoutScreen(
                 ),
                 modifier = modifier
                     .weight(1f)
-                    .heightIn(48.dp)
             ) {
                 Text(text = "Place Order")
             }
@@ -286,10 +319,7 @@ fun CheckoutScreen(
 
 @Preview(showBackground = true)
 @Composable
-fun CheckoutScreenPreview(modifier: Modifier = Modifier) {
-    CheckoutScreen(
-        paddingValues = PaddingValues(),
-        navController = rememberNavController(),
-    )
+fun CheckoutScreenPreview() {
+    CheckoutScreen()
 }
 
