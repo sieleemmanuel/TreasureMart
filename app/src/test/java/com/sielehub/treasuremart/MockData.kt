@@ -6,13 +6,16 @@ import com.sielehub.treasuremart.domain.model.Name
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.domain.model.Rating
 import com.sielehub.treasuremart.domain.model.SignupRequest
+import com.sielehub.treasuremart.domain.model.SignupResponse
 import com.sielehub.treasuremart.domain.model.User
 
 val fakeNewUser = SignupRequest(
-    id = 1,
     email = "John@gmail.com",
     username = "johnd",
     password = "m38rmF$",
+)
+val fakeSignupResponse = SignupResponse(
+    id = 1
 )
 val fakeUser = User(
     id = 1,
