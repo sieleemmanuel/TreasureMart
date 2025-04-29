@@ -3,7 +3,7 @@ package com.sielehub.treasuremart.presentation.ui.product.wish
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,9 +14,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.product.component.WishListProductCard
 import org.koin.androidx.compose.koinViewModel
 
@@ -46,9 +48,36 @@ fun WishListScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(paddingValues)
+            .padding(bottom = paddingValues.calculateBottomPadding())
     ) {
-        Row(
+        TopBar(
+            navigationIcon = {
+                FilledIconButton(
+                    onClick = { onNavigateBack() },
+                    modifier = modifier
+                        .padding(start = 4.dp)
+                        .size(48.dp),
+                    shape = MaterialTheme.shapes.extraSmall,
+                    colors = IconButtonDefaults.iconButtonColors()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIosNew,
+                        contentDescription = null
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = "Wish List",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = modifier
+                        .padding(end = 48.dp)
+                )
+            },
+            actions = {}
+        )
+        /*Row(
             modifier = modifier
                 .fillMaxWidth()
                 .padding(vertical = 8.dp),
@@ -73,7 +102,7 @@ fun WishListScreen(
                     .weight(1f)
                     .padding(end = 48.dp)
             )
-        }
+        }*/
 
         when {
             wishListState.isLoading -> {
@@ -122,7 +151,10 @@ fun WishListScreen(
             else -> {
                 LazyColumn(
                     modifier = modifier
-                        .fillMaxHeight(1f)
+                        .fillMaxHeight(1f),
+                    contentPadding = PaddingValues(
+                        top = 1.dp,
+                    )
                 ) {
                     items(items = wishListState.wishList) {
                         WishListProductCard(
@@ -133,8 +165,11 @@ fun WishListScreen(
                             }
                         )
                         HorizontalDivider(
-                            modifier = modifier.alpha(0.6f)
+                            color = MaterialTheme.colorScheme.background
                         )
+                    }
+                    item {
+                        Spacer(modifier = modifier.size(16.dp))
                     }
                 }
             }
