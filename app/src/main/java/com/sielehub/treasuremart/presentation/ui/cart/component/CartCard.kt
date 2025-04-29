@@ -1,7 +1,7 @@
 package com.sielehub.treasuremart.presentation.ui.cart.component
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,12 +18,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.outlined.Clear
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -47,11 +48,17 @@ import com.sielehub.treasuremart.domain.model.CartProduct
 fun CartCard(
     modifier: Modifier = Modifier,
     cartProduct: CartProduct,
-    onClick: (Int) -> Unit = {},
+    onViewProduct: (Int) -> Unit = {},
     onRemove: (Int) -> Unit = {},
 ) {
     val product = products().find { it.id == cartProduct.productId }
-    ElevatedCard(onClick = { /*TODO*/ }) {
+    Card(
+        onClick = { onViewProduct(cartProduct.productId) },
+        colors = CardDefaults.cardColors().copy(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer
+        ),
+        modifier = modifier,
+        ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -61,12 +68,12 @@ fun CartCard(
         ) {
             Box(
                 modifier = modifier
-                    .size(90.dp)
+                    .size(72.dp)
                     .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(8.dp)
+                        color = MaterialTheme.colorScheme.background.copy(alpha = .7f),
+                        shape = RoundedCornerShape(4.dp)
                     )
-                    .clip(RoundedCornerShape(8.dp))
+                    .clip(RoundedCornerShape(4.dp))
             ) {
                 AsyncImage(
                     model = product?.image,
@@ -75,9 +82,8 @@ fun CartCard(
                     contentScale = ContentScale.FillBounds,
                     modifier = modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
-                            product?.id?.let { onClick(it) }
+                            product?.id?.let { onViewProduct(it) }
                         }
                 )
             }
@@ -99,29 +105,15 @@ fun CartCard(
                         overflow = TextOverflow.Ellipsis,
                         modifier = modifier.weight(.9f)
                     )
-                    IconButton(
-                        onClick = { product?.id?.let { onRemove(it) } },
-                        colors = IconButtonDefaults.outlinedIconButtonColors(
-                            contentColor = Color.Gray
-                        ),
-                        modifier = modifier.size(24.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Clear,
-                            contentDescription = null,
-                        )
-                    }
                 }
+                Spacer(modifier = modifier.height(4.dp))
                 Text(
                     text = product?.description ?: "",
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color.Gray
-                    ),
+                    style = MaterialTheme.typography.bodySmall.copy(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = modifier.height(16.dp))
+                Spacer(modifier = modifier.height(8.dp))
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
@@ -138,39 +130,40 @@ fun CartCard(
 
                     Row(
                         modifier = modifier
-                            .padding(start = 12.dp),
+                            .padding(start = 12.dp)
+                            .border(
+                                width = 1.dp,
+                                color = Color.Gray,
+                                shape = RoundedCornerShape(12.dp)
+                            ),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        OutlinedIconButton(
-                            modifier = modifier.size(24.dp),
-                            colors = IconButtonDefaults.outlinedIconButtonColors(
-                                contentColor = Color.Gray
-                            ),
-                            border = BorderStroke(color = Color.Gray, width = 1.dp),
-                            shape = RoundedCornerShape(4.dp),
-                            onClick = {
+                        Icon(
+                            imageVector = Icons.Default.Remove,
+                            contentDescription = null,
+                            modifier = modifier
+                                .padding(start = 4.dp)
+                                .size(20.dp)
+                                .clickable {
 
-                            }) {
-                            Icon(imageVector = Icons.Default.Remove, contentDescription = null)
-                        }
+                                },
+                        )
+
                         Text(
                             text = cartProduct.quantity.toString(),
                             style = TextStyle(fontWeight = FontWeight.Bold)
                         )
-                        OutlinedIconButton(
-                            modifier = modifier.size(24.dp),
-                            colors = IconButtonDefaults.outlinedIconButtonColors(
-                                contentColor = MaterialTheme.colorScheme.primary
-                            ),
-                            border = BorderStroke(
-                                color = MaterialTheme.colorScheme.primary,
-                                width = 1.dp
-                            ),
-                            shape = RoundedCornerShape(4.dp),
-                            onClick = { /*TODO*/ }) {
-                            Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = null,
+                            modifier = modifier
+                                .padding(end = 4.dp)
+                                .size(20.dp)
+                                .clickable {
+
+                                }
+                        )
                     }
                 }
             }
