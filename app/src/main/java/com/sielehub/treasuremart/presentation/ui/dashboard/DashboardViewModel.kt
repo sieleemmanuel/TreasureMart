@@ -11,8 +11,11 @@ import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUs
 import com.sielehub.treasuremart.domain.use_case.product.GetSuperDealsProductsUseCase
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class DashboardViewModel(
@@ -22,8 +25,8 @@ class DashboardViewModel(
 ) : ViewModel() {
 
     private val _superDealsProductsState =
-        mutableStateOf<SuperDealsProductsState>(SuperDealsProductsState(isLoading = true))
-    val superDealsProductsState: State<SuperDealsProductsState> = _superDealsProductsState
+        MutableStateFlow<SuperDealsProductsState>(SuperDealsProductsState(isLoading = true))
+    val superDealsProductsState: StateFlow<SuperDealsProductsState> = _superDealsProductsState
 
     private val _bestPickProductsState =
         mutableStateOf<BestPickProductsState>(BestPickProductsState(isLoading = true))
@@ -38,20 +41,25 @@ class DashboardViewModel(
             getSuperDealsProductsUseCase().collect { productsState ->
                 when (productsState) {
                     is Resource.Success -> {
-                        _superDealsProductsState.value = SuperDealsProductsState(
-                            products = productsState.data ?: emptyList()
-                        )
+                        _superDealsProductsState.update {
+                            SuperDealsProductsState(
+                                products = productsState.data ?: emptyList()
+                            )
+                        }
                     }
 
                     is Resource.Error -> {
-                        _superDealsProductsState.value =
+                        _superDealsProductsState.update {
                             SuperDealsProductsState(
                                 error = productsState.message ?: "An error occurred"
                             )
+                        }
                     }
 
                     is Resource.Loading -> {
-                        _superDealsProductsState.value = SuperDealsProductsState(isLoading = true)
+                        _superDealsProductsState.update {
+                            SuperDealsProductsState(isLoading = true)
+                        }
                     }
                 }
             }
