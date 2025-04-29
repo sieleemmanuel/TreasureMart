@@ -30,10 +30,10 @@ sealed class Route {
     data object Dashboard : Route()
 
     @Serializable
-    data object Profile : Route()
+    data object Account : Route()
 
     @Serializable
-    data object Favorites : Route()
+    data object WishList : Route()
 
     @Serializable
     data object Checkout : Route()
@@ -51,12 +51,22 @@ sealed class Route {
     data object Notifications : Route()
 
     @Serializable
-    data object Search : Route()
+    data object SuperDealsProducts : Route()
 
     @Serializable
-    data class Products(val category: String? = null) : Route()
+    data object Orders : Route()
+
+    @Serializable
+    data object Settings : Route()
+
+    @Serializable
+    data class Search(val query: String? = null) : Route()
+
+    @Serializable
+    data class Products(val productsQuery: String? = null) : Route()
 
     @Serializable
     data class ProductDetail(val id: Int) : Route()
+
 }
 

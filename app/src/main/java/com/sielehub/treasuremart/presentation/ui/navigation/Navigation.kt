@@ -1,5 +1,6 @@
 package com.sielehub.treasuremart.presentation.ui.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,7 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
-import com.sielehub.treasuremart.presentation.ui.account.ProfileScreen
+import com.sielehub.treasuremart.presentation.ui.account.AccountScreen
 import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.ui.auth.ForgotPasswordScreen
 import com.sielehub.treasuremart.presentation.ui.auth.LoginScreen
@@ -24,12 +25,16 @@ import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardScreen
 import com.sielehub.treasuremart.presentation.ui.notifications.NotificationsScreen
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingScreen
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingViewModel
+import com.sielehub.treasuremart.presentation.ui.orders.OrdersScreen
 import com.sielehub.treasuremart.presentation.ui.product.categories.CategoriesScreen
 import com.sielehub.treasuremart.presentation.ui.product.categories.CategoryListState
 import com.sielehub.treasuremart.presentation.ui.product.detail.ProductDetailScreen
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductListState
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsScreen
+import com.sielehub.treasuremart.presentation.ui.product.list.SuperDealProductsScreen
 import com.sielehub.treasuremart.presentation.ui.product.search.SearchScreen
+import com.sielehub.treasuremart.presentation.ui.product.wish.WishListScreen
+import com.sielehub.treasuremart.presentation.ui.settings.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
 private const val TAG = "Navigation"
@@ -104,10 +109,18 @@ fun Navigation(
         }
         composable<Route.Dashboard> {
             DashboardScreen(
-                navController = navController,
                 paddingValues = paddingValues,
                 onSearchBarClick = {
-                    navController.navigate(Route.Search)
+                    navController.navigate(Route.Search())
+                },
+                onOpenNotification = {
+                    navController.navigate(Route.Notifications)
+                },
+                onNavigateToProductDetails = {
+                    navController.navigate(Route.ProductDetail(it))
+                },
+                onOpenProductDeals = {
+                    navController.navigate(Route.SuperDealsProducts)
                 }
             )
         }
@@ -131,44 +144,112 @@ fun Navigation(
                 productsListState = ProductListState()
             )
         }
-        composable<Route.Favorites> {
+        composable<Route.WishList> {
             //val args = it.toRoute<Route.Favorites>()
-            ProductsScreen(
+            WishListScreen(
                 paddingValues = paddingValues,
-                navController = navController
+                onNavigateBack = {
+                    navController.navigateUp()
+                },
+                onNavigateToProductDetail = {
+                    navController.navigate(Route.ProductDetail(it))
+                }
             )
         }
-        composable<Route.Profile> {
-            ProfileScreen(
+        composable<Route.Orders> {
+            OrdersScreen(
                 paddingValues = paddingValues,
-                navController = navController
+                onNavigateBack = {
+                    navController.navigateUp()
+                }
+            )
+        }
+
+        composable<Route.Account> {
+            AccountScreen(
+                paddingValues = paddingValues,
+                onNavigateToNotifications = {
+                    navController.navigate(Route.Notifications)
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Route.Settings)
+                },
+                onNavigateToOrders = {
+                    navController.navigate(Route.Orders)
+                },
+            )
+        }
+
+        composable<Route.Settings> {
+            SettingsScreen(
+                paddingValues = paddingValues,
+                onNavigateBack = {
+                    navController.navigateUp()
+                }
             )
         }
         composable<Route.Products> {
             val args = it.toRoute<Route.Products>()
             ProductsScreen(
                 paddingValues = paddingValues,
-                navController = navController,
-                query = args.category ?: ""
+                productsQuery = args.productsQuery ?: "",
+                onNavigateBack = {
+                    navController.navigateUp()
+                },
+                onNavigateToProductDetail = {
+                    navController.navigate(Route.ProductDetail(it))
+                },
+                onNavigateToCart = {
+                    navController.navigate(Route.Carts)
+                },
+                onSearchBarClick = {
+                    navController.navigate(Route.Search())
+                }
             )
         }
         composable<Route.ProductDetail> {
             val args = it.toRoute<Route.ProductDetail>()
             ProductDetailScreen(
                 paddingValues = paddingValues,
-                navController = navController,
-                productId = args.id
+                productId = args.id,
+                onNavigateBack = {
+                    navController.navigateUp()
+                },
+                onNavigateToCart = {
+                    navController.navigate(Route.Carts)
+                }
+            )
+        }
+        composable<Route.SuperDealsProducts> {
+            SuperDealProductsScreen(
+                paddingValues = paddingValues,
+                onNavigateBack = {
+                    navController.navigateUp()
+                },
+                onNavigateToProductDetail = { productId, discount ->
+                    navController.navigate(Route.ProductDetail(productId))
+                }
             )
         }
         composable<Route.Notifications> {
             NotificationsScreen(
                 paddingValues = paddingValues,
-                navController = navController
+                onNavigateBack = {
+                    navController.popBackStack()
+                }
             )
         }
         composable<Route.Search> {
+            // val args = it.toRoute<Route.Search>()
             SearchScreen(
                 paddingValues = paddingValues,
+                onNavigateBack = {
+                    navController.navigateUp()
+                },
+                onSearch = {
+                    Log.d(TAG, "search query: $it")
+                    navController.navigate(Route.Products(it))
+                }
             )
         }
     }
