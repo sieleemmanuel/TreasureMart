@@ -29,9 +29,11 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.rounded.DeleteOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.OutlinedTextFieldDefaults.Container
@@ -47,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -57,6 +60,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sielehub.treasuremart.R
+import com.sielehub.treasuremart.presentation.common.TopBar
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,9 +85,119 @@ fun SearchScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(paddingValues)
+            .padding(bottom = paddingValues.calculateBottomPadding())
     ) {
-        Spacer(modifier = modifier.height(16.dp))
+        TopBar(
+            navigationIcon = {
+                FilledIconButton(
+                    onClick = { onNavigateBack() },
+                    modifier = modifier.size(48.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    colors = IconButtonDefaults.iconButtonColors()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBackIosNew,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            title = {
+                BasicTextField(
+                    modifier = modifier
+                        .weight(1f)
+                        .fillMaxWidth(1f)
+                        .height(48.dp),
+                    value = searchQuery,
+                    onValueChange = {
+                        searchQuery = it
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        imeAction = ImeAction.Search
+                    ),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            performSearch(
+                                searchViewModel = searchViewModel,
+                                searchQuery = searchQuery,
+                                onSearch = onSearch
+                            )
+                        }
+                    ),
+                    singleLine = true,
+                    textStyle = TextStyle.Default.copy(
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Normal
+                    ),
+                    cursorBrush = SolidColor(MaterialTheme.colorScheme.onBackground),
+                    decorationBox = {
+                        OutlinedTextFieldDefaults.DecorationBox(
+                            value = searchQuery,
+                            innerTextField = it,
+                            enabled = false,
+                            singleLine = true,
+                            visualTransformation = VisualTransformation.None,
+                            interactionSource = interactionSource,
+                            contentPadding = OutlinedTextFieldDefaults.contentPadding(
+                                top = 0.dp,
+                                bottom = 0.dp
+                            ),
+                            placeholder = {
+                                Text(text = stringResource(R.string.search))
+                            },
+                            trailingIcon = {
+                                if (searchQuery.isNotEmpty()) {
+                                    Icon(
+                                        imageVector = Icons.Default.Close,
+                                        contentDescription = null,
+                                        modifier = modifier
+                                            .clickable {
+                                                searchQuery = ""
+                                            }
+                                    )
+                                }
+                            },
+                            container = {
+                                Container(
+                                    shape = RoundedCornerShape(24.dp),
+                                    interactionSource = interactionSource,
+                                    enabled = true,
+                                    isError = false,
+                                    colors = OutlinedTextFieldDefaults.colors().copy(
+                                        focusedIndicatorColor = MaterialTheme.colorScheme.onBackground,
+                                        unfocusedIndicatorColor = MaterialTheme.colorScheme.onBackground,
+                                        focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                        unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                                        /*focusedPlaceholderColor = Color.Transparent,
+                                        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onBackground.copy(
+                                            alpha = 0.7f
+                                        )*/
+                                    ),
+                                )
+                            }
+                        )
+                    }
+                )
+            },
+            actions = {
+                FilledIconButton(
+                    onClick = {
+                        performSearch(searchViewModel, searchQuery, onSearch)
+                    },
+                    modifier = modifier.size(48.dp),
+                    shape = RoundedCornerShape(4.dp),
+                    colors = IconButtonDefaults.iconButtonColors()
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onBackground
+                    )
+                }
+            },
+            containerColor = Color.Transparent,
+        )
+        /*Spacer(modifier = modifier.height(16.dp))
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -165,10 +279,10 @@ fun SearchScreen(
                                     unfocusedIndicatorColor = MaterialTheme.colorScheme.onBackground,
                                     focusedTextColor = MaterialTheme.colorScheme.onBackground,
                                     unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
-                                    /*focusedPlaceholderColor = Color.Transparent,
+                                    *//*focusedPlaceholderColor = Color.Transparent,
                                     unfocusedPlaceholderColor = MaterialTheme.colorScheme.onBackground.copy(
                                         alpha = 0.7f
-                                    )*/
+                                    )*//*
                                 ),
                             )
                         }
@@ -187,7 +301,7 @@ fun SearchScreen(
                     tint = MaterialTheme.colorScheme.onBackground
                 )
             }
-        }
+        }*/
         Spacer(modifier = modifier.height(8.dp))
         if (searchQuery.isEmpty() && recentQueries.isNotEmpty()) {
             SearchHistory(
