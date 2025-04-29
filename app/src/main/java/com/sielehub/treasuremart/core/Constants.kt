@@ -20,6 +20,11 @@ class Constants {
         const val AUTH_ENDPOINT = "$BASE_URL/auth/login/"
     }
 
+    object AppThemes {
+        const val LIGHT = "Light mode"
+        const val DARK = "Dark mode"
+        const val SYSTEM = "System default"
+    }
 
     companion object {
         const val PARAM_PRODUCT_ID = "productId"
@@ -144,6 +149,8 @@ class Constants {
                 rating = Rating(rate = 2.9, count = 250)
             )
         )
+
+        val wishList = products().shuffled().toMutableList()
 
         fun categories() = listOf(
             "electronics",
