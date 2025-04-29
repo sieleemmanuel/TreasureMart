@@ -13,16 +13,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForwardIos
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.Card
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
@@ -40,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sielehub.treasuremart.core.Constants
+import com.sielehub.treasuremart.presentation.common.TopBar
 import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)
@@ -59,38 +60,38 @@ fun SettingsScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .statusBarsPadding()
             .padding(bottom = paddingValues.calculateBottomPadding())
     ) {
-        Spacer(modifier = modifier.height(8.dp))
-        Row(
-            modifier = modifier
-                .fillMaxWidth(1f),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = modifier
-                    .height(48.dp)
-                    .aspectRatio(1f)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.ArrowBackIosNew,
-                    contentDescription = null
+        TopBar(
+            navigationIcon = {
+                FilledIconButton(
+                    onClick = onNavigateBack,
+                    shape = MaterialTheme.shapes.extraSmall,
+                    colors = IconButtonDefaults.iconButtonColors(),
+                    modifier = modifier
+                        .height(48.dp)
+                        .aspectRatio(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.ArrowBackIosNew,
+                        contentDescription = null
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = "Settings",
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = modifier.weight(.8f)
                 )
             }
-            Text(
-                text = "Settings",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = modifier.weight(.8f)
-            )
-        }
+        )
 
         LazyColumn(
             modifier = modifier
                 .fillMaxWidth()
                 .weight(1f),
+            contentPadding = PaddingValues(top = 12.dp),
         ) {
             item {
                 Row(
