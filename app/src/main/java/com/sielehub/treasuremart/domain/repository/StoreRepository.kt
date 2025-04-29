@@ -20,6 +20,12 @@ interface StoreRepository {
 
     suspend fun getSearchedProducts(query: String): List<Product>
 
+    suspend fun getWishlist(): List<Product>
+
+    suspend fun addToWishlist(product: Product): Boolean
+
+    suspend fun removeFromWishlist(productId: Int): Boolean
+
     suspend fun createCart(cart: Cart): Cart?
 
     suspend fun updateCart(cart: Cart): Cart?

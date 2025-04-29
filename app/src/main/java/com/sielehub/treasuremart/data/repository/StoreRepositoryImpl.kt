@@ -1,5 +1,6 @@
 package com.sielehub.treasuremart.data.repository
 
+import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.domain.model.Cart
 import com.sielehub.treasuremart.domain.model.Notification
 import com.sielehub.treasuremart.domain.model.Product
@@ -47,6 +48,18 @@ class StoreRepositoryImpl(private val apiService: ApiService) : StoreRepository 
         return products.filter {
             it.title.contains(query, true) || it.description.contains(query, true)
         }
+    }
+
+    override suspend fun getWishlist(): List<Product> {
+        return Constants.wishList
+    }
+
+    override suspend fun addToWishlist(product: Product): Boolean {
+        return Constants.wishList.add(product)
+    }
+
+    override suspend fun removeFromWishlist(productId: Int): Boolean {
+        return Constants.wishList.removeIf { it.id == productId }
     }
 
     override suspend fun getCarts(): List<Cart> = apiService.getCarts().map { it.toCart() }
