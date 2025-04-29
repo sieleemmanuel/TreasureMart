@@ -50,6 +50,7 @@ fun WishListProductCard(
         Row(
             modifier = modifier
                 .fillMaxWidth()
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .clickable{
                     onClick(product.id)
                 },
@@ -58,7 +59,7 @@ fun WishListProductCard(
             Box(
                 modifier = modifier
                     .padding(start = 10.dp)
-                    .size(90.dp)
+                    .size(120.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
                     )
