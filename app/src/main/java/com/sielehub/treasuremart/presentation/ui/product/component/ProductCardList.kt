@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,18 +34,20 @@ import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.domain.model.Product
 
+@Preview(showBackground = true)
 @Composable
 fun ProductCardList(
     modifier: Modifier = Modifier,
-    product: Product,
-    onClick: (productId: Int) -> Unit,
+    product: Product = Product(),
+    onClick: (productId: Int) -> Unit = {},
 ) {
-    ElevatedCard(
+    Card(
         onClick = { onClick(product.id) },
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth()
             .padding(bottom = 8.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         shape = RoundedCornerShape(8.dp)
     ) {
         Row(
