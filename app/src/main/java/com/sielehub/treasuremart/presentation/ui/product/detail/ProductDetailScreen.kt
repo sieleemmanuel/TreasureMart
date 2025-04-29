@@ -1,7 +1,6 @@
 package com.sielehub.treasuremart.presentation.ui.product.detail
 
 import android.annotation.SuppressLint
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,7 +35,8 @@ import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -125,7 +125,6 @@ fun ProductDetailScreen(
                 .zIndex(1f)
                 .onGloballyPositioned { coordinates ->
                     collapsedTopBarHeight = coordinates.size.height.toFloat()
-                    Log.d("ProductDetailScreen", "onGloballyPositioned: $collapsedTopBarHeight")
                 },
             navigationIcon = {
                 FilledIconButton(
@@ -269,11 +268,12 @@ fun ProductDetailScreen(
                     }
                 }
                 Spacer(modifier = modifier.height(16.dp))
-                ElevatedCard(
+                Card(
                     modifier = modifier
                         .fillMaxWidth()
                         .wrapContentHeight()
-                        .padding(horizontal = 10.dp)
+                        .padding(horizontal = 10.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     Text(
                         text = productDetailState.product?.title ?: "",
@@ -314,10 +314,11 @@ fun ProductDetailScreen(
             }
             item {
                 Spacer(modifier = modifier.height(16.dp))
-                ElevatedCard(
+                Card(
                     modifier = modifier
                         .wrapContentHeight()
-                        .padding(horizontal = 10.dp)
+                        .padding(horizontal = 10.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     Row(
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -367,10 +368,11 @@ fun ProductDetailScreen(
                     }
                 }
                 Spacer(modifier = modifier.height(16.dp))
-                ElevatedCard(
+                Card(
                     modifier = modifier
                         .padding(horizontal = 10.dp)
-                        .wrapContentHeight()
+                        .wrapContentHeight(),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
                 ) {
                     Text(
                         text = "Description",
