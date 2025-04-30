@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import com.sielehub.treasuremart.presentation.ui.account.AccountScreen
+import com.sielehub.treasuremart.presentation.ui.address.ShippingAddressScreen
 import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.ui.auth.ForgotPasswordScreen
 import com.sielehub.treasuremart.presentation.ui.auth.LoginScreen
@@ -130,12 +131,6 @@ fun Navigation(
                 navController = navController
             )
         }
-        composable<Route.Checkout> {
-            CheckoutScreen(
-                paddingValues = paddingValues,
-                navController = navController
-            )
-        }
         composable<Route.Categories> {
             CategoriesScreen(
                 paddingValues = paddingValues,
@@ -160,7 +155,27 @@ fun Navigation(
             OrdersScreen(
                 paddingValues = paddingValues,
                 onNavigateBack = {
-                    navController.navigateUp()
+                    navController.popBackStack()
+                }
+            )
+        }
+        composable<Route.Checkout> {
+            CheckoutScreen(
+                paddingValues = paddingValues,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onEditAddress = {
+                    navController.navigate(Route.ShippingAddress)
+                }
+            )
+        }
+
+        composable<Route.ShippingAddress> {
+            ShippingAddressScreen(
+                paddingValues = paddingValues,
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }
@@ -177,6 +192,9 @@ fun Navigation(
                 onNavigateToOrders = {
                     navController.navigate(Route.Orders)
                 },
+                onNavigateToAddress = {
+                    navController.navigate(Route.ShippingAddress)
+                }
             )
         }
 

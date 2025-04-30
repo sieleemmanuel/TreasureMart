@@ -60,6 +60,9 @@ sealed class Route {
     data object Settings : Route()
 
     @Serializable
+    data object ShippingAddress : Route()
+
+    @Serializable
     data class Search(val query: String? = null) : Route()
 
     @Serializable
