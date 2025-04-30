@@ -6,75 +6,81 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBackIosNew
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sielehub.treasuremart.R
+import com.sielehub.treasuremart.presentation.common.TopBar
 
+@Preview(showBackground = true)
 @Composable
 fun NotificationsScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues = PaddingValues(),
     onNavigateBack: () -> Unit = {},
 ) {
-    Column(
-        modifier = modifier
-            .statusBarsPadding()
-            .padding(bottom = paddingValues.calculateBottomPadding())
-    ) {
-        Spacer(modifier = modifier.height(8.dp))
-        Row(
-            modifier = modifier
-                .fillMaxWidth(1f)
-                .padding(horizontal = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            IconButton(
-                onClick = onNavigateBack,
-                modifier = modifier.height(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Rounded.ArrowBackIosNew,
-                    contentDescription = null
+    Column(modifier = modifier.fillMaxSize()) {
+        TopBar(
+            navigationIcon = {
+                FilledIconButton(
+                    onClick = { onNavigateBack() },
+                    modifier = modifier
+                        .size(48.dp),
+                    shape = MaterialTheme.shapes.extraSmall,
+                    colors = IconButtonDefaults.iconButtonColors()
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBackIosNew,
+                        contentDescription = null
+                    )
+                }
+            },
+            title = {
+                Text(
+                    text = "Messages",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = modifier
+                        .padding(end = 48.dp)
                 )
             }
-            Text(
-                text = "Notifications",
-                style = MaterialTheme.typography.titleLarge,
-                modifier = modifier.weight(.8f)
-            )
-            /*IconButton(onClick = { *//*TODO*//* }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-            }*/
-        }
-
+        )
         LazyColumn(
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            contentPadding = PaddingValues(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             item {
-                Spacer(modifier = modifier.height(8.dp))
+                Spacer(modifier = modifier.height(0.dp))
             }
             items(10) {
                 NotificationItemCard(modifier, it)
+            }
+            item {
+                Spacer(
+                    modifier = modifier
+                        .padding(bottom = paddingValues.calculateBottomPadding())
+                        .height(8.dp)
+                )
             }
         }
     }
@@ -82,7 +88,9 @@ fun NotificationsScreen(
 
 @Composable
 fun NotificationItemCard(modifier: Modifier, i: Int) {
-    Card {
+    Card(
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer)
+    ) {
         Spacer(modifier = modifier.height(10.dp))
         Row(
             modifier = modifier
