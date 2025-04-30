@@ -45,8 +45,7 @@ fun ProductCardList(
         onClick = { onClick(product.id) },
         modifier = modifier
             .wrapContentHeight()
-            .fillMaxWidth()
-            .padding(bottom = 8.dp),
+            .fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         shape = RoundedCornerShape(8.dp)
     ) {
