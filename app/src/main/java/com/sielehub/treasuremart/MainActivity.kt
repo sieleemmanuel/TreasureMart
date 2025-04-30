@@ -1,27 +1,15 @@
 package com.sielehub.treasuremart
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.Person2
-import androidx.compose.material.icons.rounded.ShoppingCart
-import androidx.compose.material3.Badge
-import androidx.compose.material3.BadgedBox
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -35,7 +23,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sielehub.treasuremart.core.Constants
-import com.sielehub.treasuremart.presentation.common.BottomNavItem
+import com.sielehub.treasuremart.presentation.common.BottomNavigationBar
 import com.sielehub.treasuremart.presentation.ui.navigation.Navigation
 import com.sielehub.treasuremart.presentation.ui.navigation.Route
 import com.sielehub.treasuremart.presentation.ui.settings.SettingsViewModel
@@ -50,7 +38,6 @@ class MainActivity : ComponentActivity() {
         installSplashScreen()
         lifecycleScope.launch {
             settingsViewModel.currentAppTheme.collect {
-                Log.d(TAG, "onCreate theme: $it")
                 val isDarkTheme = when (it) {
                     Constants.AppThemes.LIGHT -> false
                     Constants.AppThemes.DARK -> true
@@ -87,24 +74,18 @@ class MainActivity : ComponentActivity() {
                 Constants.AppThemes.DARK -> true
                 else -> isSystemInDarkTheme()
             }
-            Log.d(TAG, "currentAppTheme dark: $isDarkTheme")
             TreasureMartTheme(darkTheme = isDarkTheme) {
                 val navController = rememberNavController()
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val navItems = listOf(
-                        BottomNavItem("Home", Icons.Rounded.Home, route = Route.Dashboard),
-                        BottomNavItem("Cart", Icons.Rounded.ShoppingCart, Route.Carts),
-                        BottomNavItem("Wish", Icons.Rounded.Favorite, Route.WishList),
-                        BottomNavItem("Account", Icons.Rounded.Person2, Route.Account)
-                    )
                     var selectedItem by rememberSaveable { mutableIntStateOf(0) }
                     val navBackStackEntry by navController.currentBackStackEntryAsState()
+                    val currentRoute = Route.toRoute(navBackStackEntry?.destination?.route)
 
                     val showBottomBar =
-                        when (Route.toRoute(navBackStackEntry?.destination?.route)) {
+                        when (currentRoute) {
                             is Route.Dashboard,
                             is Route.Carts,
                             is Route.WishList,
@@ -117,37 +98,50 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         bottomBar = {
                             if (showBottomBar)
-                                NavigationBar(modifier = Modifier) {
-                                    navItems.forEachIndexed { index, item ->
-                                        NavigationBarItem(
-                                            selected = index == selectedItem,
-                                            onClick = {
-                                                selectedItem = index
-                                                navController.navigate(item.route)
-                                            },
-                                            icon = {
-                                                if (item.label == "Cart") {
-                                                    BadgedBox(badge = {
-                                                        Badge {
-                                                            Text(text = Constants.myCart().products.size.toString())
-                                                        }
-                                                    }) {
-                                                        Icon(
-                                                            item.icon,
-                                                            contentDescription = item.label
-                                                        )
-                                                    }
-                                                } else {
-                                                    Icon(
-                                                        item.icon,
-                                                        contentDescription = item.label
-                                                    )
-                                                }
-                                            },
-                                            label = { Text(item.label) }
-                                        )
-                                    }
+                                currentRoute?.let {
+                                    BottomNavigationBar(
+                                        navController = navController,
+                                        currentRoute = currentRoute
+                                    )
                                 }
+
+                            /* NavigationBar(modifier = Modifier) {
+                                 navItems.forEachIndexed { index, item ->
+                                     NavigationBarItem(
+                                         selected = index == selectedItem,
+                                         onClick = {
+                                             selectedItem = index
+                                             navController.navigate(item.route) {
+                                                 popUpTo(Route.Dashboard) {
+                                                     saveState = false
+                                                 }
+                                                 launchSingleTop = true
+                                                 restoreState = false
+                                             }
+                                         },
+                                         icon = {
+                                             if (item.label == "Cart") {
+                                                 BadgedBox(badge = {
+                                                     Badge {
+                                                         Text(text = Constants.myCart().products.size.toString())
+                                                     }
+                                                 }) {
+                                                     Icon(
+                                                         item.icon,
+                                                         contentDescription = item.label
+                                                     )
+                                                 }
+                                             } else {
+                                                 Icon(
+                                                     item.icon,
+                                                     contentDescription = item.label
+                                                 )
+                                             }
+                                         },
+                                         label = { Text(item.label) }
+                                     )
+                                 }
+                             }*/
                         }
                     ) { paddingValues ->
                         Navigation(
