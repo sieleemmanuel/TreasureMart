@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.HeadsetMic
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.ResetTv
-import androidx.compose.material.icons.outlined.Help
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Reviews
 import androidx.compose.material.icons.outlined.Settings
@@ -73,7 +71,8 @@ fun AccountScreen(
     accountViewModel: AccountViewModel = koinViewModel(),
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    onNavigateToOrders: () -> Unit = {}
+    onNavigateToOrders: () -> Unit = {},
+    onNavigateToAddress: () -> Unit = {}
 ) {
     val logoutState by accountViewModel.logoutState.collectAsState()
     val orderCategories = listOf(
@@ -84,7 +83,7 @@ fun AccountScreen(
         Pair(Icons.Default.ResetTv, "Returns")
     )
     val services = listOf(
-        Pair(Icons.Filled.LocationOn, "Addresses"),
+        Pair(Icons.Filled.LocationOn, "Address"),
         Pair(Icons.Filled.HeadsetMic, "Help center"),
         Pair(Icons.AutoMirrored.Outlined.Help, "FAQ"),
     )
@@ -129,11 +128,12 @@ fun AccountScreen(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
                 .background(color = MaterialTheme.colorScheme.surfaceContainer)
                 .statusBarsPadding()
         )
-        Spacer(modifier = modifier.height(1.dp))
+        Spacer(modifier = modifier.height(8.dp))
         Card(
             shape = RoundedCornerShape(0.dp),
             modifier = modifier.fillMaxWidth(),
@@ -210,26 +210,14 @@ fun AccountScreen(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
                 services.forEach { service ->
-                    Column(
-                        modifier = modifier
-                            .width(100.dp)
-                            .aspectRatio(1f)
-                            .clickable {
-
-                            },
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Spacer(modifier = modifier.height(8.dp))
-                        Icon(imageVector = service.first,
-                            contentDescription = null)
-                        Spacer(modifier = modifier.height(8.dp))
-                        Text(text = service.second,
-                            textAlign = TextAlign.Center,
-                            modifier = modifier.fillMaxWidth(),
-                            )
-                        Spacer(modifier = modifier.height(8.dp))
-                    }
+                    ServiceItemCard(
+                        service = service,
+                        onClick = {
+                            if (service.second == "Address") {
+                                onNavigateToAddress()
+                            }
+                        }
+                    )
                 }
             }
             Spacer(modifier = modifier.height(10.dp))
@@ -255,6 +243,37 @@ fun AccountScreen(
             }
             Text(stringResource(R.string.logout), style = MaterialTheme.typography.titleMedium)
         }
+    }
+}
+
+@Composable
+private fun ServiceItemCard(
+    modifier: Modifier = Modifier,
+    service: Pair<ImageVector, String>,
+    onClick: (String) -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+            .width(100.dp)
+            .aspectRatio(1f)
+            .clickable {
+                onClick(service.second)
+            },
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = modifier.height(8.dp))
+        Icon(
+            imageVector = service.first,
+            contentDescription = null
+        )
+        Spacer(modifier = modifier.height(8.dp))
+        Text(
+            text = service.second,
+            textAlign = TextAlign.Center,
+            modifier = modifier.fillMaxWidth(),
+        )
+        Spacer(modifier = modifier.height(8.dp))
     }
 }
 
