@@ -23,7 +23,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -55,7 +54,6 @@ fun WishListScreen(
                 FilledIconButton(
                     onClick = { onNavigateBack() },
                     modifier = modifier
-                        .padding(start = 4.dp)
                         .size(48.dp),
                     shape = MaterialTheme.shapes.extraSmall,
                     colors = IconButtonDefaults.iconButtonColors()
@@ -77,33 +75,6 @@ fun WishListScreen(
             },
             actions = {}
         )
-        /*Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { onNavigateBack() },
-                modifier = modifier
-                    .padding(start = 4.dp)
-                    .size(48.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBackIosNew,
-                    contentDescription = null
-                )
-            }
-            Text(
-                text = "Wish List",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleLarge,
-                modifier = modifier
-                    .weight(1f)
-                    .padding(end = 48.dp)
-            )
-        }*/
-
         when {
             wishListState.isLoading -> {
                 Box(
