@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -118,7 +119,7 @@ fun ProductDetailScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .padding(bottom = paddingValues.calculateBottomPadding())
+        /*.padding(bottom = paddingValues.calculateBottomPadding())*/
     ) {
         TopBar(
             modifier = modifier
@@ -410,14 +411,19 @@ fun ProductDetailScreen(
                     style = MaterialTheme.typography.bodySmall,
                     modifier = modifier.padding(horizontal = 12.dp),
                 )
-                Spacer(modifier = modifier.height(100.dp))
+                Spacer(
+                    modifier = modifier
+                        .navigationBarsPadding()
+                        .height(120.dp)
+                )
             }
         }
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.background)
-                .padding(horizontal = 10.dp, vertical = 16.dp)
+                .background(color = MaterialTheme.colorScheme.surfaceContainer)
+                .navigationBarsPadding()
+                .padding(horizontal = 10.dp, vertical = 8.dp)
                 .align(Alignment.BottomCenter),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(10.dp)
