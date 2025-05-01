@@ -49,6 +49,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
@@ -72,6 +74,7 @@ fun SearchScreen(
     onNavigateBack: () -> Unit = {},
     onSearch: (String) -> Unit = {}
 ) {
+    val focusRequester = remember { FocusRequester() }
     var searchQuery by rememberSaveable { mutableStateOf(searchViewModel.currentQuery) }
     val recentQueries by searchViewModel.searchHistory.collectAsStateWithLifecycle()
     val searchSuggestions by searchViewModel.searchSuggestions
@@ -80,6 +83,10 @@ fun SearchScreen(
     LaunchedEffect(searchQuery) {
         searchViewModel.getSearchSuggestions(searchQuery)
         searchViewModel.currentQuery = searchQuery
+    }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
     }
 
     Column(
@@ -107,7 +114,8 @@ fun SearchScreen(
                     modifier = modifier
                         .weight(1f)
                         .fillMaxWidth(1f)
-                        .height(48.dp),
+                        .height(48.dp)
+                        .focusRequester(focusRequester),
                     value = searchQuery,
                     onValueChange = {
                         searchQuery = it
