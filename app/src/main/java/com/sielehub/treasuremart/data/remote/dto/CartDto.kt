@@ -1,17 +1,19 @@
 package com.sielehub.treasuremart.data.remote.dto
 
 import com.sielehub.treasuremart.domain.model.Cart
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CartDto(
     val date: String,
     val id: Int,
     val products: List<CartProductDto>,
     val userId: Int
-){
+) {
     fun toCart() = Cart(
         date = date,
         id = id,
-        products = products.map { it.toCartProduct()},
+        products = products.map { it.toCartProduct() },
         userId = userId
     )
 }

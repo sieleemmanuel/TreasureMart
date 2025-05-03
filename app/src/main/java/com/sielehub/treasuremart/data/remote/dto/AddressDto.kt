@@ -1,15 +1,17 @@
 package com.sielehub.treasuremart.data.remote.dto
 
 import com.sielehub.treasuremart.domain.model.Address
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class AddressDto(
     val city: String,
     val geolocation: GeolocationDto,
     val number: Int,
     val street: String,
     val zipcode: String
-){
-    fun toAddress():Address{
+) {
+    fun toAddress(): Address {
         return Address(
             city = city,
             geolocation = geolocation.toGeolocation(),

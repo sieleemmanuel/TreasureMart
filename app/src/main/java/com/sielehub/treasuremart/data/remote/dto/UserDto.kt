@@ -1,7 +1,9 @@
 package com.sielehub.treasuremart.data.remote.dto
 
 import com.sielehub.treasuremart.domain.model.User
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class UserDto(
     val address: AddressDto,
     val email: String,

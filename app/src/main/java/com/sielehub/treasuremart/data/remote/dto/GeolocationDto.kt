@@ -1,7 +1,9 @@
 package com.sielehub.treasuremart.data.remote.dto
 
 import com.sielehub.treasuremart.domain.model.Geolocation
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class GeolocationDto(
     val lat: String,
     val long: String

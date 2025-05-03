@@ -1,12 +1,14 @@
 package com.sielehub.treasuremart.data.remote.dto
 
 import com.sielehub.treasuremart.domain.model.CartProduct
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class CartProductDto(
     val productId: Int,
     val quantity: Int
-){
-    fun toCartProduct():CartProduct {
+) {
+    fun toCartProduct(): CartProduct {
         return CartProduct(
             productId = productId,
             quantity = quantity
