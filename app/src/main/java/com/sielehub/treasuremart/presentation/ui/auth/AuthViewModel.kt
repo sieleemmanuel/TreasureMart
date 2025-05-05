@@ -7,11 +7,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.data.datastore.DataStoreManager
+import com.sielehub.treasuremart.domain.model.LoginRequest
 import com.sielehub.treasuremart.domain.model.SignupRequest
 import com.sielehub.treasuremart.domain.model.User
 import com.sielehub.treasuremart.domain.use_case.account.CreateUserUseCase
 import com.sielehub.treasuremart.domain.use_case.account.GetUserUseCase
 import com.sielehub.treasuremart.domain.use_case.account.LoginUseCase
+import com.sielehub.treasuremart.domain.use_case.account.UpdateCurrentUserIdUseCase
 import com.sielehub.treasuremart.domain.use_case.account.UpdateUserUseCase
 import com.sielehub.treasuremart.presentation.ui.account.UserState
 import com.sielehub.treasuremart.presentation.ui.account.UserUpdateState
@@ -32,6 +34,7 @@ class AuthViewModel(
     private val loginUseCase: LoginUseCase,
     private val getUserUseCase: GetUserUseCase,
     private val updateUserUseCase: UpdateUserUseCase,
+    private val updateCurrentUserIdUseCase: UpdateCurrentUserIdUseCase,
     private val dataStoreManager: DataStoreManager
 ) : ViewModel() {
 
@@ -94,10 +97,10 @@ class AuthViewModel(
         }.launchIn(viewModelScope)
     }
 
-    fun login(username: String, password: String) {
+    fun login(loginRequest: LoginRequest) {
         viewModelScope.launch(Dispatchers.IO) {
-            loginUseCase(username, password).onEach { result ->
-                Log.d(TAG, "login state: ${result.data}")
+            loginUseCase(loginRequest).onEach { result ->
+                updateCurrentUserIdUseCase(loginRequest)
                 when (result) {
                     is Resource.Loading -> {
                         _loginState.value = LoginState(isLoading = true)
@@ -109,18 +112,11 @@ class AuthViewModel(
                     }
 
                     is Resource.Error -> {
-                        Log.d(TAG, "login error: ${result.message}")
                         _loginState.value =
                             LoginState(error = result.message ?: "Unknown error occurred")
                     }
                 }
             }.launchIn(this)
-        }
-    }
-
-    fun logout() {
-        viewModelScope.launch {
-            dataStoreManager.setAuthToken("")
         }
     }
 
