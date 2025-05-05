@@ -4,6 +4,7 @@ import com.sielehub.treasuremart.data.remote.dto.CartDto
 import com.sielehub.treasuremart.data.remote.dto.ProductDto
 import com.sielehub.treasuremart.data.remote.dto.UserDto
 import com.sielehub.treasuremart.domain.model.Cart
+import com.sielehub.treasuremart.domain.model.LoginRequest
 import com.sielehub.treasuremart.domain.model.SignupRequest
 import com.sielehub.treasuremart.domain.model.SignupResponse
 import com.sielehub.treasuremart.domain.model.Token
@@ -21,13 +22,15 @@ interface ApiService {
 
     suspend fun getCategories(): List<String>
 
+    suspend fun getUsers(): List<UserDto>
+
     suspend fun getUser(userId: Int): UserDto?
 
     suspend fun createUser(signupRequest: SignupRequest): SignupResponse
 
     suspend fun updateUser(user: User): UserDto?
 
-    suspend fun authenticateUser(username: String, password: String): Token?
+    suspend fun authenticateUser(loginRequest: LoginRequest): Token?
 
     suspend fun getCarts(): List<CartDto>
 

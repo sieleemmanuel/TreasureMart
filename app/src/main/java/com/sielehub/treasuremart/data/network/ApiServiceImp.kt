@@ -1,5 +1,6 @@
 package com.sielehub.treasuremart.data.network
 
+import android.util.Log
 import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.data.remote.dto.CartDto
 import com.sielehub.treasuremart.data.remote.dto.ProductDto
@@ -45,10 +46,10 @@ class ApiServiceImp(private val client: HttpClient) : ApiService {
         }.body<SignupResponse>()
     }
 
-    override suspend fun authenticateUser(username: String, password: String): Token? {
+    override suspend fun authenticateUser(loginRequest: LoginRequest): Token? {
         return client.post(Constants.HttpRoutes.AUTH_ENDPOINT) {
             contentType(ContentType.Application.Json)
-            setBody(LoginRequest(username = username, password = password))
+            setBody(loginRequest)
         }.body<Token?>()
     }
 
@@ -71,6 +72,10 @@ class ApiServiceImp(private val client: HttpClient) : ApiService {
             .body()
     }
 
+    override suspend fun getUsers(): List<UserDto> {
+        return client.get(Constants.HttpRoutes.USERS_ENDPOINT).body<List<UserDto>>()
+    }
+
     override suspend fun getProductsByCategory(category: String): List<ProductDto> {
         return client.get(Constants.HttpRoutes.CATEGORY_PRODUCTS_ENDPOINT) {
             url { appendPathSegments(category) }
@@ -78,8 +83,11 @@ class ApiServiceImp(private val client: HttpClient) : ApiService {
     }
 
     override suspend fun getCarts(): List<CartDto> {
-        return client.get(Constants.HttpRoutes.CARTS_ENDPOINT)
-            .body()
+        val carts = client.get(Constants.HttpRoutes.CARTS_ENDPOINT).body<List<CartDto>>()
+        carts.forEach {
+            Log.d(ApiServiceImp::class.simpleName, "Cart: $it")
+        }
+        return carts
     }
 
     override suspend fun getCart(id: Int): CartDto? {
