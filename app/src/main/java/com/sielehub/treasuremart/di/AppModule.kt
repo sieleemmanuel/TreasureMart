@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
 import com.sielehub.treasuremart.data.datastore.DataStoreManager
+import com.sielehub.treasuremart.data.local.database.StoreDb
 import com.sielehub.treasuremart.data.network.ApiServiceImp
 import com.sielehub.treasuremart.data.repository.AuthRepositoryImpl
 import com.sielehub.treasuremart.data.repository.StoreRepositoryImpl
@@ -12,13 +13,17 @@ import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.AuthRepository
 import com.sielehub.treasuremart.domain.repository.StoreRepository
 import com.sielehub.treasuremart.domain.use_case.account.CreateUserUseCase
+import com.sielehub.treasuremart.domain.use_case.account.GetCurrentUserIdUseCase
 import com.sielehub.treasuremart.domain.use_case.account.GetUserUseCase
 import com.sielehub.treasuremart.domain.use_case.account.LoginUseCase
 import com.sielehub.treasuremart.domain.use_case.account.LogoutUseCase
+import com.sielehub.treasuremart.domain.use_case.account.UpdateCurrentUserIdUseCase
 import com.sielehub.treasuremart.domain.use_case.account.UpdateUserUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.CreateCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartsUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.IncreaseQuantityUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.ReduceQuantityUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartUseCase
 import com.sielehub.treasuremart.domain.use_case.categories.GetCategoriesUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetBestPickProductsUseCase
@@ -31,10 +36,12 @@ import com.sielehub.treasuremart.domain.use_case.product.search.ClearSearchHisto
 import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchHistoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchSuggestionsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.wishlist.AddToWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.product.wishlist.CheckIsWishUseCase
 import com.sielehub.treasuremart.domain.use_case.product.wishlist.GetWishListUseCase
 import com.sielehub.treasuremart.domain.use_case.product.wishlist.RemoveFromWishListUseCase
 import com.sielehub.treasuremart.domain.use_case.settings.GetAppThemeUseCase
 import com.sielehub.treasuremart.domain.use_case.settings.SetAppThemeUseCase
+import com.sielehub.treasuremart.presentation.base.MainViewModel
 import com.sielehub.treasuremart.presentation.ui.account.AccountViewModel
 import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.ui.cart.CartViewModel
@@ -51,7 +58,8 @@ import io.ktor.client.engine.android.Android
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
-import io.ktor.serialization.kotlinx.json.json
+import io.ktor.http.ContentType
+import io.ktor.serialization.kotlinx.KotlinxSerializationConverter
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
@@ -71,18 +79,22 @@ object AppModule {
                     level = LogLevel.ALL
                 }
                 install(ContentNegotiation) {
-                    json(
-                        json = Json {
-                            explicitNulls = false
-                            prettyPrint = true
-                            isLenient = true
-                            ignoreUnknownKeys = true
-                        }
+                    register(
+                        contentType = ContentType.Any,
+                        converter = KotlinxSerializationConverter(
+                            format = Json {
+                                explicitNulls = false
+                                prettyPrint = true
+                                isLenient = true
+                                ignoreUnknownKeys = true
+                            }
+                        )
                     )
                 }
             }
         }
         single<DataStore<Preferences>> { androidContext().dataStore }
+        single { StoreDb.getInstance(androidContext()).storeDao }
         factory { DataStoreManager(get()) }
 
         singleOf(::ApiServiceImp) { bind<ApiService>() }
@@ -94,9 +106,13 @@ object AppModule {
         factory { GetProductsByCategoryUseCase(get()) }
         factory { GetSuperDealsProductsUseCase(get()) }
         factory { GetBestPickProductsUseCase(get()) }
+
         factory { GetWishListUseCase(get()) }
         factory { RemoveFromWishListUseCase(get()) }
         factory { AddToWishListUseCase(get()) }
+        factory { CheckIsWishUseCase(get()) }
+
+
         factory { GetSearchSuggestionsUseCase(get()) }
         factory { GetSearchHistoryUseCase(get()) }
         factory { AddSearchHistoryUseCase(get()) }
@@ -105,12 +121,17 @@ object AppModule {
         factory { GetCategoriesUseCase(get()) }
 
         factory { GetCartsUseCase(get()) }
-        factory { GetCartUseCase(get()) }
+        factory { GetCartUseCase(get(), get(), get()) }
         factory { CreateCartUseCase(get()) }
         factory { UpdateCartUseCase(get()) }
+        factory { ReduceQuantityUseCase(get()) }
+        factory { IncreaseQuantityUseCase(get()) }
 
         factory { GetUserUseCase(get()) }
         factory { CreateUserUseCase(get()) }
+        factory { UpdateCurrentUserIdUseCase(get(), get()) }
+        factory { GetCurrentUserIdUseCase(get()) }
+
         factory { UpdateUserUseCase(get()) }
         factory { LoginUseCase(get()) }
 
@@ -119,6 +140,7 @@ object AppModule {
         factory { GetAppThemeUseCase(get()) }
         factory { SetAppThemeUseCase(get()) }
 
+        viewModelOf(::MainViewModel)
         viewModelOf(::OnBoardingViewModel)
         viewModelOf(::AuthViewModel)
         viewModelOf(::ProductsViewModel)
