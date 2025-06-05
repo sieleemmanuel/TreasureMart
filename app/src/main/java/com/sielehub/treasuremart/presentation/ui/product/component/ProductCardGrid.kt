@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +25,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.domain.model.Product
+import com.sielehub.treasuremart.presentation.util.formatedCurrency
 
 @Composable
 fun ProductCardGrid(
@@ -33,10 +33,10 @@ fun ProductCardGrid(
     product: Product,
     onClick: () -> Unit,
 ) {
-   Card(
+    Card(
         onClick = onClick,
         modifier = modifier,
-       colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
         shape = RoundedCornerShape(8.dp)
     ) {
         Box(
@@ -67,7 +67,7 @@ fun ProductCardGrid(
         Spacer(modifier = modifier.height(8.dp))
         Text(
             modifier = modifier.padding(PaddingValues(horizontal = 8.dp)),
-            text = "KSh ${product.price.times(130)}",
+            text = product.price.formatedCurrency(),
             style = MaterialTheme.typography.titleSmall,
         )
         Spacer(modifier = modifier.height(8.dp))
