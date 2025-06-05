@@ -1,5 +1,6 @@
 package com.sielehub.treasuremart.presentation.ui.cart
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -15,29 +17,47 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.sielehub.treasuremart.core.Constants.Companion.myCart
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sielehub.treasuremart.presentation.base.MainViewModel
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.cart.component.CartCard
-import com.sielehub.treasuremart.presentation.ui.navigation.Route
+import org.koin.androidx.compose.koinViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun CartsScreen(
     modifier: Modifier = Modifier,
-    paddingValues: PaddingValues,
-    navController: NavHostController
+    paddingValues: PaddingValues = PaddingValues(0.dp),
+    cartViewModel: CartViewModel = koinViewModel(),
+    mainViewModel: MainViewModel = koinViewModel(),
+    onNavigateBack: () -> Unit = {},
+    onNavigateToCheckout: () -> Unit = {},
 ) {
-    val cart = myCart()
+    val cartState by cartViewModel.cartState.collectAsStateWithLifecycle()
+    val cartsState by cartViewModel.cartListState.collectAsStateWithLifecycle()
+    var totalAmount by remember { mutableDoubleStateOf(0.0) }
+    val cartAmount by cartViewModel.cartAmountState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        Log.d("CartsScreen", "Carts: ${cartsState.carts}")
+    }
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -53,38 +73,85 @@ fun CartsScreen(
                     Text(
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        text = "Cart(${cart.products.size})"
+                        text = "Cart(${cartState.cart?.products?.size})"
                     )
                 }
             )
-            /* Row(
-                 modifier = modifier
-                     .fillMaxWidth()
-                     .background(color = MaterialTheme.colorScheme.surfaceContainer)
-                     .statusBarsPadding()
-                     .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                 verticalAlignment = Alignment.CenterVertically,
-                 horizontalArrangement = Arrangement.SpaceBetween
-             ) {
-                 Text(
-                     fontWeight = FontWeight.Bold,
-                     fontSize = 20.sp,
-                     text = "Cart(${cart.products.size})"
-                 )
-                 IconButton(onClick = { *//*TODO*//* }) {
-                    Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-                }
-            }*/
 
-            LazyColumn(
-                modifier = modifier.padding(horizontal = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                contentPadding = PaddingValues(top = 10.dp)
-            ) {
-                items(items = cart.products) {
-                    CartCard(cartProduct = it)
+            when {
+                cartState.isLoading -> {
+                    Box(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp
+                        )
+                    }
                 }
-                item { Spacer(modifier = modifier.height(82.dp)) }
+
+                cartState.error.isNotEmpty() -> {
+                    Box(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = cartState.error,
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
+
+                cartState.cart?.products.isNullOrEmpty() -> {
+                    Box(
+                        modifier = modifier
+                            .fillMaxWidth()
+                            .fillMaxHeight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No products in cart. Add products to cart to checkout",
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
+
+                else -> {
+                    LazyColumn(
+                        modifier = modifier.padding(horizontal = 10.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        contentPadding = PaddingValues(top = 10.dp)
+                    ) {
+                        items(items = cartState.cart!!.products) { cartProduct ->
+                            CartCard(
+                                cartProduct = cartProduct,
+                                cartViewModel = cartViewModel,
+                                setProduct = {
+                                    val amount = it.price * cartProduct.quantity
+                                    totalAmount += amount
+                                    Log.d(
+                                        "CartScreen",
+                                        "Products amount: $amount, Total amount: $totalAmount"
+                                    )
+                                },
+                                onReduceQuantity = {
+                                    cartViewModel.reduceQuantity(it)
+                                    mainViewModel.getCart(false)
+                                },
+                                onIncreaseQuantity = {
+                                    cartViewModel.increaseQuantity(it)
+                                }
+                            )
+                        }
+                        item { Spacer(modifier = modifier.height(82.dp)) }
+                    }
+                }
             }
         }
         Row(
@@ -96,22 +163,21 @@ fun CartsScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            val total = cart.products.map {}
             Text(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
-                text = "KSh 156, 000"
+                text = "${
+                    NumberFormat.getCurrencyInstance(Locale.getDefault()).format(cartAmount)
+                }"
             )
             Button(
-                onClick = {
-                    navController.navigate(Route.Checkout)
-                },
+                onClick = { onNavigateToCheckout() },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text(text = "Check Out(${cart.products.size})")
+                Text(text = "Check Out(${cartState.cart?.products?.size})")
             }
         }
     }
@@ -120,5 +186,5 @@ fun CartsScreen(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun CartsScreenPreview() {
-    CartsScreen(paddingValues = PaddingValues(0.dp), navController = rememberNavController())
+    CartsScreen()
 }
