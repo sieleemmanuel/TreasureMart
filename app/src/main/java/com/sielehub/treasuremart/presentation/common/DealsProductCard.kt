@@ -28,6 +28,7 @@ import coil.compose.AsyncImage
 import coil.compose.rememberAsyncImagePainter
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.domain.model.Product
+import com.sielehub.treasuremart.presentation.util.formatedCurrency
 
 @Composable
 fun DealsProductCard(
@@ -60,7 +61,7 @@ fun DealsProductCard(
         Spacer(modifier = modifier.height(4.dp))
         Text(
             modifier = modifier.padding(PaddingValues(horizontal = 8.dp)),
-            text = "KSh ${product.price.times(130)}",
+            text = product.price.formatedCurrency(),
             style = MaterialTheme.typography.titleSmall,
         )
     }
