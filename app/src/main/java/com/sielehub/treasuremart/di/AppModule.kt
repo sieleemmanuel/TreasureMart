@@ -8,10 +8,14 @@ import com.sielehub.treasuremart.data.datastore.DataStoreManager
 import com.sielehub.treasuremart.data.local.database.StoreDb
 import com.sielehub.treasuremart.data.network.ApiServiceImp
 import com.sielehub.treasuremart.data.repository.AuthRepositoryImpl
+import com.sielehub.treasuremart.data.repository.CartRepositoryImpl
 import com.sielehub.treasuremart.data.repository.StoreRepositoryImpl
+import com.sielehub.treasuremart.data.repository.WishRepositoryImpl
 import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.AuthRepository
+import com.sielehub.treasuremart.domain.repository.CartRepository
 import com.sielehub.treasuremart.domain.repository.StoreRepository
+import com.sielehub.treasuremart.domain.repository.WishRepository
 import com.sielehub.treasuremart.domain.use_case.account.CreateUserUseCase
 import com.sielehub.treasuremart.domain.use_case.account.GetCurrentUserIdUseCase
 import com.sielehub.treasuremart.domain.use_case.account.GetUserUseCase
@@ -19,7 +23,9 @@ import com.sielehub.treasuremart.domain.use_case.account.LoginUseCase
 import com.sielehub.treasuremart.domain.use_case.account.LogoutUseCase
 import com.sielehub.treasuremart.domain.use_case.account.UpdateCurrentUserIdUseCase
 import com.sielehub.treasuremart.domain.use_case.account.UpdateUserUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.AddProductToCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.CreateCartUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.GetCartAmountUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartsUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.IncreaseQuantityUseCase
@@ -95,11 +101,15 @@ object AppModule {
         }
         single<DataStore<Preferences>> { androidContext().dataStore }
         single { StoreDb.getInstance(androidContext()).storeDao }
+        single { StoreDb.getInstance(androidContext()).wishDao }
+        single { StoreDb.getInstance(androidContext()).cartDao }
         factory { DataStoreManager(get()) }
 
         singleOf(::ApiServiceImp) { bind<ApiService>() }
         singleOf(::AuthRepositoryImpl) { bind<AuthRepository>() }
         singleOf(::StoreRepositoryImpl) { bind<StoreRepository>() }
+        singleOf(::WishRepositoryImpl) { bind<WishRepository>() }
+        singleOf(::CartRepositoryImpl) { bind<CartRepository>() }
 
         factory { GetProductsUseCase(get()) }
         factory { GetProductUseCase(get()) }
@@ -121,11 +131,13 @@ object AppModule {
         factory { GetCategoriesUseCase(get()) }
 
         factory { GetCartsUseCase(get()) }
-        factory { GetCartUseCase(get(), get(), get()) }
+        factory { GetCartUseCase(get()) }
         factory { CreateCartUseCase(get()) }
         factory { UpdateCartUseCase(get()) }
         factory { ReduceQuantityUseCase(get()) }
         factory { IncreaseQuantityUseCase(get()) }
+        factory { GetCartAmountUseCase(get()) }
+        factory { AddProductToCartUseCase(get(), get()) }
 
         factory { GetUserUseCase(get()) }
         factory { CreateUserUseCase(get()) }
