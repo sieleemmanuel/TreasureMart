@@ -21,6 +21,8 @@ import com.sielehub.treasuremart.domain.model.WishProduct
 @TypeConverters(Converter::class)
 abstract class StoreDb : RoomDatabase() {
     abstract val storeDao: StoreDao
+    abstract val wishDao: WishDao
+    abstract val cartDao: CartDao
 
     companion object {
         const val DATABASE_NAME = "store_db"
