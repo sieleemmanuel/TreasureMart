@@ -129,7 +129,7 @@ fun WishListScreen(
                 ) {
                     items(items = wishListState.wishList) {
                         WishListProductCard(
-                            product = it,
+                            product = it.product,
                             onClick = onNavigateToProductDetail,
                             onDelete = {
                                 wishListViewModel.removeFromWishList(it)

@@ -48,10 +48,11 @@ class WishListViewModel(
                         is Resource.Error -> RemoveFromWishListState(error = result.message)
                         is Resource.Loading -> RemoveFromWishListState(isLoading = true)
                         is Resource.Success -> RemoveFromWishListState(
-                            success = result.data == true
+                            success = result.data == Unit
                         )
                     }
                 }
+                getWishList()
             }
         }
     }
