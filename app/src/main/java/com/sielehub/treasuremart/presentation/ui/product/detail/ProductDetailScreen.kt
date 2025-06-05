@@ -2,6 +2,8 @@ package com.sielehub.treasuremart.presentation.ui.product.detail
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
@@ -31,6 +33,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material.icons.outlined.ShoppingCart
@@ -53,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,13 +77,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
-import com.sielehub.treasuremart.core.Constants
+import com.sielehub.treasuremart.domain.model.CartProduct
+import com.sielehub.treasuremart.domain.model.WishProduct
+import com.sielehub.treasuremart.presentation.base.MainViewModel
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.product.component.ReviewCard
 import com.sielehub.treasuremart.presentation.ui.product.component.StarRatingBar
+import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import com.sielehub.treasuremart.presentation.util.shimmerEffect
+import kotlinx.coroutines.android.awaitFrame
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -87,12 +96,14 @@ fun ProductDetailScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues = PaddingValues(),
     productDetailViewModel: ProductDetailViewModel = koinViewModel(),
+    mainViewModel: MainViewModel = koinViewModel(),
     productId: Int = 1,
     onNavigateBack: () -> Unit = {},
     onNavigateToCart: () -> Unit = {},
+    onNavigateToCheckout: (productId: Int?) -> Unit = {}
 ) {
     val pagerState = rememberPagerState {
-        3
+        2
     }
     val listState = rememberLazyListState()
     val context = LocalContext.current
@@ -109,12 +120,29 @@ fun ProductDetailScreen(
         }
     }
     var isOpenImages by remember { mutableStateOf(false) }
+    val isWishProduct by productDetailViewModel.isWishProduct.collectAsStateWithLifecycle()
+    val productInCartState by productDetailViewModel.productInCartState.collectAsStateWithLifecycle()
+    val cartState by productDetailViewModel.cartState.collectAsStateWithLifecycle()
+    val addToCartState by productDetailViewModel.addToCartState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(isWishProduct) {
+        productDetailViewModel.checkIsWish(productId)
+    }
+
     LaunchedEffect(productId) {
         productDetailViewModel.getProductDetail(productId)
+    }
+    LaunchedEffect(addToCartState) {
+        productDetailViewModel.isProductInCart(productId)
     }
     LaunchedEffect(key1 = true) {
         delay(1000)
         isLoading = false
+    }
+    HandleOnBackPressed(isOpenImages.not()) {
+        if (isOpenImages) {
+            isOpenImages = false
+        }
     }
     Box(
         modifier = modifier
@@ -158,55 +186,15 @@ fun ProductDetailScreen(
                 }
             },
             containerColor = if (isTopBarCollapsed)
-                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = listState.firstVisibleItemScrollOffset / 200f)
+                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = remember {
+                    derivedStateOf {
+                        listState.firstVisibleItemScrollOffset.div(
+                            200f
+                        )
+                    }.value
+                })
             else Color.Transparent
         )
-        /*Row(
-            modifier = modifier
-                .fillMaxWidth(1f)
-                .background(
-                    color = if (isTopBarCollapsed)
-                        MaterialTheme.colorScheme.background.copy(alpha = listState.firstVisibleItemScrollOffset / 200f)
-                    else Color.Transparent
-                )
-                .statusBarsPadding()
-                .padding(8.dp)
-                .zIndex(1f)
-                .onGloballyPositioned { coordinates ->
-                    collapsedTopBarHeight = coordinates.size.height.toFloat()
-                    Log.d("ProductDetailScreen", "onGloballyPositioned: $collapsedTopBarHeight")
-                },
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            FilledIconButton(
-                onClick = onNavigateBack,
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                ),
-                shape = RoundedCornerShape(4.dp),
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Rounded.ArrowForwardIos,
-                    contentDescription = null
-                )
-            }
-
-            FilledIconButton(
-                onClick = {
-
-                },
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                )
-            ) {
-
-                Icon(imageVector = Icons.Outlined.Share, contentDescription = null)
-
-            }
-        }*/
 
         when {
             productDetailState.error.isNotEmpty() -> {
@@ -230,7 +218,7 @@ fun ProductDetailScreen(
                     Box(
                         modifier = modifier
                             .fillMaxWidth()
-                            .height(360.dp)
+                            .height(expandedTopBarHeight)
                             .shimmerEffect()
                     )
                 } else {
@@ -254,7 +242,7 @@ fun ProductDetailScreen(
                             modifier = Modifier
                                 .wrapContentHeight()
                                 .align(Alignment.BottomEnd)
-                                .padding(bottom = 2.dp, end = 16.dp)
+                                .padding(bottom = 8.dp, end = 16.dp)
                                 .background(
                                     color = Color.Black.copy(alpha = 0.4f),
                                     shape = RoundedCornerShape(16.dp)
@@ -262,6 +250,7 @@ fun ProductDetailScreen(
                         ) {
                             Text(
                                 text = "${pagerState.currentPage + 1}/${pagerState.pageCount}",
+                                style = MaterialTheme.typography.labelMedium,
                                 color = Color.White,
                                 modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                             )
@@ -285,7 +274,8 @@ fun ProductDetailScreen(
                     )
                     Spacer(modifier = modifier.height(12.dp))
                     Text(
-                        text = "KSh ${productDetailState.product?.price?.times(130)}",
+                        text = productDetailState.product?.price?.formatedCurrency()
+                            ?: 0.0.formatedCurrency(),
                         style = MaterialTheme.typography.titleLarge,
                         modifier = modifier.padding(horizontal = 12.dp),
                         fontWeight = FontWeight.Bold
@@ -431,19 +421,37 @@ fun ProductDetailScreen(
             Row {
                 FilledIconButton(
                     onClick = {
-                        /*Add to wish list*/
+                        productDetailState.product?.let {
+                            if (!isWishProduct) {
+                                productDetailViewModel.addToWishList(
+                                    WishProduct(
+                                        productId = it.id,
+                                        product = it
+                                    )
+                                )
+                            } else {
+                                productDetailViewModel.removeFromWishList(it.id)
+                            }
+                        }
                     },
                     shape = RoundedCornerShape(1.dp),
                     colors = IconButtonDefaults.iconButtonColors()
                 ) {
-                    Icon(imageVector = Icons.Outlined.FavoriteBorder, contentDescription = null)
+                    Icon(
+                        imageVector = if (isWishProduct) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        contentDescription = null,
+                        tint = if (isWishProduct) Color.Red
+                        else MaterialTheme.colorScheme.onSurface
+                    )
                 }
                 FilledIconButton(
                     onClick = onNavigateToCart,
                     shape = RoundedCornerShape(1.dp),
                     colors = IconButtonDefaults.iconButtonColors()
                 ) {
-                    BadgedIcon(Icons.Outlined.ShoppingCart, Constants.myCart().products.size)
+                    cartState.cart?.products?.size?.let {
+                        BadgedIcon(Icons.Outlined.ShoppingCart, it)
+                    }
                 }
             }
 
@@ -453,16 +461,30 @@ fun ProductDetailScreen(
                 horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 OutlinedButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        productDetailState.product?.let {
+                            productDetailViewModel.addToCart(
+                                CartProduct(
+                                    productId = it.id,
+                                    quantity = 1
+                                )
+                            )
+                            productDetailViewModel.isProductInCart(it.id)
+                        }
+                    },
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.primary
                     ),
                     modifier = modifier.weight(1f)
                 ) {
-                    Text(text = "Add to cart")
+                    val text = if (productInCartState.inCart)
+                        "Added(${productInCartState.cartProduct?.quantity})" else "Add to cart"
+                    Text(text = text)
                 }
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        onNavigateToCheckout(productId)
+                    },
                     colors = ButtonDefaults.elevatedButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onPrimary
@@ -557,6 +579,38 @@ fun ImageViewer(
                 contentDescription = null,
                 tint = Color.White
             )
+        }
+    }
+}
+
+@Composable
+fun HandleOnBackPressed(
+    enabled: Boolean = true,
+    delayTime: Long = 0L,
+    onBackAction: () -> Unit = {}
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val onBackPressedDispatcher = LocalOnBackPressedDispatcherOwner.current?.onBackPressedDispatcher
+    var isEnabled by remember(enabled) { mutableStateOf(enabled) }
+
+    LaunchedEffect(isEnabled) {
+        if (isEnabled) {
+            delay(delayTime)
+            isEnabled = false
+        }
+    }
+    BackHandler(enabled = enabled.not()) {
+        if (isEnabled) {
+            Toast.makeText(context, "Press back again to exit", Toast.LENGTH_SHORT).show()
+            scope.launch {
+                awaitFrame()
+                onBackPressedDispatcher?.onBackPressed()
+            }
+        } else {
+            Toast.makeText(context, "Press back again to exit", Toast.LENGTH_SHORT).show()
+            onBackAction()
+            isEnabled = true
         }
     }
 }
