@@ -1,13 +1,15 @@
 package com.sielehub.treasuremart.data.repository
 
-import com.sielehub.treasuremart.core.Constants
-import com.sielehub.treasuremart.domain.model.Cart
+import com.sielehub.treasuremart.data.local.database.StoreDao
 import com.sielehub.treasuremart.domain.model.Notification
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.StoreRepository
 
-class StoreRepositoryImpl(private val apiService: ApiService) : StoreRepository {
+class StoreRepositoryImpl(
+    private val apiService: ApiService,
+    private val dao: StoreDao
+) : StoreRepository {
 
     override suspend fun getProducts(): List<Product> =
         apiService.getProducts().map { it.toProduct() }
@@ -49,32 +51,6 @@ class StoreRepositoryImpl(private val apiService: ApiService) : StoreRepository 
             it.title.contains(query, true) || it.description.contains(query, true)
         }
     }
-
-    override suspend fun getWishlist(): List<Product> {
-        return Constants.wishList
-    }
-
-    override suspend fun addToWishlist(product: Product): Boolean {
-        return Constants.wishList.add(product)
-    }
-
-    override suspend fun removeFromWishlist(productId: Int): Boolean {
-        return Constants.wishList.removeIf { it.id == productId }
-    }
-
-    override suspend fun getCarts(): List<Cart> = apiService.getCarts().map { it.toCart() }
-
-    override suspend fun getCart(id: Int): Cart? =
-        apiService.getCart(id)?.toCart()
-
-
-    override suspend fun createCart(cart: Cart): Cart? =
-        apiService.createCart(cart)?.toCart()
-
-
-    override suspend fun updateCart(cart: Cart): Cart? =
-        apiService.updateCart(cart)?.toCart()
-
 
     override suspend fun getNotifications(): List<Notification> =
         listOf(
