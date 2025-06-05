@@ -66,10 +66,10 @@ import org.koin.dsl.module
 @Composable
 fun SignupScreen(
     modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = koinViewModel(),
     paddingValues: () -> PaddingValues = { PaddingValues() },
     naveController: () -> NavController,
 ) {
-    val authViewModel = koinViewModel<AuthViewModel>()
     val context = LocalContext.current
     var email by remember { mutableStateOf("John@gmail.com") }
     var username by remember { mutableStateOf("johnd") }
@@ -471,7 +471,7 @@ fun ScreenPreview(
     screen: @Composable () -> Unit
 ) {
     val previewModule = module {
-        viewModel { AuthViewModel(get(), get(), get(), get(), get()) }
+        viewModel { AuthViewModel(get(), get(), get(), get(), get(), get()) }
     }
     KoinApplication(application = {
         modules(previewModule)

@@ -50,10 +50,10 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun OnBoardingScreen(
     modifier: Modifier = Modifier,
+    onBoardingViewModel: OnBoardingViewModel = koinViewModel(),
     paddingValues: () -> PaddingValues,
     onFinish: (Boolean) -> Unit = {}
 ) {
-    val viewModel: OnBoardingViewModel = koinViewModel()
     val context = LocalContext.current
 
     ConstraintLayout(
@@ -160,7 +160,7 @@ fun OnBoardingScreen(
                         pagerState.animateScrollToPage(pagerState.currentPage + 1)
                     else {
                         onFinish(false)
-                        viewModel.setOnBoardingDone(true)
+                        onBoardingViewModel.setOnBoardingDone(true)
                     }
                 }
             },
@@ -204,7 +204,7 @@ fun OnBoardingScreen(
                         ),
                         linkInteractionListener = {
                             onFinish(true)
-                            viewModel.setOnBoardingDone(true)
+                            onBoardingViewModel.setOnBoardingDone(true)
                         }
                     )
                 ) {

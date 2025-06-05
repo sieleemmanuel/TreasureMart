@@ -14,15 +14,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
+import com.sielehub.treasuremart.presentation.base.MainViewModel
 import com.sielehub.treasuremart.presentation.ui.account.AccountScreen
 import com.sielehub.treasuremart.presentation.ui.address.ShippingAddressScreen
 import com.sielehub.treasuremart.presentation.ui.auth.AuthViewModel
 import com.sielehub.treasuremart.presentation.ui.auth.ForgotPasswordScreen
 import com.sielehub.treasuremart.presentation.ui.auth.LoginScreen
 import com.sielehub.treasuremart.presentation.ui.auth.SignupScreen
+import com.sielehub.treasuremart.presentation.ui.cart.CartViewModel
 import com.sielehub.treasuremart.presentation.ui.cart.CartsScreen
 import com.sielehub.treasuremart.presentation.ui.checkout.CheckoutScreen
 import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardScreen
+import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardViewModel
 import com.sielehub.treasuremart.presentation.ui.notifications.NotificationsScreen
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingScreen
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingViewModel
@@ -35,6 +38,7 @@ import com.sielehub.treasuremart.presentation.ui.product.list.ProductsScreen
 import com.sielehub.treasuremart.presentation.ui.product.list.SuperDealProductsScreen
 import com.sielehub.treasuremart.presentation.ui.product.search.SearchScreen
 import com.sielehub.treasuremart.presentation.ui.product.wish.WishListScreen
+import com.sielehub.treasuremart.presentation.ui.product.wish.WishListViewModel
 import com.sielehub.treasuremart.presentation.ui.settings.SettingsScreen
 import org.koin.androidx.compose.koinViewModel
 
@@ -44,6 +48,10 @@ private const val TAG = "Navigation"
 fun Navigation(
     onBoardingViewModel: OnBoardingViewModel = koinViewModel(),
     authViewModel: AuthViewModel = koinViewModel(),
+    dashboardViewModel: DashboardViewModel = koinViewModel(),
+    mainViewModel: MainViewModel = koinViewModel(),
+    cartViewModel: CartViewModel = koinViewModel(),
+    wishListViewModel: WishListViewModel = koinViewModel(),
     navController: NavHostController,
     paddingValues: PaddingValues,
 ) {
@@ -71,6 +79,7 @@ fun Navigation(
     ) {
         composable<Route.OnBoarding> {
             OnBoardingScreen(
+                onBoardingViewModel = onBoardingViewModel,
                 paddingValues = { paddingValues },
                 onFinish = { isLogin ->
                     isLoginAuthStartDest = isLogin
@@ -84,6 +93,7 @@ fun Navigation(
         ) {
             composable<Route.Login> {
                 LoginScreen(
+                    authViewModel = authViewModel,
                     paddingValues = { paddingValues },
                     onSignUp = {
                         navController.navigate(Route.Signup)
@@ -96,6 +106,7 @@ fun Navigation(
             }
             composable<Route.Signup> {
                 SignupScreen(
+                    authViewModel = authViewModel,
                     paddingValues = { paddingValues },
                     naveController = { navController }
                 )
@@ -110,6 +121,7 @@ fun Navigation(
         }
         composable<Route.Dashboard> {
             DashboardScreen(
+                dashboardViewModel = dashboardViewModel,
                 paddingValues = paddingValues,
                 onSearchBarClick = {
                     navController.navigate(Route.Search())
@@ -127,8 +139,15 @@ fun Navigation(
         }
         composable<Route.Carts> {
             CartsScreen(
+                mainViewModel = mainViewModel,
+                cartViewModel = cartViewModel,
                 paddingValues = paddingValues,
-                navController = navController
+                onNavigateToCheckout = {
+                    navController.navigate(Route.Checkout)
+                },
+                onNavigateBack = {
+                    navController.navigateUp()
+                }
             )
         }
         composable<Route.Categories> {
@@ -142,6 +161,7 @@ fun Navigation(
         composable<Route.WishList> {
             //val args = it.toRoute<Route.Favorites>()
             WishListScreen(
+                wishListViewModel = wishListViewModel,
                 paddingValues = paddingValues,
                 onNavigateBack = {
                     navController.navigateUp()
@@ -228,6 +248,7 @@ fun Navigation(
         composable<Route.ProductDetail> {
             val args = it.toRoute<Route.ProductDetail>()
             ProductDetailScreen(
+                mainViewModel = mainViewModel,
                 paddingValues = paddingValues,
                 productId = args.id,
                 onNavigateBack = {
@@ -235,11 +256,15 @@ fun Navigation(
                 },
                 onNavigateToCart = {
                     navController.navigate(Route.Carts)
+                },
+                onNavigateToCheckout = {
+                    navController.navigate(Route.Checkout)
                 }
             )
         }
         composable<Route.SuperDealsProducts> {
             SuperDealProductsScreen(
+                dashboardViewModel = dashboardViewModel,
                 paddingValues = paddingValues,
                 onNavigateBack = {
                     navController.navigateUp()
