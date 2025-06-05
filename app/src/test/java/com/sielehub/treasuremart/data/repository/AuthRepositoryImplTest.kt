@@ -1,6 +1,7 @@
 package com.sielehub.treasuremart.data.repository
 
 import com.google.common.truth.Truth.assertThat
+import com.sielehub.treasuremart.domain.model.LoginRequest
 import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.fakeNewUser
 import com.sielehub.treasuremart.fakeSignupResponse
@@ -24,10 +25,11 @@ class AuthRepositoryImplTest {
 
     @Test
     fun `authenticateUser should return correct token`() = runTest {
+        val loginRequest = LoginRequest(fakeUser.username, fakeUser.password)
         coEvery {
-            authRepository.authenticateUser(fakeUser.username, fakeUser.password)?.token
+            authRepository.authenticateUser(loginRequest)?.token
         } returns fakeToken
-        val token = authRepository.authenticateUser(fakeUser.username, fakeUser.password)?.token
+        val token = authRepository.authenticateUser(loginRequest)?.token
         assertThat(token).isEqualTo(fakeToken)
     }
 
