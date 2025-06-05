@@ -1,13 +1,22 @@
 package com.sielehub.treasuremart.domain.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import kotlinx.serialization.Serializable
+
+@Entity(tableName = "cart_table")
+@Serializable
 data class Cart(
     val date: String,
-    val id: Int,
+    @PrimaryKey val id: Int,
     val products: List<CartProduct>,
     val userId: Int
 )
 
+@Serializable
 data class CartProduct(
     val productId: Int,
-    val quantity: Int
-)
+    var quantity: Int
+) {
+    var isSelected = true
+}
