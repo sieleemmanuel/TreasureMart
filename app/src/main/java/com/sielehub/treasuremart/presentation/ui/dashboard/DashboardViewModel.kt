@@ -9,10 +9,12 @@ import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.use_case.product.GetBestPickProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetSuperDealsProductsUseCase
+import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchHistoryUseCase
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
@@ -21,7 +23,8 @@ import kotlinx.coroutines.launch
 class DashboardViewModel(
     private val getProductsByCategoryUseCase: GetProductsByCategoryUseCase,
     private val getSuperDealsProductsUseCase: GetSuperDealsProductsUseCase,
-    private val getBestPickProductsUseCase: GetBestPickProductsUseCase
+    private val getBestPickProductsUseCase: GetBestPickProductsUseCase,
+    private val getSearchHistoryUseCase: GetSearchHistoryUseCase,
 ) : ViewModel() {
 
     private val _superDealsProductsState =
@@ -35,6 +38,8 @@ class DashboardViewModel(
     private val _productsByCategoryState = mutableStateOf(ProductsByCategoryState())
     val productSByCategoryState: State<ProductsByCategoryState> = _productsByCategoryState
 
+    private val _searchHistory = MutableStateFlow<List<String>>(emptyList())
+    val searchHistory: StateFlow<List<String>> = _searchHistory.asStateFlow()
 
     fun getSuperDealProducts() {
         viewModelScope.launch(Dispatchers.IO) {
@@ -111,9 +116,22 @@ class DashboardViewModel(
         }.launchIn(viewModelScope)
     }
 
+    fun getSearchHistory() {
+        viewModelScope.launch(Dispatchers.IO) {
+            getSearchHistoryUseCase().collect { result ->
+                if (result is Resource.Success) {
+                    _searchHistory.update { result.data ?: emptyList() }
+                } else if (result is Resource.Error) {
+                    _searchHistory.update { emptyList() }
+                }
+            }
+        }
+    }
+
     init {
         getSuperDealProducts()
         getBestPickProducts()
+        getSearchHistory()
     }
 
     companion object {

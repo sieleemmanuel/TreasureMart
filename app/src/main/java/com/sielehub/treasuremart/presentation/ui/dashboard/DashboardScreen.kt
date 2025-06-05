@@ -62,6 +62,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -77,7 +78,6 @@ import com.sielehub.treasuremart.presentation.common.DealsProductCard
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
-import com.sielehub.treasuremart.presentation.ui.product.search.SearchViewModel
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
@@ -87,27 +87,31 @@ import org.koin.androidx.compose.koinViewModel
 fun DashboardScreen(
     modifier: Modifier = Modifier,
     dashboardViewModel: DashboardViewModel = koinViewModel(),
-    searchViewModel: SearchViewModel = koinViewModel(),
     paddingValues: PaddingValues = PaddingValues(),
     onOpenNotification: () -> Unit = {},
     onSearchBarClick: () -> Unit = {},
     onOpenProductDeals: () -> Unit = {},
     onNavigateToProductDetails: (Int) -> Unit = {},
 ) {
+    val context = LocalContext.current
     var searchedProduct by remember { mutableStateOf("Find products") }
-    val searchHistory by searchViewModel.searchHistory.collectAsStateWithLifecycle()
+    val searchHistory by dashboardViewModel.searchHistory.collectAsStateWithLifecycle()
     var searchHistoryIndex by remember { mutableIntStateOf(0) }
 
     LaunchedEffect(true) {
-        while (searchHistory.isNotEmpty()) {
+        while (searchHistory.size > 1) {
             searchedProduct = ""
             delay(500)
             searchedProduct =
-                if (searchHistory.isNotEmpty()) searchHistory[searchHistoryIndex] else "Find products"
+                if (searchHistory.size > 1) searchHistory[searchHistoryIndex] else "Find products"
             searchHistoryIndex = (searchHistoryIndex + 1) % searchHistory.size
             delay(5000)
         }
     }
+    /*var exitApp by remember { mutableStateOf(false) }
+    HandleOnBackPressed(exitApp, 2000L) {
+        Toast.makeText(context, "Press back again to exit", Toast.LENGTH_SHORT).show()
+    }*/
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -141,7 +145,7 @@ fun DashboardScreen(
                 .fillMaxWidth()
                 .height(48.dp)
                 .background(color = MaterialTheme.colorScheme.surfaceContainer)
-                .padding(horizontal = 16.dp, vertical = 4.dp)
+                .padding(horizontal = 16.dp)
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.onBackground,
@@ -275,6 +279,16 @@ fun ExplorePage(
     val superDealsProductsState by dashboardViewModel.superDealsProductsState.collectAsState()
     val bestPickProductsState: BestPickProductsState =
         dashboardViewModel.bestPickProductsState.value
+    LaunchedEffect(superDealsProductsState) {
+        if (superDealsProductsState.error.isNotEmpty()) {
+            dashboardViewModel.getSuperDealProducts()
+        }
+    }
+    LaunchedEffect(bestPickProductsState) {
+        if (bestPickProductsState.error.isNotEmpty()) {
+            dashboardViewModel.getBestPickProducts()
+        }
+    }
 
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
