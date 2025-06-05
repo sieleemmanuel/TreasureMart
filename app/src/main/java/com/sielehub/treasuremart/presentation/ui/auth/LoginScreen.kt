@@ -46,6 +46,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sielehub.treasuremart.R
+import com.sielehub.treasuremart.domain.model.LoginRequest
 import com.sielehub.treasuremart.presentation.ui.navigation.Route
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import org.koin.androidx.compose.koinViewModel
@@ -53,13 +54,13 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
+    authViewModel: AuthViewModel = koinViewModel(),
     paddingValues: () -> PaddingValues = { PaddingValues() },
     navController: () -> NavController,
     onSignUp: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
 ) {
     val context = LocalContext.current
-    val authViewModel = koinViewModel<AuthViewModel>()
     var username by remember { mutableStateOf("johnd") }
     var password by remember { mutableStateOf("m38rmF$") }
     var showPassword by remember { mutableStateOf(false) }
@@ -251,7 +252,7 @@ fun LoginScreen(
                     context
                 )
                 if (usernameValid.first && passwordValid.first) {
-                    authViewModel.login(username, password)
+                    authViewModel.login(LoginRequest(username, password))
                 }
             }
         ) {
