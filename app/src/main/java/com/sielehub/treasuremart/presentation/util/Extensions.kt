@@ -18,6 +18,8 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.unit.IntSize
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.text.NumberFormat
+import java.util.Locale
 
 fun Modifier.shimmerEffect(): Modifier = composed {
     var size by remember {
@@ -69,4 +71,8 @@ inline fun <reified T> String.jsonToModel(): T {
 
 inline fun <reified T> T.modelToJsonArray(): String {
     return Json.encodeToString(this)
+}
+
+fun Double.formatedCurrency(): String {
+    return NumberFormat.getCurrencyInstance(Locale.getDefault()).format(this)
 }
