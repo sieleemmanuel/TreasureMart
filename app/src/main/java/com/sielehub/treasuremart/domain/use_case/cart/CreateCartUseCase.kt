@@ -2,16 +2,16 @@ package com.sielehub.treasuremart.domain.use_case.cart
 
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.model.Cart
-import com.sielehub.treasuremart.domain.repository.StoreRepository
+import com.sielehub.treasuremart.domain.repository.CartRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class CreateCartUseCase(private val storeRepository: StoreRepository) {
+class CreateCartUseCase(private val cartRepository: CartRepository) {
 
     operator fun invoke(cart: Cart): Flow<Resource<Cart?>> = flow {
         try {
             emit(Resource.Loading())
-            emit(Resource.Success(data = storeRepository.createCart(cart)))
+            emit(Resource.Success(data = cartRepository.createCart(cart)))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unknown error occurred"))
         }
