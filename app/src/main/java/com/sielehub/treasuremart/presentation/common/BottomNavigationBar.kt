@@ -18,12 +18,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
-import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.presentation.ui.navigation.Route
 
 @Composable
 fun BottomNavigationBar(
     navController: NavController,
+    cartCount: Int,
     currentRoute: Route
 ) {
     val navItems = listOf(
@@ -62,10 +62,10 @@ fun BottomNavigationBar(
                     }
                 },
                 icon = {
-                    if (item.route is Route.Carts) {
+                    if (item.route is Route.Carts && cartCount > 0) {
                         BadgedBox(badge = {
                             Badge {
-                                Text(text = Constants.myCart().products.size.toString())
+                                Text(text = cartCount.toString())
                             }
                         }) {
                             Icon(
