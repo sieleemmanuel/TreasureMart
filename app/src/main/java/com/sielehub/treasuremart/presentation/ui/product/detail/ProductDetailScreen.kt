@@ -124,6 +124,7 @@ fun ProductDetailScreen(
     val productInCartState by productDetailViewModel.productInCartState.collectAsStateWithLifecycle()
     val cartState by productDetailViewModel.cartState.collectAsStateWithLifecycle()
     val addToCartState by productDetailViewModel.addToCartState.collectAsStateWithLifecycle()
+    val firstItemScrollOffset by remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }
 
     LaunchedEffect(isWishProduct) {
         productDetailViewModel.checkIsWish(productId)
@@ -186,13 +187,9 @@ fun ProductDetailScreen(
                 }
             },
             containerColor = if (isTopBarCollapsed)
-                MaterialTheme.colorScheme.surfaceContainer.copy(alpha = remember {
-                    derivedStateOf {
-                        listState.firstVisibleItemScrollOffset.div(
-                            200f
-                        )
-                    }.value
-                })
+                MaterialTheme.colorScheme.surfaceContainer.copy(
+                    alpha = firstItemScrollOffset.div(200f)
+                )
             else Color.Transparent
         )
 
@@ -466,7 +463,12 @@ fun ProductDetailScreen(
                             productDetailViewModel.addToCart(
                                 CartProduct(
                                     productId = it.id,
-                                    quantity = 1
+                                    quantity = 1,
+                                    price = it.price,
+                                    title = it.title,
+                                    image = it.image,
+                                    category = it.category,
+                                    description = it.description
                                 )
                             )
                             productDetailViewModel.isProductInCart(it.id)
