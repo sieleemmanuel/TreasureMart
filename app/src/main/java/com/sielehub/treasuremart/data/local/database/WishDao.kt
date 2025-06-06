@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.sielehub.treasuremart.domain.model.WishProduct
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WishDao {
@@ -12,7 +13,7 @@ interface WishDao {
     suspend fun insertWishProduct(wishProduct: WishProduct)
 
     @Query("SELECT * FROM wishes_table")
-    suspend fun getWishList(): List<WishProduct>
+    fun getWishList(): Flow<List<WishProduct>>
 
     @Query("SELECT EXISTS(SELECT * FROM wishes_table WHERE id = :id)")
     suspend fun checkIsWish(id: Int): Boolean
