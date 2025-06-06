@@ -2,6 +2,7 @@ package com.sielehub.treasuremart.presentation.ui.onboarding
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -28,14 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextLinkStyles
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -172,7 +166,7 @@ fun OnBoardingScreen(
                     bottom.linkTo(
                         if (pagerState.currentPage == pages.count() - 1)
                             textHaveAccount.top else parent.bottom,
-                        16.dp
+                        if (pagerState.currentPage == pages.count() - 1) 16.dp else 36.dp
                     )
                 }
         ) {
@@ -182,15 +176,20 @@ fun OnBoardingScreen(
         }
         Text(
             modifier = modifier
+                .clickable {
+                    onFinish(true)
+                    onBoardingViewModel.setOnBoardingDone(true)
+                }
                 .constrainAs(textHaveAccount) {
-                    bottom.linkTo(parent.bottom, 16.dp)
+                    bottom.linkTo(parent.bottom, 36.dp)
                     start.linkTo(parent.start, 16.dp)
                     end.linkTo(parent.end, 16.dp)
                     visibility = if (pagerState.currentPage == pages.count() - 1)
                         Visibility.Visible else Visibility.Gone
                 },
             style = MaterialTheme.typography.bodyLarge,
-            text = buildAnnotatedString {
+            text = stringResource(R.string.login)
+            /*buildAnnotatedString {
                 append(stringResource(R.string.already_have_an_account))
                 withLink(
                     link = LinkAnnotation.Clickable(
@@ -210,7 +209,7 @@ fun OnBoardingScreen(
                 ) {
                     append(stringResource(R.string.login))
                 }
-            }
+            }*/
         )
     }
 }
