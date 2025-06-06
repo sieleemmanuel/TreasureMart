@@ -53,6 +53,7 @@ import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.dashboard.CountDownTimer
 import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardViewModel
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
+import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGridShimmer
 import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)
@@ -150,7 +151,7 @@ fun SuperDealProductsScreen(
                 }
             }
         )
-        
+
         ScrollableTabRow(
             selectedTabIndex = selectedTabIndex,
             edgePadding = 0.dp,
@@ -196,6 +197,22 @@ fun SuperDealProductsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator(strokeWidth = 2.dp)
+                }
+                LazyVerticalGrid(
+                    modifier = modifier,
+                    columns = GridCells.Adaptive(160.dp),
+                    contentPadding = PaddingValues(
+                        start = 16.dp,
+                        top = 16.dp,
+                        end = 16.dp,
+                        bottom = paddingValues.calculateBottomPadding()
+                    ),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(count = 5) {
+                        ProductCardGridShimmer()
+                    }
                 }
             }
 
@@ -249,7 +266,6 @@ fun SuperDealProductsScreen(
                 }
             }
         }
-
 
     }
 }

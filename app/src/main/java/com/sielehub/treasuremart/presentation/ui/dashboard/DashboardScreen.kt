@@ -36,7 +36,6 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowForwardIos
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
@@ -75,8 +74,10 @@ import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.core.Constants.Companion.categories
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
+import com.sielehub.treasuremart.presentation.common.DealsProductCardShimmer
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGrid
+import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGridShimmer
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import kotlinx.coroutines.delay
@@ -353,14 +354,13 @@ fun ExplorePage(
                 }
                 when {
                     superDealsProductsState.isLoading -> {
-                        Box(
-                            modifier = modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = modifier
                         ) {
-                            CircularProgressIndicator(
-                                modifier = modifier.padding(vertical = 24.dp),
-                                strokeWidth = 2.dp
-                            )
+                            items(count = 5) {
+                                DealsProductCardShimmer()
+                            }
                         }
                     }
 
@@ -402,17 +402,7 @@ fun ExplorePage(
         }
         when {
             bestPickProductsState.isLoading -> {
-                item(span = { GridItemSpan(maxLineSpan) }) {
-                    Box(
-                        modifier = modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = modifier.padding(vertical = 56.dp),
-                            strokeWidth = 2.dp
-                        )
-                    }
-                }
+                items(count = 5) { ProductCardGridShimmer() }
             }
 
             bestPickProductsState.error.isNotBlank() -> {
@@ -496,7 +486,7 @@ fun CategoryPage(
             }
             when {
                 categoryProductsState.isLoading -> {
-                    item(span = { GridItemSpan(maxLineSpan) }) {
+                    /*item(span = { GridItemSpan(maxLineSpan) }) {
                         Box(
                             modifier = modifier.fillMaxWidth(),
                             contentAlignment = Alignment.Center
@@ -506,6 +496,11 @@ fun CategoryPage(
                                 strokeWidth = 2.dp
                             )
                         }
+                    }*/
+                    items(
+                        count = 5,
+                        span = { GridItemSpan(1) }) {
+                        ProductCardGridShimmer()
                     }
                 }
 

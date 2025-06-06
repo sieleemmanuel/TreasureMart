@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -29,11 +28,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import com.sielehub.treasuremart.R
+import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
+import com.sielehub.treasuremart.presentation.util.shimmerEffect
 
 @Preview(showBackground = true)
 @Composable
@@ -64,14 +62,19 @@ fun ProductCardList(
                     )
                     .clip(RoundedCornerShape(8.dp))
             ) {
-                AsyncImage(
+                SubcomposeAsyncImage(
                     model = product.image,
-                    placeholder = rememberAsyncImagePainter(R.drawable.loading_progress),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
+                    loading = {
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .shimmerEffect()
+                        )
+                    },
                     modifier = modifier
                         .fillMaxSize()
-                        .clip(RoundedCornerShape(16.dp))
                         .clickable {
                             onClick(product.id)
                         }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -21,11 +22,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import com.sielehub.treasuremart.R
+import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
+import com.sielehub.treasuremart.presentation.util.shimmerEffect
 
 @Composable
 fun ProductCardGrid(
@@ -40,16 +40,23 @@ fun ProductCardGrid(
         shape = RoundedCornerShape(8.dp)
     ) {
         Box(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
+                .height(180.dp)
         ) {
-            AsyncImage(
+            SubcomposeAsyncImage(
                 model = product.image,
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds,
-                placeholder = rememberAsyncImagePainter(R.drawable.loading_progress),
+                loading = {
+                    Box(
+                        modifier = modifier
+                            .fillMaxSize()
+                            .shimmerEffect()
+                    )
+                },
                 modifier = modifier
-                    .height(180.dp)
-                    .fillMaxWidth()
+                    .fillMaxSize()
             )
         }
 
@@ -87,6 +94,65 @@ fun ProductCardGrid(
             Text(
                 text = "(${product.rating.count})",
                 style = MaterialTheme.typography.labelSmall
+            )
+        }
+        Spacer(modifier = modifier.height(16.dp))
+    }
+}
+
+@Preview
+@Composable
+fun ProductCardGridShimmer(
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(180.dp)
+                .shimmerEffect()
+        )
+
+        Spacer(modifier = modifier.height(8.dp))
+        Box(
+            modifier = modifier
+                .fillMaxWidth()
+                .height(36.dp)
+                .padding(PaddingValues(horizontal = 8.dp))
+                .shimmerEffect(RoundedCornerShape(8.dp)),
+        )
+        Spacer(modifier = modifier.height(8.dp))
+        Box(
+            modifier = modifier
+                .width(100.dp)
+                .padding(PaddingValues(horizontal = 8.dp))
+                .height(16.dp)
+                .shimmerEffect(RoundedCornerShape(8.dp)),
+        )
+        Spacer(modifier = modifier.height(8.dp))
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(PaddingValues(horizontal = 8.dp)),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            Box(
+                modifier = modifier
+                    .width(100.dp)
+                    .height(16.dp)
+                    .shimmerEffect(RoundedCornerShape(8.dp))
+            )
+            Spacer(modifier = modifier.width(4.dp))
+            Box(
+                modifier = modifier
+                    .width(40.dp)
+                    .height(16.dp)
+                    .shimmerEffect(RoundedCornerShape(8.dp))
             )
         }
         Spacer(modifier = modifier.height(16.dp))
