@@ -10,9 +10,11 @@ class GetWishListUseCase(
     private val wishRepository: WishRepository
 ) {
     operator fun invoke(): Flow<Resource<List<WishProduct>>> = flow {
+        emit(Resource.Loading())
         try {
-            emit(Resource.Loading())
-            emit(Resource.Success(wishRepository.getWishlist()))
+            wishRepository.getWishlist().collect {
+                emit(Resource.Success(it))
+            }
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unknown error occurred"))
         }
