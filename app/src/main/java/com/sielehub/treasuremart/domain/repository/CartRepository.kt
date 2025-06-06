@@ -9,9 +9,11 @@ interface CartRepository {
 
     suspend fun updateCart(cart: Cart): Int
 
-    suspend fun getCarts(): List<Cart>
+    suspend fun getCarts(): Flow<List<Cart>>
 
     fun getCart(): Flow<Cart?>
+
+    suspend fun getCartAmount(): Flow<Double>
 
 
 }
