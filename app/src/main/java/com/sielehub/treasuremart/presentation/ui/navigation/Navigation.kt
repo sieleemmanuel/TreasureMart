@@ -98,7 +98,13 @@ fun Navigation(
                     onSignUp = {
                         navController.navigate(Route.Signup)
                     },
-                    navController = { navController },
+                    onLogin = {
+                        navController.navigate(Route.Dashboard) {
+                            popUpTo(Route.Auth) {
+                                inclusive = true
+                            }
+                        }
+                    },
                     onForgotPassword = {
                         navController.navigate(Route.ForgotPassword)
                     }

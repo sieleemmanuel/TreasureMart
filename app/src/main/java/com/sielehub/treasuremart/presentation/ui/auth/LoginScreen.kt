@@ -43,7 +43,6 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.domain.model.LoginRequest
@@ -56,7 +55,7 @@ fun LoginScreen(
     modifier: Modifier = Modifier,
     authViewModel: AuthViewModel = koinViewModel(),
     paddingValues: () -> PaddingValues = { PaddingValues() },
-    navController: () -> NavController,
+    onLogin: () -> Unit = {},
     onSignUp: () -> Unit = {},
     onForgotPassword: () -> Unit = {},
 ) {
@@ -273,11 +272,7 @@ fun LoginScreen(
 
     LaunchedEffect(loginState) {
         if (loginState.token != null && token == loginState.token) {
-            navController().navigate(Route.Dashboard) {
-                popUpTo(Route.Auth) {
-                    inclusive = true
-                }
-            }
+            onLogin()
         }
         if (loginState.error.isNullOrEmpty().not()) {
             Toast.makeText(context, loginState.error, Toast.LENGTH_SHORT).show()
@@ -288,10 +283,9 @@ fun LoginScreen(
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    val navController = rememberNavController()
     TreasureMartTheme(darkTheme = false) {
         ScreenPreview {
-            LoginScreen(navController = { navController })
+            LoginScreen()
         }
     }
 }
