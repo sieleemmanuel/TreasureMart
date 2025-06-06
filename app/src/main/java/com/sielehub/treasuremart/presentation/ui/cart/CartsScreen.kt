@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.remember
@@ -54,6 +55,11 @@ fun CartsScreen(
     val cartsState by cartViewModel.cartListState.collectAsStateWithLifecycle()
     var totalAmount by remember { mutableDoubleStateOf(0.0) }
     val cartAmount by cartViewModel.cartAmountState.collectAsStateWithLifecycle()
+    val selProductsCount by remember {
+        derivedStateOf {
+            cartState.cart?.products?.filter { it.isSelected }?.size ?: 0
+        }
+    }
 
     LaunchedEffect(Unit) {
         Log.d("CartsScreen", "Carts: ${cartsState.carts}")
@@ -131,21 +137,23 @@ fun CartsScreen(
                         items(items = cartState.cart!!.products) { cartProduct ->
                             CartCard(
                                 cartProduct = cartProduct,
-                                cartViewModel = cartViewModel,
-                                setProduct = {
-                                    val amount = it.price * cartProduct.quantity
-                                    totalAmount += amount
-                                    Log.d(
-                                        "CartScreen",
-                                        "Products amount: $amount, Total amount: $totalAmount"
-                                    )
-                                },
+                                /* setProduct = {
+                                     val amount = it.price * cartProduct.quantity
+                                     totalAmount += amount
+                                     Log.d(
+                                         "CartScreen",
+                                         "Products amount: $amount, Total amount: $totalAmount"
+                                     )
+                                 },*/
                                 onReduceQuantity = {
                                     cartViewModel.reduceQuantity(it)
                                     mainViewModel.getCart(false)
                                 },
                                 onIncreaseQuantity = {
                                     cartViewModel.increaseQuantity(it)
+                                },
+                                onSelected = {
+                                    cartViewModel.checkCartProduct(it)
                                 }
                             )
                         }
@@ -171,13 +179,14 @@ fun CartsScreen(
                 }"
             )
             Button(
+                enabled = selProductsCount > 0,
                 onClick = { onNavigateToCheckout() },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
-                Text(text = "Check Out(${cartState.cart?.products?.size})")
+                Text(text = "Check Out($selProductsCount)")
             }
         }
     }

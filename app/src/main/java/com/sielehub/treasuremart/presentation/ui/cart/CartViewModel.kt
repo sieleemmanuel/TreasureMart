@@ -1,13 +1,12 @@
 package com.sielehub.treasuremart.presentation.ui.cart
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.model.Cart
 import com.sielehub.treasuremart.domain.model.CartProduct
 import com.sielehub.treasuremart.domain.model.Product
-import com.sielehub.treasuremart.domain.use_case.cart.AddProductToCartUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.CheckCartProductUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.CreateCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartAmountUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
@@ -33,7 +32,7 @@ class CartViewModel(
     private val reduceQuantityUseCase: ReduceQuantityUseCase,
     private val increaseQuantityUseCase: IncreaseQuantityUseCase,
     private val getCartAmountUseCase: GetCartAmountUseCase,
-    private val addProductToCartUseCase: AddProductToCartUseCase
+    private val checkCartProductUseCase: CheckCartProductUseCase,
 ) : ViewModel() {
 
     private val _cartListState = MutableStateFlow(CartListState())
@@ -79,6 +78,7 @@ class CartViewModel(
                 when (val result = it) {
                     is Resource.Success -> {
                         _cartState.value = CartState(cart = result.data)
+                        getCartAmount()
                     }
 
                     is Resource.Error -> {
@@ -93,15 +93,13 @@ class CartViewModel(
                 }
             }.launchIn(this)
         }
-        getCartAmount()
     }
 
     fun getCarts() {
         viewModelScope.launch(Dispatchers.IO) {
-            getCartsUseCase.invoke().onEach { result ->
+            getCartsUseCase().onEach { result ->
                 when (result) {
                     is Resource.Success -> {
-
                         _cartListState.value = CartListState(carts = result.data ?: emptyList())
 
                     }
@@ -175,18 +173,7 @@ class CartViewModel(
 
     fun getCartAmount() {
         viewModelScope.launch(Dispatchers.IO) {
-            val cartProducts = mutableListOf<Product>()
-            getCartUseCase(false).collect {
-                Log.d(TAG, "Cart: ${it.data}")
-                it.data?.products?.forEach { cartProduct ->
-                    getProductUseCase(cartProduct.productId).collect {
-                        it.data?.let { product ->
-                            cartProducts.add(product)
-                        }
-                    }
-                }
-            }
-            getCartAmountUseCase(cartState.value.cart!!, cartProducts).collect {
+            getCartAmountUseCase().collect {
                 when (it) {
                     is Resource.Success -> {
                         _cartAmountState.value = it.data ?: 0.0
@@ -201,6 +188,17 @@ class CartViewModel(
                     }
                 }
             }
+        }
+    }
+
+    fun checkCartProduct(cartProduct: CartProduct) {
+        viewModelScope.launch {
+            checkCartProductUseCase(cartProduct).collect {
+                it.data?.let {
+                    //  _cartState.value = CartState(cart = it)
+                }
+            }
+            getCart(false)
         }
     }
 

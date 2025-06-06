@@ -24,47 +24,37 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import com.sielehub.treasuremart.R
+import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.domain.model.CartProduct
-import com.sielehub.treasuremart.domain.model.Product
-import com.sielehub.treasuremart.presentation.ui.cart.CartViewModel
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
-import org.koin.androidx.compose.koinViewModel
+import com.sielehub.treasuremart.presentation.util.shimmerEffect
 
 @Composable
 fun CartCard(
     modifier: Modifier = Modifier,
-    cartViewModel: CartViewModel,
     cartProduct: CartProduct,
-    setProduct: (Product) -> Unit = {},
+    onSelected: (CartProduct) -> Unit = {},
     onViewProduct: (Int) -> Unit = {},
     onReduceQuantity: (CartProduct) -> Unit = {},
     onIncreaseQuantity: (CartProduct) -> Unit = {}
 ) {
-    var product by remember { mutableStateOf<Product?>(null) }
+    /*var product by remember { mutableStateOf<Product?>(null) }
     LaunchedEffect(Unit) {
         cartViewModel.getProduct(cartProduct.productId) {
             product = it
             setProduct(it)
         }
-    }
+    }*/
     Card(
         onClick = { onViewProduct(cartProduct.productId) },
         colors = CardDefaults.cardColors().copy(
@@ -75,14 +65,14 @@ fun CartCard(
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(8.dp),
+                .padding(start = 4.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
 
         ) {
             Checkbox(
                 checked = cartProduct.isSelected,
                 onCheckedChange = {
-                    cartProduct.isSelected = it
+                    onSelected(cartProduct)
                 }
             )
             Box(
@@ -94,17 +84,34 @@ fun CartCard(
                     )
                     .clip(RoundedCornerShape(4.dp))
             ) {
-                AsyncImage(
-                    model = product?.image,
+                SubcomposeAsyncImage(
+                    model = cartProduct.image,
+                    contentDescription = null,
+                    contentScale = ContentScale.FillBounds,
+                    loading = {
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .shimmerEffect()
+                        )
+                    },
+                    modifier = modifier
+                        .fillMaxSize()
+                        .clickable {
+                            onViewProduct(cartProduct.productId)
+                        }
+                )
+                /*AsyncImage(
+                    model = cartProduct.image,
                     placeholder = painterResource(id = R.drawable.ic_shopping),
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
                     modifier = modifier
                         .fillMaxSize()
                         .clickable {
-                            product?.id?.let { onViewProduct(it) }
+                            onViewProduct(cartProduct.productId)
                         }
-                )
+                )*/
             }
 
             Column(
@@ -117,7 +124,7 @@ fun CartCard(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        text = product?.title ?: "",
+                        text = cartProduct.title ?: "",
                         fontWeight = FontWeight.Bold,
                         minLines = 2,
                         maxLines = 2,
@@ -127,7 +134,7 @@ fun CartCard(
                 }
                 Spacer(modifier = modifier.height(4.dp))
                 Text(
-                    text = product?.description ?: "",
+                    text = cartProduct.description ?: "",
                     style = MaterialTheme.typography.bodySmall.copy(),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
@@ -141,7 +148,7 @@ fun CartCard(
                 ) {
                     Text(
                         style = TextStyle(color = MaterialTheme.colorScheme.primary),
-                        text = product?.price?.formatedCurrency() ?: 0.0.formatedCurrency(),
+                        text = cartProduct.price?.formatedCurrency() ?: 0.0.formatedCurrency(),
                         fontWeight = FontWeight.Bold
                     )
 
@@ -193,5 +200,15 @@ fun CartCard(
 @Preview(showBackground = true)
 @Composable
 fun CartCardPreview() {
-    CartCard(cartProduct = CartProduct(1, 1), cartViewModel = koinViewModel())
+    CartCard(
+        cartProduct = CartProduct(
+            productId = 1,
+            quantity = 1,
+            title = "Product Title",
+            price = 100.0,
+            description = "Product Description",
+            image = "https://via.placeholder.com/150",
+            isSelected = false
+        )
+    )
 }

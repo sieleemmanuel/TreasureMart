@@ -16,7 +16,11 @@ data class Cart(
 @Serializable
 data class CartProduct(
     val productId: Int,
-    var quantity: Int
-) {
-    var isSelected = true
-}
+    var quantity: Int,
+    var price: Double? = null,
+    var title: String? = null,
+    var image: String? = null,
+    var category: String? = null,
+    var description: String? = null,
+    var isSelected: Boolean = true
+)
