@@ -26,7 +26,9 @@ data class Address(
     val geolocation: Geolocation,
     val number: Int,
     val street: String,
-    val zipcode: String
+    val zipcode: String,
+    val shippingFee: Double? = null,
+    var isDefault: Boolean? = null
 )
 
 @Serializable

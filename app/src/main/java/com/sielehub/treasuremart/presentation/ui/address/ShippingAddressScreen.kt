@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,42 +42,22 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sielehub.treasuremart.domain.model.Address
-import com.sielehub.treasuremart.domain.model.Geolocation
 import com.sielehub.treasuremart.presentation.common.TopBar
+import com.sielehub.treasuremart.presentation.ui.checkout.CheckoutViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)
 @Composable
 fun ShippingAddressScreen(
     modifier: Modifier = Modifier,
+    checkoutViewModel: CheckoutViewModel = koinViewModel(),
     paddingValues: PaddingValues = PaddingValues(),
     onNavigateBack: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val addresses = listOf(
-        Address(
-            city = "Pretoria",
-            number = 123456789,
-            street = "Address 1",
-            geolocation = Geolocation("123.456", "789.012"),
-            zipcode = "12345",
-        ),
-        Address(
-            city = "Belin",
-            number = 123456789,
-            street = "Address 2",
-            geolocation = Geolocation("345.678", "901.234"),
-            zipcode = "23567",
-        ),
-        Address(
-            city = "Maputo",
-            number = 123456789,
-            street = "Address 3",
-            geolocation = Geolocation("234.567", "890.123"),
-            zipcode = "205789",
-        )
-    )
-    var selectedAddress by remember { mutableStateOf(addresses.first()) }
+    val addresses by checkoutViewModel.addresses.collectAsState()
+
+    var selectedAddress by remember { mutableStateOf(addresses.firstOrNull { it.isDefault == true }) }
 
     Box(modifier = modifier.fillMaxSize()) {
         Column(
