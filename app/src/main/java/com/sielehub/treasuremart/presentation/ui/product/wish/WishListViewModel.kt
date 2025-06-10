@@ -3,8 +3,8 @@ package com.sielehub.treasuremart.presentation.ui.product.wish
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
-import com.sielehub.treasuremart.domain.use_case.product.wishlist.GetWishListUseCase
-import com.sielehub.treasuremart.domain.use_case.product.wishlist.RemoveFromWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.wishlist.GetWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.wishlist.RemoveFromWishListUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

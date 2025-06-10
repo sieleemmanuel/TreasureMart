@@ -28,7 +28,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sielehub.treasuremart.presentation.common.TopBar
-import com.sielehub.treasuremart.presentation.ui.product.component.WishListProductCard
 import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)

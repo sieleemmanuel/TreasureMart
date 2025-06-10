@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.domain.use_case.product.wishlist
+package com.sielehub.treasuremart.domain.use_case.wishlist
 
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.model.WishProduct

@@ -4,6 +4,7 @@ import com.google.common.truth.Truth.assertThat
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.model.WishProduct
 import com.sielehub.treasuremart.domain.repository.WishRepository
+import com.sielehub.treasuremart.domain.use_case.wishlist.AddToWishListUseCase
 import com.sielehub.treasuremart.fakeProducts
 import io.mockk.coEvery
 import io.mockk.mockk
