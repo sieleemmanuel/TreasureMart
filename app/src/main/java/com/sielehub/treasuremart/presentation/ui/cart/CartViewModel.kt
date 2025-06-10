@@ -11,9 +11,8 @@ import com.sielehub.treasuremart.domain.use_case.cart.CreateCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartAmountUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartsUseCase
-import com.sielehub.treasuremart.domain.use_case.cart.IncreaseQuantityUseCase
-import com.sielehub.treasuremart.domain.use_case.cart.ReduceQuantityUseCase
-import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartProductQuantityUseCase
+import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,10 +26,10 @@ class CartViewModel(
     private val createCartUseCase: CreateCartUseCase,
     private val getCartUseCase: GetCartUseCase,
     private val getCartsUseCase: GetCartsUseCase,
-    private val updateCartUseCase: UpdateCartUseCase,
+    private val updateCartProductsUseCase: UpdateCartProductsUseCase,
     private val getProductUseCase: GetProductUseCase,
-    private val reduceQuantityUseCase: ReduceQuantityUseCase,
-    private val increaseQuantityUseCase: IncreaseQuantityUseCase,
+    /* private val reduceQuantityUseCase: ReduceQuantityUseCase,*/
+    private val updateCartProductQuantityUseCase: UpdateCartProductQuantityUseCase,
     private val getCartAmountUseCase: GetCartAmountUseCase,
     private val checkCartProductUseCase: CheckCartProductUseCase,
 ) : ViewModel() {
@@ -118,9 +117,9 @@ class CartViewModel(
         }
     }
 
-    fun updateCart(cart: Cart) {
+    fun updateCart(cartProduct: CartProduct) {
         viewModelScope.launch(Dispatchers.IO) {
-            updateCartUseCase(cart).onEach { result ->
+            updateCartProductsUseCase(cartProduct).onEach { result ->
                 when (result) {
                     is Resource.Success -> {
                         _updateCartState.value = UpdateCartState(success = result.data == true)
@@ -149,7 +148,7 @@ class CartViewModel(
         }
     }
 
-    fun reduceQuantity(cartProduct: CartProduct) {
+    /*fun reduceQuantity(cartProduct: CartProduct) {
         viewModelScope.launch(Dispatchers.IO) {
             reduceQuantityUseCase(cartProduct).collect {
                 it.data?.let {
@@ -158,11 +157,11 @@ class CartViewModel(
             }
             getCart(showLoading = false)
         }
-    }
+    }*/
 
-    fun increaseQuantity(cartProduct: CartProduct) {
+    fun updateCartProductQuantity(isIncrease: Boolean, cartProduct: CartProduct) {
         viewModelScope.launch(Dispatchers.IO) {
-            increaseQuantityUseCase(cartProduct).collect {
+            updateCartProductQuantityUseCase(isIncrease, cartProduct).collect {
                 it.data?.let {
                     //  _cartState.value = CartState(cart = it)
                 }
