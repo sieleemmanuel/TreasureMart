@@ -193,6 +193,13 @@ fun Navigation(
                 },
                 onEditAddress = {
                     navController.navigate(Route.ShippingAddress)
+                },
+                onNavigateToHome = {
+                    navController.navigate(Route.Dashboard) {
+                        popUpTo(Route.Dashboard) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }
