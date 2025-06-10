@@ -9,9 +9,9 @@ import com.sielehub.treasuremart.domain.model.WishProduct
 import com.sielehub.treasuremart.domain.use_case.cart.AddProductToCartUseCase
 import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductUseCase
-import com.sielehub.treasuremart.domain.use_case.product.wishlist.AddToWishListUseCase
-import com.sielehub.treasuremart.domain.use_case.product.wishlist.CheckIsWishUseCase
-import com.sielehub.treasuremart.domain.use_case.product.wishlist.RemoveFromWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.wishlist.AddToWishListUseCase
+import com.sielehub.treasuremart.domain.use_case.wishlist.CheckIsWishUseCase
+import com.sielehub.treasuremart.domain.use_case.wishlist.RemoveFromWishListUseCase
 import com.sielehub.treasuremart.presentation.ui.cart.CartState
 import com.sielehub.treasuremart.presentation.ui.product.wish.RemoveFromWishListState
 import kotlinx.coroutines.Dispatchers

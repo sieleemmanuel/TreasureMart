@@ -3,6 +3,7 @@ package com.sielehub.treasuremart.domain.use_case.product.wishlist
 import com.google.common.truth.Truth.assertThat
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.repository.WishRepository
+import com.sielehub.treasuremart.domain.use_case.wishlist.RemoveFromWishListUseCase
 import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.flow.toList
