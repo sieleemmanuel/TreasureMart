@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -62,13 +63,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
+import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.core.Constants.Companion.categories
@@ -80,6 +79,7 @@ import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGr
 import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardGridShimmer
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
+import com.sielehub.treasuremart.presentation.util.shimmerEffect
 import kotlinx.coroutines.delay
 import org.koin.androidx.compose.koinViewModel
 
@@ -310,14 +310,20 @@ fun ExplorePage(
                     .clip(RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center,
             ) {
-                AsyncImage(
+                SubcomposeAsyncImage(
                     model = R.drawable.promotions,
                     contentDescription = null,
-                    placeholder = painterResource(id = R.drawable.promotions),
+                    contentScale = ContentScale.FillBounds,
+                    loading = {
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .shimmerEffect()
+                        )
+                    },
                     modifier = modifier
                         .height(180.dp)
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop
+                        .fillMaxWidth()
                 )
             }
         }
@@ -451,7 +457,7 @@ fun CategoryPage(
                 "jewelery" -> R.drawable.jewelry
                 "men's clothing" -> R.drawable.men_clothings
                 "women's clothing" -> R.drawable.women_clothings
-                else -> R.drawable.loading_progress
+                else -> null
             }
         }
         LazyVerticalGrid(
@@ -473,14 +479,20 @@ fun CategoryPage(
                         .clip(RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center,
                 ) {
-                    AsyncImage(
+                    SubcomposeAsyncImage(
                         model = categoryResImage,
                         contentDescription = null,
-                        placeholder = rememberAsyncImagePainter(R.drawable.loading_progress),
+                        contentScale = ContentScale.FillBounds,
+                        loading = {
+                            Box(
+                                modifier = modifier
+                                    .fillMaxSize()
+                                    .shimmerEffect()
+                            )
+                        },
                         modifier = modifier
                             .height(180.dp)
-                            .fillMaxWidth(),
-                        contentScale = ContentScale.Crop
+                            .fillMaxWidth()
                     )
                 }
             }

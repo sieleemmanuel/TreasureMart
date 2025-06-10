@@ -112,20 +112,66 @@ fun ProductCardList(
             }
         }
 
+    }
+}
 
-        /* if (addButton) {
-             Button(
-                 modifier = modifier
-                     .padding(PaddingValues(horizontal = 4.dp))
-                     .fillMaxWidth()
-                     .heightIn(24.dp),
-                 shape = RoundedCornerShape(4.dp),
-                 onClick = { *//*TODO*//* }
-            ) {
-                Text(text = "Add to cart")
+@Preview(showBackground = true)
+@Composable
+fun ProductCardListShimmer(
+    modifier: Modifier = Modifier,
+    product: Product = Product(),
+    onClick: (productId: Int) -> Unit = {},
+) {
+    Card(
+        onClick = { onClick(product.id) },
+        modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = RoundedCornerShape(8.dp)
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            Box(
+                modifier = modifier
+                    .size(90.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .shimmerEffect()
+            )
+            Spacer(modifier = modifier.width(8.dp))
+            Column {
+                Box(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .height(36.dp)
+                        .padding(top = 10.dp)
+                        .shimmerEffect(RoundedCornerShape(4.dp)),
+                )
+                Spacer(modifier = modifier.height(8.dp))
+                Row(
+                    modifier = modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Box(
+                        modifier = modifier
+                            .width(100.dp)
+                            .height(16.dp)
+                            .shimmerEffect(RoundedCornerShape(4.dp)),
+                    )
+                    Box(
+                        modifier = modifier
+                            .width(30.dp)
+                            .height(16.dp)
+                            .shimmerEffect(RoundedCornerShape(4.dp)),
+                    )
+                }
+
             }
-            //Spacer(modifier = modifier.height(4.dp))
-        }*/
+        }
+
     }
 }
 

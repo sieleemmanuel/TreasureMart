@@ -77,6 +77,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.domain.model.CartProduct
 import com.sielehub.treasuremart.domain.model.WishProduct
 import com.sielehub.treasuremart.presentation.base.MainViewModel
@@ -108,9 +109,6 @@ fun ProductDetailScreen(
     val listState = rememberLazyListState()
     val context = LocalContext.current
     val density = LocalDensity.current
-    var isLoading by remember {
-        mutableStateOf(true)
-    }
     val productDetailState by productDetailViewModel.productDetailState.collectAsStateWithLifecycle()
     var collapsedTopBarHeight by remember { mutableFloatStateOf(56f) }
     val expandedTopBarHeight = 360.dp
@@ -125,7 +123,11 @@ fun ProductDetailScreen(
     val cartState by productDetailViewModel.cartState.collectAsStateWithLifecycle()
     val addToCartState by productDetailViewModel.addToCartState.collectAsStateWithLifecycle()
     val firstItemScrollOffset by remember { derivedStateOf { listState.firstVisibleItemScrollOffset } }
-
+    val cartCount by remember {
+        derivedStateOf {
+            cartState.cart?.products?.filter { it.isSelected }?.size ?: 0
+        }
+    }
     LaunchedEffect(isWishProduct) {
         productDetailViewModel.checkIsWish(productId)
     }
@@ -135,10 +137,6 @@ fun ProductDetailScreen(
     }
     LaunchedEffect(addToCartState) {
         productDetailViewModel.isProductInCart(productId)
-    }
-    LaunchedEffect(key1 = true) {
-        delay(1000)
-        isLoading = false
     }
     HandleOnBackPressed(isOpenImages.not()) {
         if (isOpenImages) {
@@ -211,47 +209,47 @@ fun ProductDetailScreen(
             state = listState,
         ) {
             item {
-                if (isLoading) {
-                    Box(
+                Box(modifier = modifier.fillMaxWidth()) {
+                    HorizontalPager(
+                        state = pagerState,
                         modifier = modifier
-                            .fillMaxWidth()
-                            .height(expandedTopBarHeight)
-                            .shimmerEffect()
-                    )
-                } else {
-                    Box(modifier = modifier.fillMaxWidth()) {
-                        HorizontalPager(
-                            state = pagerState,
+                            .clickable {
+                                isOpenImages = !isOpenImages
+                            }) {
+                        SubcomposeAsyncImage(
+                            model = productDetailState.product?.image,
+                            contentDescription = null,
+                            contentScale = ContentScale.FillBounds,
+                            loading = {
+                                Box(
+                                    modifier = modifier
+                                        .fillMaxWidth()
+                                        .height(360.dp)
+                                        .shimmerEffect()
+                                )
+                            },
                             modifier = modifier
-                                .clickable {
-                                    isOpenImages = !isOpenImages
-                                }) {
-                            AsyncImage(
-                                model = productDetailState.product?.image,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = modifier
-                                    .fillMaxWidth()
-                                    .height(360.dp)
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .wrapContentHeight()
-                                .align(Alignment.BottomEnd)
-                                .padding(bottom = 8.dp, end = 16.dp)
-                                .background(
-                                    color = Color.Black.copy(alpha = 0.4f),
-                                    shape = RoundedCornerShape(16.dp)
-                                ),
-                        ) {
-                            Text(
-                                text = "${pagerState.currentPage + 1}/${pagerState.pageCount}",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = Color.White,
-                                modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
-                            )
-                        }
+                                .height(360.dp)
+                                .fillMaxWidth()
+                                .shimmerEffect()
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .wrapContentHeight()
+                            .align(Alignment.BottomEnd)
+                            .padding(bottom = 8.dp, end = 16.dp)
+                            .background(
+                                color = Color.Black.copy(alpha = 0.4f),
+                                shape = RoundedCornerShape(16.dp)
+                            ),
+                    ) {
+                        Text(
+                            text = "${pagerState.currentPage + 1}/${pagerState.pageCount}",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = Color.White,
+                            modifier = modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                        )
                     }
                 }
                 Spacer(modifier = modifier.height(16.dp))
@@ -446,8 +444,13 @@ fun ProductDetailScreen(
                     shape = RoundedCornerShape(1.dp),
                     colors = IconButtonDefaults.iconButtonColors()
                 ) {
-                    cartState.cart?.products?.size?.let {
-                        BadgedIcon(Icons.Outlined.ShoppingCart, it)
+                    if (cartCount > 0) {
+                        BadgedIcon(Icons.Outlined.ShoppingCart, cartCount)
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.ShoppingCart,
+                            contentDescription = null
+                        )
                     }
                 }
             }
