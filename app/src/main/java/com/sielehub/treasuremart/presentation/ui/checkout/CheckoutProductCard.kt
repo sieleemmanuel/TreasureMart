@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.ui.product.component
+package com.sielehub.treasuremart.presentation.ui.checkout
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,75 +16,81 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilledIconButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
-import coil.compose.rememberAsyncImagePainter
-import com.sielehub.treasuremart.R
+import coil.compose.SubcomposeAsyncImage
+import com.sielehub.treasuremart.core.Constants
+import com.sielehub.treasuremart.domain.model.CartProduct
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
+import com.sielehub.treasuremart.presentation.util.shimmerEffect
 
 @Preview(showBackground = true)
 @Composable
-fun WishListProductCard(
+fun CheckoutProductCard(
     modifier: Modifier = Modifier,
-    product: Product = Product(),
+    cartProduct: CartProduct  = Constants.cartProducts().first(),
     onClick: (productId: Int) -> Unit = {},
-    onDelete: (productId: Int) -> Unit = {}
 ) {
+    Card(
+        onClick = { onClick(cartProduct.productId) },
+        modifier = modifier
+            .wrapContentHeight()
+            .fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+        shape = RoundedCornerShape(8.dp)
+    ) {
         Row(
             modifier = modifier
                 .fillMaxWidth()
-                .background(color = MaterialTheme.colorScheme.surfaceContainer)
-                .clickable{
-                    onClick(product.id)
-                },
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(8.dp)
         ) {
             Box(
                 modifier = modifier
-                    .padding(start = 10.dp)
-                    .size(120.dp)
+                    .size(90.dp)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
+                        shape = RoundedCornerShape(8.dp)
                     )
+                    .clip(RoundedCornerShape(8.dp))
             ) {
-                AsyncImage(
-                    model = product.image,
-                    placeholder = rememberAsyncImagePainter(R.drawable.loading_progress),
+                SubcomposeAsyncImage(
+                    model = cartProduct.image,
                     contentDescription = null,
                     contentScale = ContentScale.FillBounds,
+                    loading = {
+                        Box(
+                            modifier = modifier
+                                .fillMaxSize()
+                                .shimmerEffect()
+                        )
+                    },
                     modifier = modifier
                         .fillMaxSize()
+                        .clickable {
+                            onClick(cartProduct.productId)
+                        }
                 )
             }
-            Column(
-                modifier = modifier.padding(horizontal = 10.dp)
-            ) {
+            Spacer(modifier = modifier.width(8.dp))
+            Column {
                 Text(
                     modifier = modifier
                         .fillMaxWidth()
-                        .padding(top = 4.dp),
-                    text = product.title,
+                        .padding(top = 10.dp),
+                    text = cartProduct.title?:"",
                     style = MaterialTheme.typography.labelMedium,
                     overflow = TextOverflow.Ellipsis,
-                    minLines = 2,
                     maxLines = 2
                 )
                 Spacer(modifier = modifier.height(8.dp))
@@ -93,24 +99,19 @@ fun WishListProductCard(
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = product.price.formatedCurrency(),
+                        modifier = modifier.padding(PaddingValues(horizontal = 4.dp)),
+                        text = (cartProduct.price?:0.0).formatedCurrency(),
                         style = MaterialTheme.typography.titleSmall,
                     )
-                        Icon(
-                            imageVector = Icons.Outlined.Delete,
-                            contentDescription = null,
-                            modifier = modifier
-                                .alpha(0.8f)
-                                .clickable{
-                                    onDelete(product.id)
-                                }
-                                .padding(bottom = 4.dp)
-                        )
-
+                    Text(
+                        modifier = modifier.padding(PaddingValues(horizontal = 4.dp)),
+                        text = "x${cartProduct.quantity}",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = Color.Gray
+                    )
                 }
 
             }
         }
-
+    }
 }
-
