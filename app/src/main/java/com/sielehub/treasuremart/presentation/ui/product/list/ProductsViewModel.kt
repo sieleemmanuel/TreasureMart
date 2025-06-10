@@ -6,15 +6,22 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
+import com.sielehub.treasuremart.domain.use_case.cart.GetCartUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsUseCase
+import com.sielehub.treasuremart.presentation.ui.cart.CartState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class ProductsViewModel(
-    private val getProductsUseCase: GetProductsUseCase
+    private val getProductsUseCase: GetProductsUseCase,
+    private val getCartUseCase: GetCartUseCase
 ) : ViewModel() {
 
     private val _productsState = MutableStateFlow(ProductListState())
@@ -23,6 +30,9 @@ class ProductsViewModel(
 
     private val _productByCategoryState = mutableStateOf(ProductsByCategoryState())
     val productByCategoryState: State<ProductsByCategoryState> = _productByCategoryState
+
+    private val _cartState = MutableStateFlow(CartState())
+    val cartState: StateFlow<CartState> = _cartState
 
 
     fun getProducts(productsQuery: String? = null) {
@@ -46,5 +56,33 @@ class ProductsViewModel(
                 }
             }
         }.launchIn(viewModelScope)
+    }
+
+    fun getCart(productId: Int) {
+        viewModelScope.launch(Dispatchers.IO) {
+            getCartUseCase(false).collectLatest { result ->
+                when (result) {
+                    is Resource.Loading -> {
+                        _cartState.update {
+                            CartState(isLoading = true)
+                        }
+                    }
+
+                    is Resource.Error -> {
+                        _cartState.update {
+                            CartState(
+                                error = result.message ?: "Unknown error occurred getting cart"
+                            )
+                        }
+                    }
+
+                    is Resource.Success -> {
+                        _cartState.update {
+                            CartState(cart = result.data)
+                        }
+                    }
+                }
+            }
+        }
     }
 }

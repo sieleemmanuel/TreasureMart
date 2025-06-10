@@ -39,6 +39,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,7 +70,7 @@ fun ProductsScreen(
     onNavigateToProductDetail: (Int) -> Unit = {},
 ) {
     val productsState by productsViewModel.productsState.collectAsStateWithLifecycle()
-
+    val cartState by productsViewModel.cartState.collectAsStateWithLifecycle()
     var sortMenuExpanded by remember { mutableStateOf(false) }
     val sortMenuItems = remember {
         listOf(
@@ -82,6 +83,11 @@ fun ProductsScreen(
     }
     var selectedSortMenu by rememberSaveable {
         mutableStateOf(sortMenuItems[0])
+    }
+    val cartCount by remember {
+        derivedStateOf {
+            cartState.cart?.products?.filter { it.isSelected }?.size ?: 0
+        }
     }
 
     LaunchedEffect(productsQuery) {
@@ -134,12 +140,22 @@ fun ProductsScreen(
                     shape = RoundedCornerShape(1.dp),
                     colors = IconButtonDefaults.iconButtonColors()
                 ) {
-                    BadgedBox(badge = {
-                        Badge {
-                            Text(text = "9")
+                    if (cartCount > 0) {
+                        BadgedBox(badge = {
+                            Badge {
+                                Text(text = cartCount.toString())
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Outlined.ShoppingCart,
+                                contentDescription = null
+                            )
                         }
-                    }) {
-                        Icon(imageVector = Icons.Outlined.ShoppingCart, contentDescription = null)
+                    } else {
+                        Icon(
+                            imageVector = Icons.Outlined.ShoppingCart,
+                            contentDescription = null
+                        )
                     }
                 }
             }
