@@ -13,11 +13,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -114,16 +118,25 @@ fun CartsScreen(
                 }
 
                 cartState.cart?.products.isNullOrEmpty() -> {
-                    Box(
+                    Column(
                         modifier = modifier
                             .fillMaxWidth()
                             .fillMaxHeight(1f),
-                        contentAlignment = Alignment.Center
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Icon(
+                            imageVector = Icons.Outlined.ShoppingCart,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = modifier.size(100.dp)
+                        )
+                        Spacer(modifier = modifier.height(10.dp))
                         Text(
-                            text = "No products in cart. Add products to cart to checkout",
+                            text = "No products in cart yet. Add products to cart to see them here for checkout",
                             textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.titleLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            modifier = modifier.padding(24.dp)
                         )
                     }
                 }
@@ -137,20 +150,11 @@ fun CartsScreen(
                         items(items = cartState.cart!!.products) { cartProduct ->
                             CartCard(
                                 cartProduct = cartProduct,
-                                /* setProduct = {
-                                     val amount = it.price * cartProduct.quantity
-                                     totalAmount += amount
-                                     Log.d(
-                                         "CartScreen",
-                                         "Products amount: $amount, Total amount: $totalAmount"
-                                     )
-                                 },*/
                                 onReduceQuantity = {
-                                    cartViewModel.reduceQuantity(it)
-                                    mainViewModel.getCart(false)
+                                    cartViewModel.updateCartProductQuantity(false, it)
                                 },
                                 onIncreaseQuantity = {
-                                    cartViewModel.increaseQuantity(it)
+                                    cartViewModel.updateCartProductQuantity(true, it)
                                 },
                                 onSelected = {
                                     cartViewModel.checkCartProduct(it)
