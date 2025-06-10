@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.Icon
@@ -38,17 +38,29 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.sielehub.treasuremart.R
+import com.sielehub.treasuremart.core.Constants
+import org.koin.androidx.compose.koinViewModel
 import java.util.Date
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun OrdersScreen(
     modifier: Modifier = Modifier,
+    ordersViewModel: OrdersViewModel = koinViewModel(),
     paddingValues: PaddingValues = PaddingValues(),
     onNavigateBack: () -> Unit = {},
 ) {
     var selectedTabIndex by remember { mutableIntStateOf(0) }
-    val tabItems = listOf("To pay", "To ship", "Shipped", "To review", "Returns", "Completed")
+    val tabItems = listOf(
+        Constants.OrderStatus.TO_PAY,
+        Constants.OrderStatus.TO_SHIP,
+        Constants.OrderStatus.SHIPPED,
+        Constants.OrderStatus.COMPLETED,
+        Constants.OrderStatus.RETURNED,
+
+
+        )
+    val ordersState by ordersViewModel.ordersState.collectAsState()
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -113,9 +125,11 @@ fun OrdersScreen(
             }
         }
         Spacer(modifier = modifier.height(8.dp))
-        LazyColumn {
-            items(2) {
-                OrderItemCard(item = it)
+        LazyColumn(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            items(items = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)) {
+                OrderCard()
             }
         }
     }
@@ -138,10 +152,10 @@ fun OrderItemCard(
             Text(text = Date().toString())
         }
         Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(10.dp)
-                ) {
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(10.dp)
+        ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_background),
                 contentDescription = null,

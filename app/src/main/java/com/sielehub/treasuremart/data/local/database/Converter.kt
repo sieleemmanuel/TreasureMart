@@ -2,6 +2,7 @@ package com.sielehub.treasuremart.data.local.database
 
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.sielehub.treasuremart.domain.model.Address
 import com.sielehub.treasuremart.domain.model.CartProduct
 import com.sielehub.treasuremart.domain.model.Rating
 import com.sielehub.treasuremart.presentation.util.jsonToModel
@@ -28,5 +29,9 @@ class Converter {
     @TypeConverter
     fun stringToCartProducts(string: String): List<CartProduct> = string.jsonToModel()
 
+    @TypeConverter
+    fun addressToString(address: Address): String = address.modelToJsonArray()
 
+    @TypeConverter
+    fun stringToAddress(string: String): Address = string.jsonToModel()
 }
