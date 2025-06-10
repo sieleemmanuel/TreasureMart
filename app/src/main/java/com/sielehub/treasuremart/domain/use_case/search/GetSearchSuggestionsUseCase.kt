@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.domain.use_case.product.search
+package com.sielehub.treasuremart.domain.use_case.search
 
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.data.repository.StoreRepositoryImpl

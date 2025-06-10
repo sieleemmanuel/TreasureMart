@@ -9,10 +9,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Constants.Companion.PARAM_SEARCH_QUERY
 import com.sielehub.treasuremart.core.Resource
-import com.sielehub.treasuremart.domain.use_case.product.search.AddSearchHistoryUseCase
-import com.sielehub.treasuremart.domain.use_case.product.search.ClearSearchHistoryUseCase
-import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchHistoryUseCase
-import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchSuggestionsUseCase
+import com.sielehub.treasuremart.domain.use_case.search.AddSearchHistoryUseCase
+import com.sielehub.treasuremart.domain.use_case.search.ClearSearchHistoryUseCase
+import com.sielehub.treasuremart.domain.use_case.search.GetSearchHistoryUseCase
+import com.sielehub.treasuremart.domain.use_case.search.GetSearchSuggestionsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

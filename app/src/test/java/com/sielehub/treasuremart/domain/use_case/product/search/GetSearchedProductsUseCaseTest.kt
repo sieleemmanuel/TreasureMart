@@ -2,6 +2,7 @@ package com.sielehub.treasuremart.domain.use_case.product.search
 
 import com.google.common.truth.Truth.assertThat
 import com.sielehub.treasuremart.data.repository.StoreRepositoryImpl
+import com.sielehub.treasuremart.domain.use_case.search.GetSearchedProductsUseCase
 import com.sielehub.treasuremart.fakeProducts
 import io.mockk.coEvery
 import io.mockk.mockk
