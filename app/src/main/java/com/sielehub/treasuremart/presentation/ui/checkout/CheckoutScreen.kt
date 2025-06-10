@@ -1,5 +1,9 @@
 package com.sielehub.treasuremart.presentation.ui.checkout
 
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,17 +15,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material.icons.filled.CheckCircleOutline
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.outlined.EditLocationAlt
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +38,8 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,31 +48,48 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.datasource.LoremIpsum
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sielehub.treasuremart.core.Constants.Companion.products
+import androidx.compose.ui.window.Dialog
+import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.domain.model.Address
 import com.sielehub.treasuremart.domain.model.Geolocation
+import com.sielehub.treasuremart.domain.model.Order
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.cart.component.SelectableRow
-import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardList
+import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardListShimmer
+import com.sielehub.treasuremart.presentation.util.formatedCurrency
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun CheckoutScreen(
     modifier: Modifier = Modifier,
     paddingValues: PaddingValues = PaddingValues(),
+    checkoutViewModel: CheckoutViewModel = koinViewModel(),
     onNavigateBack: () -> Unit = {},
     onNavigateToProductDetail: (id: Int) -> Unit = {},
+    onNavigateToHome: () -> Unit = {},
     onEditAddress: () -> Unit = {}
 ) {
+    val context = LocalContext.current
     val density = LocalDensity.current
     val paymentMethods = listOf("VISA", "Google Pay")
     var selectedPaymentMethod by rememberSaveable { mutableStateOf("") }
     var contentPaddingBottom by remember { mutableStateOf(56.dp) }
+    val checkoutProductsState by checkoutViewModel.checkoutProductsState.collectAsState()
+    val subTotal by checkoutViewModel.subtotal.collectAsState()
+    val addresses by checkoutViewModel.addresses.collectAsState()
+    val selectedAddress by remember {
+        derivedStateOf {
+            addresses.firstOrNull { it.isDefault == true }
+        }
+    }
+    val placeOrderState by checkoutViewModel.placeOrderState.collectAsState()
+    var showProgressDialog by remember { mutableStateOf(false) }
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier.fillMaxSize()
@@ -92,9 +120,12 @@ fun CheckoutScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    AddressCard(
-                        onEditAddress = onEditAddress
-                    )
+                    selectedAddress?.let {
+                        AddressCard(
+                            onEditAddress = onEditAddress,
+                            defaultAddress = it
+                        )
+                    }
                 }
                 item {
                     PaymentMethodsCard(
@@ -105,13 +136,33 @@ fun CheckoutScreen(
                         }
                     )
                 }
-                items(items = products().subList(0, 2)) {
-                    ProductCardList(product = it) { productId ->
-                        onNavigateToProductDetail(productId)
+                when {
+                    checkoutProductsState.isLoading -> {
+                        items(3) {
+                            ProductCardListShimmer()
+                        }
+                    }
+
+                    checkoutProductsState.error.isNotBlank() -> {
+                        item {
+                            Text(text = checkoutProductsState.error)
+                        }
+                    }
+
+                    else -> {
+                        items(items = checkoutProductsState.products) {
+                            CheckoutProductCard(
+                                cartProduct = it,
+                                onClick = {
+
+                                }
+                            )
+                        }
                     }
                 }
+
                 item {
-                    SubTotalCard()
+                    SubTotalCard(subTotal = subTotal)
                     Spacer(modifier = modifier.height(contentPaddingBottom * 3))
                 }
             }
@@ -135,17 +186,39 @@ fun CheckoutScreen(
                     }
                 },
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(24.dp)
+            horizontalArrangement = Arrangement.spacedBy(36.dp)
         ) {
             Text(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp,
-                text = "KSh 156, 000"
+                text = (subTotal + (selectedAddress?.shippingFee ?: 0.00)).formatedCurrency()
             )
 
             Button(
                 onClick = {
-
+                    if (selectedAddress != null && selectedPaymentMethod.isNotEmpty()) {
+                        val order = Order(
+                            orderId = 1,
+                            address = selectedAddress!!,
+                            orderItems = checkoutProductsState.products,
+                            orderTotal = subTotal + (selectedAddress!!.shippingFee ?: 0.00),
+                            orderDate = "2023-04-01",
+                            orderStatus = Constants.OrderStatus.TO_PAY
+                        )
+                        checkoutViewModel.placeOrder(order)
+                        showProgressDialog = true
+                    } else {
+                        if (selectedAddress == null) {
+                            Toast.makeText(context, "Please select an address", Toast.LENGTH_SHORT)
+                                .show()
+                        } else if (selectedPaymentMethod.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                "Please select a payment method",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
                 },
                 colors = ButtonDefaults.elevatedButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
@@ -157,11 +230,30 @@ fun CheckoutScreen(
                 Text(text = "Place Order")
             }
         }
+        AnimatedVisibility(
+            visible = showProgressDialog,
+            enter = slideInVertically(),
+            exit = slideOutVertically(),
+        ){
+            PlacingOrderDialog(
+                placeOrderState = placeOrderState,
+                onDismiss = {
+                    showProgressDialog = false
+                    onNavigateBack()
+                },
+                onNavigateToHome = onNavigateToHome
+            )
+        }
     }
 }
 
+@Preview(showBackground = true)
 @Composable
-private fun SubTotalCard(modifier: Modifier = Modifier) {
+private fun SubTotalCard(
+    modifier: Modifier = Modifier,
+    subTotal: Double = 1200.00,
+    shippingFee: Double = 258.00
+) {
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -189,7 +281,7 @@ private fun SubTotalCard(modifier: Modifier = Modifier) {
             )
             Text(
                 modifier = modifier.padding(PaddingValues(horizontal = 4.dp)),
-                text = "KSh 18, 999",
+                text = subTotal.formatedCurrency(),
                 style = MaterialTheme.typography.titleSmall,
             )
         }
@@ -207,7 +299,7 @@ private fun SubTotalCard(modifier: Modifier = Modifier) {
             )
             Text(
                 modifier = modifier.padding(PaddingValues(horizontal = 4.dp)),
-                text = "KSh 258",
+                text = shippingFee.formatedCurrency(),
                 style = MaterialTheme.typography.titleSmall,
             )
         }
@@ -270,18 +362,15 @@ private fun PaymentMethodsCard(
 private fun AddressCard(
     modifier: Modifier = Modifier,
     onEditAddress: () -> Unit = {},
+    defaultAddress: Address = Address(
+        city = "Pretoria",
+        number = 123456789,
+        street = "Address 1",
+        geolocation = Geolocation("123.456", "789.012"),
+        zipcode = "12345",
+        shippingFee = 258.00
+    )
 ) {
-    val defaultAddress by remember {
-        mutableStateOf(
-            Address(
-            city = "Pretoria",
-            number = 123456789,
-            street = "Address 1",
-            geolocation = Geolocation("123.456", "789.012"),
-            zipcode = "12345",
-        )
-        )
-    }
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -330,6 +419,90 @@ private fun AddressCard(
             modifier = modifier.padding(horizontal = 12.dp)
         )
         Spacer(modifier = modifier.height(12.dp))
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PlacingOrderDialog(
+    modifier: Modifier = Modifier,
+    placeOrderState: PlaceOrderState = PlaceOrderState(
+        isLoading = false,
+        error = "",
+        isSuccessful = true
+    ),
+    onDismiss: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {}
+) {
+    Dialog(
+        onDismissRequest = onDismiss
+    ) {
+        Card {
+            Box(modifier = modifier.fillMaxWidth()) {
+                IconButton(
+                    onClick = onDismiss,
+                    modifier = modifier.align(Alignment.TopEnd)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = null
+                    )
+                }
+                Column(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    when {
+                        placeOrderState.isLoading -> {
+                            CircularProgressIndicator(
+                                modifier = modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .size(64.dp),
+                            )
+                            Spacer(modifier = modifier.height(16.dp))
+                            Text(text = "Processing the order")
+                        }
+
+                        placeOrderState.error.isNotEmpty() -> {
+                            Icon(
+                                imageVector = Icons.Default.ErrorOutline,
+                                contentDescription = null,
+                                modifier = modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .size(64.dp)
+                            )
+                            Spacer(modifier = modifier.height(16.dp))
+                            Text(text = placeOrderState.error)
+                        }
+
+                        else -> {
+                            Icon(
+                                imageVector = Icons.Default.CheckCircleOutline,
+                                contentDescription = null,
+                                modifier = modifier
+                                    .align(Alignment.CenterHorizontally)
+                                    .size(64.dp)
+                            )
+                            Spacer(modifier = modifier.height(16.dp))
+                            Text(text = "Order confirmed!")
+                            Text(text = "Your order has been placed successfully")
+                            Spacer(modifier = modifier.height(16.dp))
+                            Button(onClick = {
+                                onNavigateToHome()
+                                onDismiss()
+                            }) {
+                                Text(text = "Continue Shopping")
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+
     }
 }
 
