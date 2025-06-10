@@ -9,7 +9,7 @@ import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.use_case.product.GetBestPickProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetProductsByCategoryUseCase
 import com.sielehub.treasuremart.domain.use_case.product.GetSuperDealsProductsUseCase
-import com.sielehub.treasuremart.domain.use_case.product.search.GetSearchHistoryUseCase
+import com.sielehub.treasuremart.domain.use_case.search.GetSearchHistoryUseCase
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
