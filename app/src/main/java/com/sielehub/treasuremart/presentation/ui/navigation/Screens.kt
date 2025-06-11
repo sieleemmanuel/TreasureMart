@@ -54,7 +54,10 @@ sealed class Route {
     data object SuperDealsProducts : Route()
 
     @Serializable
-    data object Orders : Route()
+    data class Orders(val statusIndex: Int = 0) : Route()
+
+    @Serializable
+    data class OrderDetail(val orderID: Long) : Route()
 
     @Serializable
     data object Settings : Route()
