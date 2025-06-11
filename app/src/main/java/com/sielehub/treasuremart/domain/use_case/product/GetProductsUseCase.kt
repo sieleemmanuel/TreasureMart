@@ -9,9 +9,12 @@ import kotlinx.coroutines.flow.flow
 class GetProductsUseCase(private val storeRepositoryImpl: StoreRepositoryImpl) {
 
     operator fun invoke(productsQuery: String? = null): Flow<Resource<List<Product>>> = flow {
+        emit(Resource.Loading())
         try {
-            emit(Resource.Loading())
             val productsResult = storeRepositoryImpl.getProducts()
+            if (productsQuery.isNullOrEmpty()) {
+                emit(Resource.Success(productsResult))
+            }
             productsQuery?.let {
                 val filteredProducts = productsResult.filter { product ->
                     product.category.contains(productsQuery, ignoreCase = true)
@@ -19,8 +22,7 @@ class GetProductsUseCase(private val storeRepositoryImpl: StoreRepositoryImpl) {
                             || product.description.contains(productsQuery, ignoreCase = true)
                 }
                 emit(Resource.Success(filteredProducts))
-            } ?: emit(Resource.Success(productsResult))
-
+            }
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unknown error occurred"))
         }
