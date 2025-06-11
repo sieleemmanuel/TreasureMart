@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface OrderRepository {
 
-    suspend fun createOrder(order: Order): Boolean
+    suspend fun createOrder(order: Order): Long?
 
     suspend fun updateOrder(order: Order): Boolean
 

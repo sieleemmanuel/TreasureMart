@@ -13,7 +13,7 @@ class OrderRepositoryImpl(
     private val cartDao: CartDao,
     private val dataStoreManager: DataStoreManager
 ) : OrderRepository {
-    override suspend fun createOrder(order: Order): Boolean {
+    override suspend fun createOrder(order: Order): Long? {
         val isSuccessful = ordersDao.insertOrder(order) > 0
         if (isSuccessful) {
             val currentCart = cartDao.getCart(dataStoreManager.currentUserId.first()).first()
@@ -24,9 +24,9 @@ class OrderRepositoryImpl(
             }
             val updatedCart = currentCart?.copy(products = cartProducts ?: emptyList())
             updatedCart?.let { cartDao.updateCart(it.id, it.products) }
-            return true
+            return ordersDao.getOrder(order.orderId).first()?.orderId
         }
-        return false
+        return null
     }
 
     override suspend fun updateOrder(order: Order): Boolean {
