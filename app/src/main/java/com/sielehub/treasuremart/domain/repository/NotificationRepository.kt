@@ -5,10 +5,12 @@ import kotlinx.coroutines.flow.Flow
 
 interface NotificationRepository {
 
-    suspend fun insertNotification(notification: Notification)
+    suspend fun insertNotification(notification: Notification): Boolean
 
     suspend fun getNotifications(): Flow<List<Notification>>
 
-    suspend fun deleteNotification(id: Long)
+    suspend fun markNotificationAsRead(isRead: Boolean, id: Long): Boolean
+
+    suspend fun deleteNotification(id: Long): Boolean
 
 }
