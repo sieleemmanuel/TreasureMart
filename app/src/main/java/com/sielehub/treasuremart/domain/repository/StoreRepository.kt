@@ -1,6 +1,5 @@
 package com.sielehub.treasuremart.domain.repository
 
-import com.sielehub.treasuremart.domain.model.Notification
 import com.sielehub.treasuremart.domain.model.Product
 
 interface StoreRepository {
@@ -18,7 +17,5 @@ interface StoreRepository {
     suspend fun getCategories(): List<String>
 
     suspend fun getSearchedProducts(query: String): List<Product>
-
-    suspend fun getNotifications(): List<Notification>
 
 }

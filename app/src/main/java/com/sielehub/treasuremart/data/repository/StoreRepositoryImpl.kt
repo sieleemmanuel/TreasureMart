@@ -1,7 +1,6 @@
 package com.sielehub.treasuremart.data.repository
 
 import com.sielehub.treasuremart.data.local.database.StoreDao
-import com.sielehub.treasuremart.domain.model.Notification
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.StoreRepository
@@ -51,21 +50,5 @@ class StoreRepositoryImpl(
             it.title.contains(query, true) || it.description.contains(query, true)
         }
     }
-
-    override suspend fun getNotifications(): List<Notification> =
-        listOf(
-            Notification(
-                notifId = Long.MIN_VALUE,
-                message = "Order ahs been placed successfully and your product will be shipped as soon as possible"
-            ),
-            Notification(
-                notifId = Long.MIN_VALUE,
-                message = "Order ahs been placed successfully and your product will be shipped as soon as possible"
-            ),
-            Notification(
-                notifId = Long.MIN_VALUE,
-                message = "Order ahs been placed successfully and your product will be shipped as soon as possible"
-            ),
-        )
 
 }
