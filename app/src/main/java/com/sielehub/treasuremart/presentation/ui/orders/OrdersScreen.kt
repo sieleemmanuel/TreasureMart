@@ -1,6 +1,5 @@
 package com.sielehub.treasuremart.presentation.ui.orders
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,13 +10,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.ArrowBackIosNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,19 +26,19 @@ import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.sielehub.treasuremart.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sielehub.treasuremart.core.Constants
+import com.sielehub.treasuremart.core.composables.EmptyListUIState
 import org.koin.androidx.compose.koinViewModel
-import java.util.Date
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -48,19 +46,26 @@ fun OrdersScreen(
     modifier: Modifier = Modifier,
     ordersViewModel: OrdersViewModel = koinViewModel(),
     paddingValues: PaddingValues = PaddingValues(),
+    statusIndex: Int = 0,
     onNavigateBack: () -> Unit = {},
+    onNavigateToOrderDetail: (orderId: Long) -> Unit = {}
 ) {
-    var selectedTabIndex by remember { mutableIntStateOf(0) }
+    var selectedTabIndex by remember { mutableIntStateOf(statusIndex) }
     val tabItems = listOf(
         Constants.OrderStatus.TO_PAY,
         Constants.OrderStatus.TO_SHIP,
         Constants.OrderStatus.SHIPPED,
         Constants.OrderStatus.COMPLETED,
         Constants.OrderStatus.RETURNED,
-
-
-        )
-    val ordersState by ordersViewModel.ordersState.collectAsState()
+    )
+    val ordersState by ordersViewModel.ordersState.collectAsStateWithLifecycle()
+    val orders by remember {
+        derivedStateOf {
+            ordersState.orders.filter { order ->
+                order.orderStatus == tabItems[selectedTabIndex]
+            }
+        }
+    }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -88,9 +93,6 @@ fun OrdersScreen(
                 style = MaterialTheme.typography.titleLarge,
                 modifier = modifier.weight(.8f)
             )
-            /*IconButton(onClick = { *//*TODO*//* }) {
-                Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
-            }*/
         }
 
         ScrollableTabRow(
@@ -128,52 +130,20 @@ fun OrdersScreen(
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            items(items = listOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)) {
-                OrderCard()
-            }
-        }
-    }
-
-}
-
-@Composable
-fun OrderItemCard(
-    modifier: Modifier = Modifier,
-    item: Int
-) {
-    Column {
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = "Completed")
-            Text(text = Date().toString())
-        }
-        Row(
-            modifier = modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
-                contentDescription = null,
-                modifier = modifier.size(60.dp)
-            )
-            Spacer(modifier = modifier.width(10.dp))
-            Column(modifier = modifier.weight(1f)) {
-                Text(text = "Here goes product description with a max of two lines long")
-                Spacer(modifier = modifier.height(8.dp))
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = "$${item.plus(1)}.00")
-                    Text(text = "x1")
+            if (orders.isEmpty()) {
+                item {
+                    EmptyListUIState(
+                        icon = Icons.AutoMirrored.Rounded.ReceiptLong,
+                        description = "You have no orders in this category yet."
+                    )
                 }
             }
-
+            items(items = orders) { order ->
+                OrderCard(
+                    order = order,
+                    onNavigateToDetail = onNavigateToOrderDetail
+                )
+            }
         }
     }
 }

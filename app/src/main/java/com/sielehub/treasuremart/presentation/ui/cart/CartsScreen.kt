@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.sielehub.treasuremart.core.composables.EmptyListUIState
 import com.sielehub.treasuremart.presentation.base.MainViewModel
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.cart.component.CartCard
@@ -118,27 +119,9 @@ fun CartsScreen(
                 }
 
                 cartState.cart?.products.isNullOrEmpty() -> {
-                    Column(
-                        modifier = modifier
-                            .fillMaxWidth()
-                            .fillMaxHeight(1f),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.ShoppingCart,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onBackground,
-                            modifier = modifier.size(100.dp)
-                        )
-                        Spacer(modifier = modifier.height(10.dp))
-                        Text(
-                            text = "No products in cart yet. Add products to cart to see them here for checkout",
-                            textAlign = TextAlign.Center,
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = modifier.padding(24.dp)
-                        )
-                    }
+                    EmptyListUIState(
+
+                    )
                 }
 
                 else -> {
