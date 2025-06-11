@@ -71,16 +71,16 @@ fun AccountScreen(
     accountViewModel: AccountViewModel = koinViewModel(),
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    onNavigateToOrders: () -> Unit = {},
+    onNavigateToOrders: (statusIndex: Int) -> Unit = {},
     onNavigateToAddress: () -> Unit = {}
 ) {
     val logoutState by accountViewModel.logoutState.collectAsState()
     val orderCategories = listOf(
-        Pair(Icons.Default.Payments, "To pay"),
-        Pair(Icons.Default.Backpack, "To ship"),
-        Pair(Icons.Default.FireTruck, "Shipped"),
-        Pair(Icons.Outlined.Reviews, "To review"),
-        Pair(Icons.Default.ResetTv, "Returns")
+        Pair(Icons.Default.Payments, Constants.OrderStatus.TO_PAY),
+        Pair(Icons.Default.Backpack, Constants.OrderStatus.TO_SHIP),
+        Pair(Icons.Default.FireTruck, Constants.OrderStatus.SHIPPED),
+        Pair(Icons.Outlined.Reviews,  Constants.OrderStatus.COMPLETED),
+        Pair(Icons.Default.ResetTv, Constants.OrderStatus.RETURNED)
     )
     val services = listOf(
         Pair(Icons.Filled.LocationOn, "Address"),
@@ -151,7 +151,7 @@ fun AccountScreen(
                     modifier = modifier.padding(horizontal = 16.dp)
                 )
                 TextButton(
-                    onClick = onNavigateToOrders,
+                    onClick = { onNavigateToOrders(0) },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.onSurface
                     )
@@ -177,14 +177,14 @@ fun AccountScreen(
                     .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                orderCategories.forEach { category ->
+                orderCategories.forEachIndexed { index, category ->
                     OrderCategoryItem(
                         modifier = modifier
                             .weight(1f)
                             .height(72.dp),
                         category = category,
                         onClick = {
-
+                            onNavigateToOrders(index)
                         }
                     )
                 }
