@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sielehub.treasuremart.R
 import com.sielehub.treasuremart.presentation.common.TopBar
-import com.sielehub.treasuremart.core.composables.ProductCardGrid
+import com.sielehub.treasuremart.presentation.common.ProductCardGrid
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

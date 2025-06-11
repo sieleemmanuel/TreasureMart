@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.core.composables
+package com.sielehub.treasuremart.presentation.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -27,7 +27,7 @@ fun EmptyListUIState(
     modifier: Modifier = Modifier,
     icon: ImageVector = Icons.Outlined.ShoppingCart,
     description: String = "No products in cart yet. Add products to cart to see them here for checkout"
-    ) {
+) {
     Column(
         modifier = modifier
             .fillMaxWidth()

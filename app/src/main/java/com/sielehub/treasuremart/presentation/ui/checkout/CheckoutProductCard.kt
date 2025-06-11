@@ -31,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.core.Constants
 import com.sielehub.treasuremart.domain.model.CartProduct
-import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import com.sielehub.treasuremart.presentation.util.shimmerEffect
 
@@ -39,7 +38,7 @@ import com.sielehub.treasuremart.presentation.util.shimmerEffect
 @Composable
 fun CheckoutProductCard(
     modifier: Modifier = Modifier,
-    cartProduct: CartProduct  = Constants.cartProducts().first(),
+    cartProduct: CartProduct = Constants.cartProducts().first(),
     onClick: (productId: Int) -> Unit = {},
 ) {
     Card(
@@ -88,7 +87,7 @@ fun CheckoutProductCard(
                     modifier = modifier
                         .fillMaxWidth()
                         .padding(top = 10.dp),
-                    text = cartProduct.title?:"",
+                    text = cartProduct.title ?: "",
                     style = MaterialTheme.typography.labelMedium,
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 2
@@ -100,7 +99,7 @@ fun CheckoutProductCard(
                 ) {
                     Text(
                         modifier = modifier.padding(PaddingValues(horizontal = 4.dp)),
-                        text = (cartProduct.price?:0.0).formatedCurrency(),
+                        text = (cartProduct.price ?: 0.0).formatedCurrency(),
                         style = MaterialTheme.typography.titleSmall,
                     )
                     Text(

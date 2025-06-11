@@ -75,8 +75,8 @@ import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.DealsProductCard
 import com.sielehub.treasuremart.presentation.common.DealsProductCardShimmer
 import com.sielehub.treasuremart.presentation.common.TopBar
-import com.sielehub.treasuremart.core.composables.ProductCardGrid
-import com.sielehub.treasuremart.core.composables.ProductCardGridShimmer
+import com.sielehub.treasuremart.presentation.common.ProductCardGrid
+import com.sielehub.treasuremart.presentation.common.ProductCardGridShimmer
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductsByCategoryState
 import com.sielehub.treasuremart.presentation.ui.theme.TreasureMartTheme
 import com.sielehub.treasuremart.presentation.util.shimmerEffect

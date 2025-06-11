@@ -79,7 +79,7 @@ fun AccountScreen(
         Pair(Icons.Default.Payments, Constants.OrderStatus.TO_PAY),
         Pair(Icons.Default.Backpack, Constants.OrderStatus.TO_SHIP),
         Pair(Icons.Default.FireTruck, Constants.OrderStatus.SHIPPED),
-        Pair(Icons.Outlined.Reviews,  Constants.OrderStatus.COMPLETED),
+        Pair(Icons.Outlined.Reviews, Constants.OrderStatus.COMPLETED),
         Pair(Icons.Default.ResetTv, Constants.OrderStatus.RETURNED)
     )
     val services = listOf(

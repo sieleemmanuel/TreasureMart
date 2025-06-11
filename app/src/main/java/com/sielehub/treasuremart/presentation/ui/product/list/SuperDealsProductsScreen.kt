@@ -52,8 +52,8 @@ import androidx.compose.ui.unit.dp
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.dashboard.CountDownTimer
 import com.sielehub.treasuremart.presentation.ui.dashboard.DashboardViewModel
-import com.sielehub.treasuremart.core.composables.ProductCardGrid
-import com.sielehub.treasuremart.core.composables.ProductCardGridShimmer
+import com.sielehub.treasuremart.presentation.common.ProductCardGrid
+import com.sielehub.treasuremart.presentation.common.ProductCardGridShimmer
 import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)

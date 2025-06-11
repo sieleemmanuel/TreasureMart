@@ -46,7 +46,7 @@ import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.checkout.AddressCard
 import com.sielehub.treasuremart.presentation.ui.checkout.CheckoutProductCard
 import com.sielehub.treasuremart.presentation.ui.orders.OrdersViewModel
-import com.sielehub.treasuremart.core.composables.ProductCardListShimmer
+import com.sielehub.treasuremart.presentation.common.ProductCardListShimmer
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import org.koin.androidx.compose.koinViewModel
 
@@ -157,47 +157,47 @@ fun OrderDetailScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.End
         ) {
-                Box(
-                    modifier = modifier
-                        .clickable {
-                            //ordersViewModel.deleteOrder(orderState.order!!.orderId)
-                        }
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.error,
-                            shape = RoundedCornerShape(24.dp)
-                        )) {
-                    Text(
-                        text = "Delete",
-                        color = MaterialTheme.colorScheme.error,
-                        modifier = Modifier
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
+            Box(
+                modifier = modifier
+                    .clickable {
+                        //ordersViewModel.deleteOrder(orderState.order!!.orderId)
+                    }
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.error,
+                        shape = RoundedCornerShape(24.dp)
+                    )) {
+                Text(
+                    text = "Delete",
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                )
+            }
+            Spacer(modifier = modifier.width(8.dp))
+            Box(
+                modifier = modifier
+                    .clickable {
+                        onTrackOrder(orderState.order!!.orderId)
+                    }
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(24.dp)
                     )
-                }
-                Spacer(modifier = modifier.width(8.dp))
-                Box(
-                    modifier = modifier
-                        .clickable {
-                            onTrackOrder(orderState.order!!.orderId)
-                        }
-                        .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(24.dp)
-                        )
-                ) {
-                    Text(
-                        text = "Track Order",
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(24.dp)
                     )
-                }
+            ) {
+                Text(
+                    text = "Track Order",
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
             }
         }
+    }
 }
 
 @Preview(showBackground = true)

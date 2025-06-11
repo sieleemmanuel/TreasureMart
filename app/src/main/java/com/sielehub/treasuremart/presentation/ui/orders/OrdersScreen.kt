@@ -37,7 +37,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.sielehub.treasuremart.core.Constants
-import com.sielehub.treasuremart.core.composables.EmptyListUIState
+import com.sielehub.treasuremart.presentation.common.EmptyListUIState
 import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true, showSystemUi = true)

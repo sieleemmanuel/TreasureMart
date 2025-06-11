@@ -63,7 +63,7 @@ import com.sielehub.treasuremart.domain.model.Geolocation
 import com.sielehub.treasuremart.domain.model.Order
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.cart.component.SelectableRow
-import com.sielehub.treasuremart.core.composables.ProductCardListShimmer
+import com.sielehub.treasuremart.presentation.common.ProductCardListShimmer
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import org.koin.androidx.compose.koinViewModel
 
@@ -529,9 +529,9 @@ fun PlacingOrderDialog(
                             Spacer(modifier = modifier.height(16.dp))
                             Button(
                                 onClick = {
-                                onNavigateToProducts()
-                                onDismiss()
-                            }) {
+                                    onNavigateToProducts()
+                                    onDismiss()
+                                }) {
                                 Text(text = "Continue Shopping")
                             }
                         }

@@ -84,7 +84,7 @@ import com.sielehub.treasuremart.presentation.base.MainViewModel
 import com.sielehub.treasuremart.presentation.common.BadgedIcon
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.product.component.ReviewCard
-import com.sielehub.treasuremart.core.composables.StarRatingBar
+import com.sielehub.treasuremart.presentation.common.StarRatingBar
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import com.sielehub.treasuremart.presentation.util.shimmerEffect
 import kotlinx.coroutines.android.awaitFrame

@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.sielehub.treasuremart.presentation.ui.navigation.Route
-import com.sielehub.treasuremart.core.composables.ProductCardGrid
+import com.sielehub.treasuremart.presentation.common.ProductCardGrid
 import com.sielehub.treasuremart.presentation.ui.product.list.ProductListState
 import java.util.Locale
 
