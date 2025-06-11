@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.flow
 class CreateCartUseCase(private val cartRepository: CartRepository) {
 
     operator fun invoke(cart: Cart): Flow<Resource<Cart?>> = flow {
+        emit(Resource.Loading())
         try {
-            emit(Resource.Loading())
             emit(Resource.Success(data = cartRepository.createCart(cart)))
         } catch (e: Exception) {
             emit(Resource.Error(e.localizedMessage ?: "An unknown error occurred"))
