@@ -37,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -51,6 +52,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -61,7 +63,7 @@ import com.sielehub.treasuremart.domain.model.Geolocation
 import com.sielehub.treasuremart.domain.model.Order
 import com.sielehub.treasuremart.presentation.common.TopBar
 import com.sielehub.treasuremart.presentation.ui.cart.component.SelectableRow
-import com.sielehub.treasuremart.presentation.ui.product.component.ProductCardListShimmer
+import com.sielehub.treasuremart.core.composables.ProductCardListShimmer
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import org.koin.androidx.compose.koinViewModel
 
@@ -71,13 +73,18 @@ fun CheckoutScreen(
     paddingValues: PaddingValues = PaddingValues(),
     checkoutViewModel: CheckoutViewModel = koinViewModel(),
     onNavigateBack: () -> Unit = {},
+    onNavigateToProducts: () -> Unit = {},
+    onEditAddress: () -> Unit = {},
     onNavigateToProductDetail: (id: Int) -> Unit = {},
-    onNavigateToHome: () -> Unit = {},
-    onEditAddress: () -> Unit = {}
+    onNavToOrderDetails: (orderId: Long) -> Unit = {}
 ) {
     val context = LocalContext.current
     val density = LocalDensity.current
-    val paymentMethods = listOf("VISA", "Google Pay")
+    val paymentMethods = listOf(
+        Constants.PaymentMethod.VISA,
+        Constants.PaymentMethod.GOOGLE_PAY,
+        Constants.PaymentMethod.CASH_ON_DELIVERY
+    )
     var selectedPaymentMethod by rememberSaveable { mutableStateOf("") }
     var contentPaddingBottom by remember { mutableStateOf(56.dp) }
     val checkoutProductsState by checkoutViewModel.checkoutProductsState.collectAsState()
@@ -90,6 +97,13 @@ fun CheckoutScreen(
     }
     val placeOrderState by checkoutViewModel.placeOrderState.collectAsState()
     var showProgressDialog by remember { mutableStateOf(false) }
+    val orderStatus = listOf(
+        Constants.OrderStatus.TO_PAY,
+        Constants.OrderStatus.TO_SHIP,
+        Constants.OrderStatus.SHIPPED,
+        Constants.OrderStatus.COMPLETED,
+        Constants.OrderStatus.RETURNED,
+    ).random()
     Box(modifier = modifier.fillMaxSize()) {
         Column(
             modifier = modifier.fillMaxSize()
@@ -198,12 +212,12 @@ fun CheckoutScreen(
                 onClick = {
                     if (selectedAddress != null && selectedPaymentMethod.isNotEmpty()) {
                         val order = Order(
-                            orderId = 1,
                             address = selectedAddress!!,
                             orderItems = checkoutProductsState.products,
                             orderTotal = subTotal + (selectedAddress!!.shippingFee ?: 0.00),
                             orderDate = "2023-04-01",
-                            orderStatus = Constants.OrderStatus.TO_PAY
+                            orderStatus = orderStatus,
+                            paymentMethod = selectedPaymentMethod
                         )
                         checkoutViewModel.placeOrder(order)
                         showProgressDialog = true
@@ -234,14 +248,18 @@ fun CheckoutScreen(
             visible = showProgressDialog,
             enter = slideInVertically(),
             exit = slideOutVertically(),
-        ){
+        ) {
             PlacingOrderDialog(
                 placeOrderState = placeOrderState,
                 onDismiss = {
                     showProgressDialog = false
                     onNavigateBack()
                 },
-                onNavigateToHome = onNavigateToHome
+                onNavigateToProducts = onNavigateToProducts,
+                onNavigateToDetails = {
+                    showProgressDialog = false
+                    onNavToOrderDetails(it)
+                }
             )
         }
     }
@@ -327,7 +345,11 @@ private fun SubTotalCard(
 @Composable
 private fun PaymentMethodsCard(
     modifier: Modifier = Modifier,
-    paymentMethods: List<String> = listOf("VISA", "Google Pay"),
+    paymentMethods: List<String> = listOf(
+        Constants.PaymentMethod.VISA,
+        Constants.PaymentMethod.GOOGLE_PAY,
+        Constants.PaymentMethod.CASH_ON_DELIVERY
+    ),
     selectedPaymentMethod: String,
     onPaymentMethodSelected: (String) -> Unit = {}
 ) {
@@ -359,7 +381,7 @@ private fun PaymentMethodsCard(
 
 @Preview(showBackground = true)
 @Composable
-private fun AddressCard(
+fun AddressCard(
     modifier: Modifier = Modifier,
     onEditAddress: () -> Unit = {},
     defaultAddress: Address = Address(
@@ -429,10 +451,11 @@ fun PlacingOrderDialog(
     placeOrderState: PlaceOrderState = PlaceOrderState(
         isLoading = false,
         error = "",
-        isSuccessful = true
+        orderID = System.currentTimeMillis()
     ),
     onDismiss: () -> Unit = {},
-    onNavigateToHome: () -> Unit = {}
+    onNavigateToProducts: () -> Unit = {},
+    onNavigateToDetails: (orderId: Long) -> Unit = {}
 ) {
     Dialog(
         onDismissRequest = onDismiss
@@ -486,11 +509,27 @@ fun PlacingOrderDialog(
                                     .size(64.dp)
                             )
                             Spacer(modifier = modifier.height(16.dp))
-                            Text(text = "Order confirmed!")
-                            Text(text = "Your order has been placed successfully")
+                            Text(
+                                text = "Order confirmed!",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold
+                            )
                             Spacer(modifier = modifier.height(16.dp))
-                            Button(onClick = {
-                                onNavigateToHome()
+                            Text(
+                                text = "Your order has been placed successfully",
+                                textAlign = TextAlign.Center,
+                            )
+                            placeOrderState.orderID?.let { placeOrderOrderId ->
+                                TextButton(
+                                    onClick = { onNavigateToDetails(placeOrderOrderId) }
+                                ) {
+                                    Text(text = "View Order")
+                                }
+                            }
+                            Spacer(modifier = modifier.height(16.dp))
+                            Button(
+                                onClick = {
+                                onNavigateToProducts()
                                 onDismiss()
                             }) {
                                 Text(text = "Continue Shopping")
@@ -499,16 +538,8 @@ fun PlacingOrderDialog(
                     }
                 }
             }
-
         }
-
-
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun CheckoutScreenPreview() {
-    CheckoutScreen()
-}
 
