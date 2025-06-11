@@ -9,12 +9,14 @@ import com.sielehub.treasuremart.data.local.database.StoreDb
 import com.sielehub.treasuremart.data.network.ApiServiceImp
 import com.sielehub.treasuremart.data.repository.AuthRepositoryImpl
 import com.sielehub.treasuremart.data.repository.CartRepositoryImpl
+import com.sielehub.treasuremart.data.repository.NotificationRepositoryImpl
 import com.sielehub.treasuremart.data.repository.OrderRepositoryImpl
 import com.sielehub.treasuremart.data.repository.StoreRepositoryImpl
 import com.sielehub.treasuremart.data.repository.WishRepositoryImpl
 import com.sielehub.treasuremart.domain.network.ApiService
 import com.sielehub.treasuremart.domain.repository.AuthRepository
 import com.sielehub.treasuremart.domain.repository.CartRepository
+import com.sielehub.treasuremart.domain.repository.NotificationRepository
 import com.sielehub.treasuremart.domain.repository.OrderRepository
 import com.sielehub.treasuremart.domain.repository.StoreRepository
 import com.sielehub.treasuremart.domain.repository.WishRepository
@@ -35,6 +37,10 @@ import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartProductQuantityU
 import com.sielehub.treasuremart.domain.use_case.cart.UpdateCartProductsUseCase
 import com.sielehub.treasuremart.domain.use_case.categories.GetCategoriesUseCase
 import com.sielehub.treasuremart.domain.use_case.checkout.PlaceOrderUseCase
+import com.sielehub.treasuremart.domain.use_case.notifications.DeleteNotificationUseCase
+import com.sielehub.treasuremart.domain.use_case.notifications.GetNotificationsUseCase
+import com.sielehub.treasuremart.domain.use_case.notifications.InsertNotificationUseCase
+import com.sielehub.treasuremart.domain.use_case.notifications.UpdateReadStatusUseCase
 import com.sielehub.treasuremart.domain.use_case.orders.DeleteOrderUseCase
 import com.sielehub.treasuremart.domain.use_case.orders.GetOrderUseCase
 import com.sielehub.treasuremart.domain.use_case.orders.GetOrdersUseCase
@@ -82,11 +88,29 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-object AppModule {
+object AppModules {
     private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
 
     @OptIn(ExperimentalSerializationApi::class)
     val appModule = module {
+        single<DataStore<Preferences>> { androidContext().dataStore }
+        single { StoreDb.getInstance(androidContext()).storeDao }
+
+        factory { DataStoreManager(get()) }
+
+        factory { GetCategoriesUseCase(get()) }
+
+        factory { GetAppThemeUseCase(get()) }
+        factory { SetAppThemeUseCase(get()) }
+
+        viewModelOf(::MainViewModel)
+        viewModelOf(::OnBoardingViewModel)
+        viewModelOf(::DashboardViewModel)
+        viewModelOf(::SettingsViewModel)
+    }
+
+    @OptIn(ExperimentalSerializationApi::class)
+    val networkModule = module {
         single {
             HttpClient(Android) {
                 install(Logging) {
@@ -107,19 +131,26 @@ object AppModule {
                 }
             }
         }
-        single<DataStore<Preferences>> { androidContext().dataStore }
-        single { StoreDb.getInstance(androidContext()).storeDao }
-        single { StoreDb.getInstance(androidContext()).wishDao }
-        single { StoreDb.getInstance(androidContext()).cartDao }
-        single { StoreDb.getInstance(androidContext()).ordersDao }
-        factory { DataStoreManager(get()) }
-
         singleOf(::ApiServiceImp) { bind<ApiService>() }
+    }
+
+    val authModule = module {
         singleOf(::AuthRepositoryImpl) { bind<AuthRepository>() }
+        factory { GetUserUseCase(get()) }
+        factory { CreateUserUseCase(get()) }
+        factory { UpdateCurrentUserIdUseCase(get(), get()) }
+        factory { GetCurrentUserIdUseCase(get()) }
+
+        factory { UpdateUserUseCase(get()) }
+        factory { LoginUseCase(get()) }
+
+        factory { LogoutUseCase(get()) }
+        viewModelOf(::AuthViewModel)
+        viewModelOf(::AccountViewModel)
+    }
+
+    val productsModule = module {
         singleOf(::StoreRepositoryImpl) { bind<StoreRepository>() }
-        singleOf(::WishRepositoryImpl) { bind<WishRepository>() }
-        singleOf(::CartRepositoryImpl) { bind<CartRepository>() }
-        singleOf(::OrderRepositoryImpl) { bind<OrderRepository>() }
 
         factory { GetProductsUseCase(get()) }
         factory { GetProductUseCase(get()) }
@@ -127,18 +158,32 @@ object AppModule {
         factory { GetSuperDealsProductsUseCase(get()) }
         factory { GetBestPickProductsUseCase(get()) }
 
-        factory { GetWishListUseCase(get()) }
-        factory { RemoveFromWishListUseCase(get()) }
-        factory { AddToWishListUseCase(get()) }
-        factory { CheckIsWishUseCase(get()) }
-
-
         factory { GetSearchSuggestionsUseCase(get()) }
         factory { GetSearchHistoryUseCase(get()) }
         factory { AddSearchHistoryUseCase(get()) }
         factory { ClearSearchHistoryUseCase(get()) }
 
-        factory { GetCategoriesUseCase(get()) }
+        viewModelOf(::ProductsViewModel)
+        viewModelOf(::ProductDetailViewModel)
+        viewModelOf(::SearchViewModel)
+        viewModelOf(::CategoriesViewModel)
+    }
+
+    val wishModule = module {
+        single { StoreDb.getInstance(androidContext()).wishDao }
+        singleOf(::WishRepositoryImpl) { bind<WishRepository>() }
+        factory { GetWishListUseCase(get()) }
+        factory { RemoveFromWishListUseCase(get()) }
+        factory { AddToWishListUseCase(get()) }
+        factory { CheckIsWishUseCase(get()) }
+
+        viewModelOf(::WishListViewModel)
+
+    }
+
+    val cartModule = module {
+        single { StoreDb.getInstance(androidContext()).cartDao }
+        singleOf(::CartRepositoryImpl) { bind<CartRepository>() }
 
         factory { GetCartsUseCase(get()) }
         factory { GetCartUseCase(get()) }
@@ -149,37 +194,30 @@ object AppModule {
         factory { AddProductToCartUseCase(get()) }
         factory { CheckCartProductUseCase(get()) }
 
+        viewModelOf(::CartViewModel)
+    }
+
+    val ordersModule = module {
+        single { StoreDb.getInstance(androidContext()).ordersDao }
+        singleOf(::OrderRepositoryImpl) { bind<OrderRepository>() }
+
         factory { PlaceOrderUseCase(get()) }
         factory { GetOrdersUseCase(get()) }
         factory { GetOrderUseCase(get()) }
         factory { DeleteOrderUseCase(get()) }
 
-        factory { GetUserUseCase(get()) }
-        factory { CreateUserUseCase(get()) }
-        factory { UpdateCurrentUserIdUseCase(get(), get()) }
-        factory { GetCurrentUserIdUseCase(get()) }
-
-        factory { UpdateUserUseCase(get()) }
-        factory { LoginUseCase(get()) }
-
-        factory { LogoutUseCase(get()) }
-
-        factory { GetAppThemeUseCase(get()) }
-        factory { SetAppThemeUseCase(get()) }
-
-        viewModelOf(::MainViewModel)
-        viewModelOf(::OnBoardingViewModel)
-        viewModelOf(::AuthViewModel)
-        viewModelOf(::ProductsViewModel)
-        viewModelOf(::ProductDetailViewModel)
-        viewModelOf(::CartViewModel)
         viewModelOf(::CheckoutViewModel)
         viewModelOf(::OrdersViewModel)
-        viewModelOf(::CategoriesViewModel)
-        viewModelOf(::AccountViewModel)
-        viewModelOf(::DashboardViewModel)
-        viewModelOf(::WishListViewModel)
-        viewModelOf(::SearchViewModel)
-        viewModelOf(::SettingsViewModel)
+    }
+
+    val notificationModule = module {
+        single { StoreDb.getInstance(androidContext()).notificationsDao }
+        singleOf(::NotificationRepositoryImpl) { bind<NotificationRepository>() }
+        
+        factory { GetNotificationsUseCase(get()) }
+        factory { InsertNotificationUseCase(get()) }
+        factory { UpdateReadStatusUseCase(get()) }
+        factory { DeleteNotificationUseCase(get()) }
+
     }
 }
