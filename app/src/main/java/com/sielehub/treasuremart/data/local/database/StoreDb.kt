@@ -6,6 +6,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.sielehub.treasuremart.domain.model.Cart
+import com.sielehub.treasuremart.domain.model.Notification
 import com.sielehub.treasuremart.domain.model.Order
 import com.sielehub.treasuremart.domain.model.Product
 import com.sielehub.treasuremart.domain.model.WishProduct
@@ -15,7 +16,8 @@ import com.sielehub.treasuremart.domain.model.WishProduct
         Product::class,
         WishProduct::class,
         Cart::class,
-        Order::class
+        Order::class,
+        Notification::class
     ],
     version = 1,
     exportSchema = true
@@ -26,6 +28,7 @@ abstract class StoreDb : RoomDatabase() {
     abstract val wishDao: WishDao
     abstract val cartDao: CartDao
     abstract val ordersDao: OrdersDao
+    abstract val notificationsDao: NotificationsDao
 
     companion object {
         const val DATABASE_NAME = "store_db"
@@ -37,5 +40,5 @@ abstract class StoreDb : RoomDatabase() {
             ).build()
         }
     }
-    
+
 }
