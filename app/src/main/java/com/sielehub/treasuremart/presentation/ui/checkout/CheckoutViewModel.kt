@@ -120,7 +120,7 @@ class CheckoutViewModel(
             placeOrderUseCase(order).collectLatest { result ->
                 when (result) {
                     is Resource.Success -> {
-                        _placeOrderState.value = PlaceOrderState(isSuccessful = true)
+                        _placeOrderState.value = PlaceOrderState(orderID = result.data?.orderId)
                         updateCartProductsUseCase
                     }
 

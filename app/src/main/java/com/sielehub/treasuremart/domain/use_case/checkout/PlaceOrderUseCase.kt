@@ -15,7 +15,7 @@ class PlaceOrderUseCase(
         delay(4000)
         try {
             val result = orderRepository.createOrder(order)
-            if (result) {
+            if (result != null) {
                 emit(Resource.Success(order))
             } else {
                 emit(Resource.Error("Failed to place order"))
