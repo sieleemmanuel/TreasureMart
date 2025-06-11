@@ -30,6 +30,8 @@ import com.sielehub.treasuremart.presentation.ui.notifications.NotificationsScre
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingScreen
 import com.sielehub.treasuremart.presentation.ui.onboarding.OnBoardingViewModel
 import com.sielehub.treasuremart.presentation.ui.orders.OrdersScreen
+import com.sielehub.treasuremart.presentation.ui.orders.OrdersViewModel
+import com.sielehub.treasuremart.presentation.ui.orders.detail.OrderDetailScreen
 import com.sielehub.treasuremart.presentation.ui.product.categories.CategoriesScreen
 import com.sielehub.treasuremart.presentation.ui.product.categories.CategoryListState
 import com.sielehub.treasuremart.presentation.ui.product.detail.ProductDetailScreen
@@ -52,6 +54,7 @@ fun Navigation(
     mainViewModel: MainViewModel = koinViewModel(),
     cartViewModel: CartViewModel = koinViewModel(),
     wishListViewModel: WishListViewModel = koinViewModel(),
+    ordersViewModel: OrdersViewModel = koinViewModel(),
     navController: NavHostController,
     paddingValues: PaddingValues,
 ) {
@@ -178,8 +181,25 @@ fun Navigation(
             )
         }
         composable<Route.Orders> {
+            val args = it.toRoute<Route.Orders>()
             OrdersScreen(
                 paddingValues = paddingValues,
+                statusIndex = args.statusIndex,
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                ordersViewModel = ordersViewModel,
+                onNavigateToOrderDetail = {
+                    navController.navigate(Route.OrderDetail(it))
+                }
+            )
+        }
+        composable<Route.OrderDetail> {
+            val args = it.toRoute<Route.OrderDetail>()
+            OrderDetailScreen(
+                ordersViewModel = ordersViewModel,
+                paddingValues = paddingValues,
+                orderId = args.orderID,
                 onNavigateBack = {
                     navController.popBackStack()
                 }
@@ -194,10 +214,17 @@ fun Navigation(
                 onEditAddress = {
                     navController.navigate(Route.ShippingAddress)
                 },
-                onNavigateToHome = {
-                    navController.navigate(Route.Dashboard) {
-                        popUpTo(Route.Dashboard) {
-                            inclusive = true
+                onNavigateToProductDetail = {
+                    navController.navigate(Route.ProductDetail(it)) {
+                        popUpTo(Route.ProductDetail) {
+                            inclusive = false
+                        }
+                    }
+                },
+                onNavToOrderDetails = {
+                    navController.navigate(Route.Products) {
+                        popUpTo(Route.Products) {
+                            inclusive = false
                         }
                     }
                 }
@@ -223,7 +250,7 @@ fun Navigation(
                     navController.navigate(Route.Settings)
                 },
                 onNavigateToOrders = {
-                    navController.navigate(Route.Orders)
+                    navController.navigate(Route.Orders(it))
                 },
                 onNavigateToAddress = {
                     navController.navigate(Route.ShippingAddress)
