@@ -12,5 +12,6 @@ data class Order(
     val orderItems: List<CartProduct>,
     val orderTotal: Double,
     val orderDate: String,
-    val orderStatus: String
+    val orderStatus: String,
+    val paymentMethod: String
 )
