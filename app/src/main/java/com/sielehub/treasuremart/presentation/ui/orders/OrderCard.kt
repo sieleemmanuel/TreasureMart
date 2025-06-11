@@ -28,38 +28,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.SubcomposeAsyncImage
 import com.sielehub.treasuremart.core.Constants
-import com.sielehub.treasuremart.domain.model.Address
-import com.sielehub.treasuremart.domain.model.Geolocation
 import com.sielehub.treasuremart.domain.model.Order
 import com.sielehub.treasuremart.presentation.util.formatedCurrency
 import com.sielehub.treasuremart.presentation.util.shimmerEffect
-import java.time.LocalDate
 
 @Preview(showBackground = true)
 @Composable
 fun OrderCard(
     modifier: Modifier = Modifier,
-    order: Order = Order(
-        orderId = 179090630039539L,
-        address = Address(
-            city = "Pretoria",
-            number = 123456789,
-            street = "Address 1",
-            geolocation = Geolocation("123.456", "789.012"),
-            zipcode = "12345",
-            shippingFee = 258.00,
-            isDefault = true
-        ),
-        orderItems = Constants.cartProducts().take(2),
-        orderTotal = 1235.00,
-        orderDate = LocalDate.now().toString(),
-        orderStatus = Constants.OrderStatus.SHIPPED
-    )
+    order: Order = Constants.order,
+    onNavigateToDetail: (Long) -> Unit = {},
+    onTrackOrder: (Long) -> Unit = {},
+    onDeleteOrder: (Long) -> Unit = {}
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .background(color = MaterialTheme.colorScheme.surfaceContainer)
+            .clickable {
+                onNavigateToDetail(order.orderId)
+            }
     ) {
         Row(
             modifier = modifier
@@ -123,7 +111,8 @@ fun OrderCard(
         HorizontalDivider(
             color = MaterialTheme.colorScheme.background,
             modifier = modifier
-            .padding(horizontal = 8.dp))
+                .padding(horizontal = 8.dp)
+        )
         Spacer(modifier = modifier.height(8.dp))
         Row(
             modifier = modifier
@@ -142,17 +131,21 @@ fun OrderCard(
         }
         Spacer(modifier = modifier.height(8.dp))
         Row(
-            modifier = modifier.fillMaxWidth()
+            modifier = modifier
+                .fillMaxWidth()
                 .padding(horizontal = 8.dp),
             horizontalArrangement = Arrangement.End
         ) {
-            Box(modifier = modifier
-                .clickable { /*TODO*/ }
-                .border(
-                    1.dp,
-                    MaterialTheme.colorScheme.error,
-                    shape = RoundedCornerShape(24.dp)
-                )) {
+            Box(
+                modifier = modifier
+                    .clickable {
+                        onDeleteOrder(order.orderId)
+                    }
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.error,
+                        shape = RoundedCornerShape(24.dp)
+                    )) {
                 Text(
                     text = "Delete",
                     color = MaterialTheme.colorScheme.error,
@@ -163,21 +156,26 @@ fun OrderCard(
                 )
             }
             Spacer(modifier = modifier.width(8.dp))
-            Box(modifier = modifier
-                .clickable { /*TODO*/ }
-                .border(
-                    1.dp,
-                    MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(24.dp)
-                )
-                .background(
-                    color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(24.dp)
-                )
+            Box(
+                modifier = modifier
+                    .clickable {
+                        onTrackOrder(order.orderId)
+                    }
+                    .border(
+                        1.dp,
+                        MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(24.dp)
+                    )
+                    .background(
+                        color = MaterialTheme.colorScheme.primary,
+                        shape = RoundedCornerShape(24.dp)
+                    )
             ) {
-                Text(text = "Track Order",
+                Text(
+                    text = "Track Order",
                     color = MaterialTheme.colorScheme.onPrimary,
-                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp))
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                )
             }
         }
         Spacer(modifier = modifier.height(8.dp))
