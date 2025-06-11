@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.sielehub.treasuremart.core.Resource
 import com.sielehub.treasuremart.domain.use_case.orders.GetOrderUseCase
 import com.sielehub.treasuremart.domain.use_case.orders.GetOrdersUseCase
-import com.sielehub.treasuremart.presentation.ui.checkout.PlaceOrderState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,27 +24,43 @@ class OrdersViewModel(
     val orderState: StateFlow<OrderState> = _orderState.asStateFlow()
 
     fun getOrders() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
+            getOrdersUseCase().collectLatest { result ->
+                when (result) {
+                    is Resource.Success -> {
+                        _ordersState.value = OrdersState(orders = result.data ?: emptyList())
+                    }
 
+                    is Resource.Error -> {
+                        _ordersState.value = OrdersState(
+                            error = result.message ?: "An unknown error occurred"
+                        )
+                    }
+
+                    is Resource.Loading -> {
+                        _ordersState.value = OrdersState(isLoading = true)
+                    }
+                }
+            }
         }
     }
 
     fun getOrder(orderId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            getOrdersUseCase().collectLatest { result ->
+            getOrderUseCase(orderId).collectLatest { result ->
                 when (result) {
                     is Resource.Success -> {
-                        _placeOrderState.value = PlaceOrderState(isSuccessful = true)
-                        updateCartProductsUseCase
+                        _orderState.value = OrderState(order = result.data)
                     }
 
                     is Resource.Error -> {
-                        _placeOrderState.value =
-                            PlaceOrderState(error = result.message ?: "An unknown error occurred")
+                        _orderState.value = OrderState(
+                            error = result.message ?: "An unknown error occurred"
+                        )
                     }
 
                     is Resource.Loading -> {
-                        _placeOrderState.value = PlaceOrderState(isLoading = true)
+                        _orderState.value = OrderState(isLoading = true)
                     }
                 }
             }
@@ -53,9 +68,7 @@ class OrdersViewModel(
     }
 
     init {
-        getCheckoutProducts()
-        getSubtotalAmount()
-        getAddresses()
+        getOrders()
     }
 
 }
