@@ -19,9 +19,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.sielehub.treasuremart.R
+import com.sielehub.treasuremart.core.composables.StarRatingBar
 
+@Preview(showBackground = true)
 @Composable
-fun ReviewCard(modifier: Modifier = Modifier, rating: Float) {
+fun ReviewCard(
+    modifier: Modifier = Modifier,
+    rating: Float = 4f,
+    ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
@@ -54,10 +59,4 @@ fun ReviewCard(modifier: Modifier = Modifier, rating: Float) {
         }
 
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun ReviewCardPreview() {
-    ReviewCard(rating = 4f)
 }

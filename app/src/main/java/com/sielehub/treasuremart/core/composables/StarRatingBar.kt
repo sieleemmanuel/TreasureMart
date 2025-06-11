@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.ui.product.component
+package com.sielehub.treasuremart.core.composables
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

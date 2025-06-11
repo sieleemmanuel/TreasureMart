@@ -1,4 +1,4 @@
-package com.sielehub.treasuremart.presentation.ui.product.component
+package com.sielehub.treasuremart.core.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
