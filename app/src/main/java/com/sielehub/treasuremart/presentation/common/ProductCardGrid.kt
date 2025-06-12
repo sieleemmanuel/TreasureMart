@@ -159,8 +159,3 @@ fun ProductCardGridShimmer(
     }
 }
 
-@Preview(showBackground = false)
-@Composable
-fun ProductCardPreview() {
-    ProductCardGrid(product = Product()) {}
-}
